@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>VPN خودکار با تونل‌زنی هوشمند</title>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f4f4f2;--surface:#fff;--border:#dcdcd8;--text:#141416;--text2:#4a4a50;--accent:#0e7490;--on-accent:#fff;--code-bg:#0e0e10;--code:#d6f5fb;--warn:#92400e;--warn-bg:#fef3c7;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0e0e10;--surface:#18181c;--border:#2a2a31;--text:#e8e8ec;--text2:#a0a0a8;--accent:#22d3ee;--on-accent:#04121a;--code-bg:#08080a;--code:#bdeff8;--warn:#fcd34d;--warn-bg:#2b2208}
+}
+:root[data-theme="dark"]{--bg:#0e0e10;--surface:#18181c;--border:#2a2a31;--text:#e8e8ec;--text2:#a0a0a8;--accent:#22d3ee;--on-accent:#04121a;--code-bg:#08080a;--code:#bdeff8;--warn:#fcd34d;--warn-bg:#2b2208}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Vazirmatn",Tahoma,system-ui,sans-serif;line-height:1.8;font-size:15px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--text2);margin:0 0 18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:14px}
+.card h2{font-size:16px;margin:0 0 8px}
+.num{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--accent);color:var(--on-accent);font-size:13px;font-weight:700;margin-inline-end:8px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+label{display:block;font-size:13px;color:var(--text2)}
+input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font:inherit;direction:ltr;text-align:left}
+button{background:var(--accent);color:var(--on-accent);border:0;border-radius:10px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer;min-height:38px}
+pre{background:var(--code-bg);color:var(--code);border-radius:10px;padding:12px;margin:10px 0;direction:ltr;text-align:left;overflow-x:auto;font-size:12px;line-height:1.6;max-height:260px;overflow-y:auto}
+ol,ul{padding-inline-start:22px;margin:6px 0}
+.note{background:var(--warn-bg);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:13px;margin-top:10px}
+.err{color:#dc2626;font-size:13px;min-height:20px}
+code{direction:ltr;unicode-bidi:embed;font-size:13px}
+</style>
+</head>
+<body>
+<main>
+<h1>VPN خودکار با تونل‌زنی هوشمند</h1>
+<p class="sub">سایت‌های خارجی از VPN، بانک و سایت‌های ایرانی مستقیم. نصب یک بار، اتصال با یک دکمه.</p>
+
+<section class="card">
+  <h2><span class="num">۱</span>تنظیمات سرور</h2>
+  <div class="row">
+    <label>نام اتصال<input id="name" value="my-vpn"></label>
+    <label>پورت<input id="port" value="443" inputmode="numeric"></label>
+    <label>دامنهٔ SNI (برای Reality)<input id="sni" value="www.microsoft.com"></label>
+  </div>
+  <div class="err" id="err"></div>
+  <pre id="script"></pre>
+  <button id="copyScript">کپی اسکریپت سرور</button>
+</section>
+
+<section class="card">
+  <h2><span class="num">۲</span>اجرا روی سرور (فقط یک بار)</h2>
+  <ol>
+    <li>یک VPS اوبونتو ۲۲ یا ۲۴ خارج از ایران بگیرید و با SSH به‌عنوان root وارد شوید.</li>
+    <li>اسکریپت بالا را کپی و در ترمینال paste کنید و Enter بزنید.</li>
+    <li>در پایان یک لینک <code>vless://</code> و یک QR کد چاپ می‌شود. همان را بردارید.</li>
+    <li>در پنل خود VPS، پورت انتخابی را برای TCP باز کنید.</li>
+  </ol>
+</section>
+
+<section class="card">
+  <h2><span class="num">۳</span>اتصال با یک دکمه روی گوشی یا کامپیوتر</h2>
+  <ul>
+    <li><b>Hiddify</b> (همهٔ سیستم‌ها): لینک را کپی کنید، در برنامه «+» و «افزودن از کلیپ‌بورد». در تنظیمات، «منطقه» را روی <b>ایران</b> بگذارید تا سایت‌ها و IPهای ایرانی مستقیم بروند. بعد دکمهٔ بزرگ اتصال.</li>
+    <li><b>v2rayNG</b> (اندروید): لینک را از کلیپ‌بورد وارد کنید. در تنظیمات مسیریابی، قاعدهٔ زیر را به‌عنوان «قوانین سفارشی» وارد کنید.</li>
+  </ul>
+  <pre id="rules"></pre>
+  <button id="copyRules">کپی قوانین مسیریابی</button>
+  <div class="note"><b>بانک‌ها:</b> بعضی اپ‌های بانکی حتی با تونل‌زنی هم تشخیص می‌دهند VPN روشن است. مطمئن‌ترین راه، حذف خود اپ‌های بانکی از VPN است: در v2rayNG گزینهٔ «پروکسی به‌ازای هر برنامه» و در Hiddify بخش «برنامه‌های مستثنی». DNS داخلی را هم روی مستقیم بگذارید تا دامنه‌های ایرانی از داخل تونل resolve نشوند.</div>
+</section>
+
+<div class="note">این ابزار روی یک سرور واقعی آزمایش نشده است. بار اول روی یک VPS ارزان امتحان کنید و خروجی هر مرحله را بخوانید. پروتکل VLESS با Reality انتخاب شده چون به‌نظر من در برابر فیلترینگ مقاوم‌تر از WireGuard ساده است، ولی وضعیت فیلترینگ هر زمان تغییر می‌کند.</div>
+</main>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const RULES=JSON.stringify([
+  {remarks:"سایت‌های ایرانی",outboundTag:"direct",domain:["regexp:.*\\.ir$","geosite:category-ir"],enabled:true},
+  {remarks:"IP ایرانی و شبکهٔ محلی",outboundTag:"direct",ip:["geoip:ir","geoip:private"],enabled:true}
+],null,2);
+$("#rules").textContent=RULES;
+
+function build(){
+  const name=$("#name").value.trim(),port=$("#port").value.trim(),sni=$("#sni").value.trim();
+  let e="";
+  if(!/^[A-Za-z0-9_-]{1,30}$/.test(name))e="نام فقط حروف انگلیسی، عدد، - و _ (حداکثر ۳۰ نویسه).";
+  else if(!/^\d+$/.test(port)||+port<1||+port>65535)e="پورت باید عددی بین ۱ تا ۶۵۵۳۵ باشد.";
+  else if(!/^[A-Za-z0-9]([A-Za-z0-9.-]*[A-Za-z0-9])?\.[A-Za-z]{2,}$/.test(sni))e="دامنهٔ SNI معتبر نیست.";
+  $("#err").textContent=e;
+  if(e){$("#script").textContent="";return}
+  $("#script").textContent=[
+"#!/bin/bash",
+"set -e",
+'[ "$(id -u)" = 0 ] || { echo "Run as root"; exit 1; }',
+"PORT="+port,
+"SNI="+sni,
+"NAME="+name,
+"apt-get update -y",
+"apt-get install -y curl openssl qrencode",
+'bash -c "$(curl -fsSL https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install',
+"# BBR for higher throughput",
+"cat > /etc/sysctl.d/99-bbr.conf <<EOF",
+"net.core.default_qdisc=fq",
+"net.ipv4.tcp_congestion_control=bbr",
+"EOF",
+"sysctl --system >/dev/null",
+"UUID=$(xray uuid)",
+"K=$(xray x25519)",
+"PRIV=$(echo \"$K\" | sed -n 1p | awk '{print $NF}')",
+"PUB=$(echo \"$K\" | sed -n 2p | awk '{print $NF}')",
+"SID=$(openssl rand -hex 8)",
+"IP=$(curl -4 -fsS https://ifconfig.me || curl -4 -fsS https://api.ipify.org)",
+"cat > /usr/local/etc/xray/config.json <<EOF",
+'{"log":{"loglevel":"warning"},',
+' "inbounds":[{"port":$PORT,"protocol":"vless",',
+'  "settings":{"clients":[{"id":"$UUID","flow":"xtls-rprx-vision"}],"decryption":"none"},',
+'  "streamSettings":{"network":"tcp","security":"reality",',
+'   "realitySettings":{"dest":"$SNI:443","serverNames":["$SNI"],"privateKey":"$PRIV","shortIds":["$SID"]}},',
+'  "sniffing":{"enabled":true,"destOverride":["http","tls"]}}],',
+' "outbounds":[{"protocol":"freedom"}]}',
+"EOF",
+"systemctl enable xray >/dev/null 2>&1",
+"systemctl restart xray",
+"sleep 1",
+'systemctl is-active --quiet xray || { journalctl -u xray -n 20 --no-pager; exit 1; }',
+'command -v ufw >/dev/null && ufw status | grep -q active && ufw allow $PORT/tcp || true',
+'LINK="vless://$UUID@$IP:$PORT?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$SNI&fp=chrome&pbk=$PUB&sid=$SID&type=tcp#$NAME"',
+'echo "$LINK" > /root/vpn-link.txt',
+'echo; echo "=== Your connection link ==="; echo "$LINK"; echo',
+'qrencode -t ANSIUTF8 "$LINK"'
+  ].join("\n");
+}
+function copy(text,btn){
+  const done=()=>{const t=btn.textContent;btn.textContent="کپی شد ✓";setTimeout(()=>btn.textContent=t,1800)};
+  const fb=()=>{const a=document.createElement("textarea");a.value=text;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");done()}catch(_){}a.remove()};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(text).then(done,fb);else fb();
+}
+["name","port","sni"].forEach(i=>$("#"+i).addEventListener("input",build));
+$("#copyScript").onclick=e=>{if($("#script").textContent)copy($("#script").textContent,e.target)};
+$("#copyRules").onclick=e=>copy(RULES,e.target);
+build();
+</script>
+</body>
+</html>

@@ -1,0 +1,169 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#100914">
+<title>Zohreh — Audio to Text</title>
+<style>
+:root{color-scheme:dark;--bg:#100914;--panel:#211321;--line:#523149;--text:#fff0f7;--muted:#c5a9b8;--pink:#ff4f91;--red:#ff3158;--gold:#ffccdc}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#632143 0,transparent 48%),var(--bg);color:var(--text);font:16px system-ui,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border:1px solid var(--line);border-radius:12px;padding:11px 15px;background:#351b30;color:var(--text);min-height:44px}
+button:hover{border-color:var(--pink)}
+.primary{background:linear-gradient(120deg,#e82c66,#9c276e);border:0}
+.app{max-width:950px;margin:auto;padding:18px 14px 90px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(140deg,#ff3158,#a52a83);font-size:26px;box-shadow:0 0 30px #ff315844}
+h1{font-size:22px;margin:0;letter-spacing:2px}
+header p,.muted{color:var(--muted);font-size:13px}
+nav{display:flex;gap:7px;overflow:auto;margin-bottom:15px}
+nav button{white-space:nowrap}
+nav button.active{border-color:var(--pink);background:#612044}
+.card,.hero{padding:19px;border:1px solid var(--line);border-radius:19px;background:#211321eF;margin-bottom:14px}
+.hero{padding:26px;background:linear-gradient(130deg,#48172e,#241329 65%,#36172d)}
+.eyebrow{font-size:11px;letter-spacing:2px;color:var(--pink);font-weight:800}
+h2{line-height:1.2;font-size:clamp(26px,6vw,38px);margin:12px 0}
+p{line-height:1.65}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.field{margin:14px 0}
+label{display:block;font-size:13px;color:var(--gold);margin-bottom:7px}
+input,textarea,select{width:100%;background:#150d17;color:var(--text);border:1px solid var(--line);border-radius:11px;padding:12px}
+textarea{min-height:180px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row>*{flex:1}
+.screen[hidden]{display:none}
+.stat{border:1px solid var(--line);border-radius:12px;padding:12px;background:#170e19}
+.stat strong{display:block;font-size:23px}
+.stat span,.tiny{font-size:12px;color:var(--muted)}
+.status{white-space:pre-wrap;overflow-wrap:anywhere;padding:12px;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:13px}
+.item{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0;overflow-wrap:anywhere}
+.item h3{margin:0 0 6px}
+.bottom{display:none}
+@media(max-width:650px){.grid{grid-template-columns:1fr}nav{display:none}.bottom{display:flex;position:fixed;bottom:0;left:0;right:0;background:#160c18f5;border-top:1px solid var(--line);padding:8px;gap:5px}.bottom button{flex:1;font-size:12px;padding:8px 2px}.app{padding-bottom:85px}.hero{padding:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="brand"><div class="logo">♥</div><div><h1>ZOHREH</h1><p>Audio · Words · Memories</p></div></div>
+  <div class="row" style="margin:0"><button id="languageBtn" aria-label="Change language">فا</button><button id="themeBtn" aria-label="Toggle theme">☼</button></div>
+</header>
+<nav id="nav">
+  <button class="active" data-screen="home">Home</button>
+  <button data-screen="import">Import</button>
+  <button data-screen="editor">Transcript</button>
+  <button data-screen="library">Library</button>
+  <button data-screen="settings">Backup</button>
+</nav>
+<main>
+<section id="home" class="screen">
+  <div class="hero"><div class="eyebrow">YOUR PERSONAL AUDIO WORKSPACE</div>
+  <h2 id="headline">Every voice.<br>Every word.<br>Close to your heart.</h2>
+  <p id="intro">Keep your transcripts and notes together in one private workspace on this device.</p>
+  <div class="row"><button class="primary" data-go="import">＋ Import a file</button><button data-go="editor">Write a transcript</button></div></div>
+  <div class="grid">
+    <div class="card"><h3>♡ Your library</h3><div class="grid">
+      <div class="stat"><strong id="count">0</strong><span>Projects</span></div>
+      <div class="stat"><strong id="words">0</strong><span>Words</span></div>
+    </div></div>
+    <div class="card"><h3>Feature status</h3><p>✓ Transcript editor</p><p>✓ Local project storage</p><p>✓ Text and subtitle export</p><p>○ Speech engine not connected</p><p>○ Android capture requires a native app</p></div>
+  </div>
+  <div class="card"><h3>Recently edited</h3><div id="recent" class="muted">No projects yet.</div></div>
+</section>
+
+<section id="import" class="screen" hidden>
+  <div class="card"><div class="eyebrow">ADD TO YOUR LIBRARY</div><h2>Import media</h2>
+  <p class="muted">Import text or subtitle files, or save audio/video file details alongside a transcript.</p>
+  <div class="field"><label for="file">Audio, video, text or subtitle file</label><input id="file" type="file" accept="audio/*,video/*,.txt,.md,.srt,.vtt,.json"></div>
+  <div class="field"><label for="title">Project title</label><input id="title" maxlength="200" placeholder="A name to remember"></div>
+  <div class="field"><label for="author">Speaker / creator</label><input id="author" maxlength="200" placeholder="Optional"></div>
+  <div class="field"><label for="lang">Language</label><select id="lang"><option value="auto">Unknown / auto</option><option value="fa">Persian</option><option value="en">English</option><option value="multi">Multilingual</option></select></div>
+  <div class="field"><label for="source">Source URL (optional)</label><input id="source" type="url" placeholder="https://…"></div>
+  <div class="field"><label for="text">Transcript or imported text</label><textarea id="text" placeholder="Paste text here, or select a text/subtitle file above…"></textarea></div>
+  <div id="importStatus" class="status">Choose a file or enter a transcript.</div>
+  <div class="row"><button id="save" class="primary">Save project</button><button id="clear">Clear form</button></div>
+  </div>
+  <div class="card"><h3>About transcription</h3><p>This HTML file does not pretend to transcribe audio. To turn audio into words, connect a real speech-recognition engine. Capturing other Android apps' internal audio requires native Android APIs and permission from the source app.</p></div>
+</section>
+
+<section id="editor" class="screen" hidden>
+  <div class="card"><div class="eyebrow">READ · EDIT · KEEP</div><h2>Transcript editor</h2>
+  <div class="field"><label for="projectSelect">Project</label><select id="projectSelect"></select></div>
+  <div class="field"><label for="editTitle">Title</label><input id="editTitle" maxlength="200"></div>
+  <div class="field"><label for="transcript">Transcript</label><textarea id="transcript" placeholder="Write or paste your transcript…"></textarea></div>
+  <div class="field"><label for="notes">Personal notes</label><textarea id="notes" style="min-height:100px" placeholder="Keep your thoughts here…"></textarea></div>
+  <div class="row"><button id="saveEdit" class="primary">Save changes</button><button id="searchBtn">Find words</button></div>
+  <div class="field"><label for="searchTerm">Search in transcript</label><input id="searchTerm" placeholder="Word or phrase"></div>
+  <div id="searchStatus" class="status">Search results will appear here.</div>
+  <div class="row"><button data-export="txt">Export TXT</button><button data-export="md">Export MD</button><button data-export="json">Export JSON</button></div>
+  <div class="row"><button data-export="srt">Export SRT</button><button data-export="vtt">Export VTT</button></div>
+  <p class="tiny">SRT and VTT exports require valid timestamps already present in the transcript.</p>
+  </div>
+</section>
+
+<section id="library" class="screen" hidden>
+  <div class="card"><div class="eyebrow">ALL YOUR PROJECTS</div><h2>Library</h2>
+  <input id="filterText" type="search" placeholder="Search titles and transcripts…">
+  <div id="libraryItems"></div></div>
+</section>
+
+<section id="settings" class="screen" hidden>
+  <div class="card"><div class="eyebrow">YOUR DATA</div><h2>Backup & settings</h2>
+  <p>Your projects are stored locally in this browser. Clearing browser data may remove them, so export a backup periodically.</p>
+  <div class="row"><button id="backup" class="primary">Export backup</button><button id="restoreBtn">Restore backup</button></div>
+  <input id="restoreFile" type="file" accept="application/json,.json" hidden>
+  <div class="row"><button id="storageBtn">Check storage</button><button id="deleteAll">Delete all projects</button></div>
+  <div id="settingsStatus" class="status">Your data stays in this browser unless you export it.</div>
+  </div>
+</section>
+</main>
+</div>
+<div class="bottom">
+<button data-go="home">Home</button><button data-go="import">Import</button><button data-go="editor">Write</button><button data-go="library">Library</button><button data-go="settings">Backup</button>
+</div>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const DB='zohreh-db-v1', STORE='projects';
+let db,activeId=null,selectedFile=null,persian=false;
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const bytes=s=>new TextEncoder().encode(s).length;
+const countWords=s=>(s.trim().match(/\S+/g)||[]).length;
+function status(id,msg){$(id).textContent=msg}
+function openDB(){return new Promise((resolve,reject)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=()=>r.result.createObjectStore(STORE,{keyPath:'id'});r.onsuccess=()=>{db=r.result;resolve()};r.onerror=()=>reject(r.error)})}
+function all(){return new Promise((resolve,reject)=>{const r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+function put(p){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).put(p);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+function remove(id){return new Promise((resolve,reject)=>{const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(id);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+function download(name,data,type){const a=document.createElement('a');const u=URL.createObjectURL(new Blob([data],{type}));a.href=u;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!==id);document.querySelectorAll('[data-screen]').forEach(b=>b.classList.toggle('active',b.dataset.screen===id));if(id==='library')renderLibrary();if(id==='editor')fillSelect();window.scrollTo({top:0,behavior:'smooth'})}
+document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=()=>show(b.dataset.screen));
+document.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>show(b.dataset.go));
+$('themeBtn').onclick=()=>{const light=document.body.dataset.theme!=='light';document.body.dataset.theme=light?'light':'dark';document.documentElement.style.colorScheme=light?'light':'dark';document.body.style.background=light?'#fff0f5':'';document.body.style.color=light?'#351326':''};
+$('languageBtn').onclick=()=>{persian=!persian;document.documentElement.lang=persian?'fa':'en';document.documentElement.dir=persian?'rtl':'ltr';$('languageBtn').textContent=persian?'EN':'فا';$('headline').innerHTML=persian?'هر صدا،<br>هر کلمه،<br>نزدیک به قلب شما.':'Every voice.<br>Every word.<br>Close to your heart.';$('intro').textContent=persian?'متن‌ها و یادداشت‌های خود را در فضای خصوصی این دستگاه نگه دارید.':'Keep your transcripts and notes together in one private workspace on this device.'};
+$('file').onchange=async e=>{selectedFile=e.target.files[0]||null;if(!selectedFile)return;const f=selectedFile;status('importStatus',`Selected: ${f.name}\nType: ${f.type||'unknown'}\nSize: ${(f.size/1048576).toFixed(2)} MiB`);if(f.size>25*1048576){status('importStatus','File exceeds the 25 MiB text-import limit. Media files can be recorded as metadata.');return}if(/\.(txt|md|srt|vtt)$/i.test(f.name)||f.type.startsWith('text/')){try{$('text').value=await f.text();$('title').value=$('title').value||f.name.replace(/\.[^.]+$/,'');status('importStatus','Text file loaded. Review it and save the project.')}catch(err){status('importStatus','Could not read file: '+err.message)}}};
+$('save').onclick=async()=>{try{const transcript=$('text').value;if(bytes(transcript)>25*1048576)throw Error('Transcript exceeds 25 MiB');const url=$('source').value.trim();if(url&&!/^https?:\/\//i.test(url))throw Error('Source URL must begin with http:// or https://');const old=(await all()).find(p=>p.id===activeId);const p={id:old?.id||uid(),title:$('title').value.trim()||selectedFile?.name||'Untitled project',author:$('author').value.trim(),language:$('lang').value,url,transcript,notes:old?.notes||'',fileName:selectedFile?.name||old?.fileName||'',fileType:selectedFile?.type||old?.fileType||'',fileSize:selectedFile?.size||old?.fileSize||0,createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()};await put(p);activeId=p.id;status('importStatus','Project saved locally. Audio has not been transcribed.');await refresh();show('editor');$('projectSelect').value=p.id;load(p)}catch(e){status('importStatus','Could not save: '+e.message)}};
+$('clear').onclick=()=>{['title','author','source','text'].forEach(k=>$(k).value='');$('file').value='';$('lang').value='auto';selectedFile=null;activeId=null;status('importStatus','Form cleared.')};
+function load(p){activeId=p.id;$('editTitle').value=p.title||'';$('transcript').value=p.transcript||'';$('notes').value=p.notes||''}
+async function fillSelect(){const ps=(await all()).sort((a,b)=>b.updatedAt-a.updatedAt);const s=$('projectSelect'),old=activeId||s.value;s.replaceChildren();ps.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.title;s.append(o)});if(ps.some(p=>p.id===old))s.value=old;if(s.value)load(ps.find(p=>p.id===s.value));else{$('editTitle').value=$('transcript').value=$('notes').value=''}}
+$('projectSelect').onchange=async()=>{const p=(await all()).find(p=>p.id===$('projectSelect').value);if(p)load(p)};
+$('saveEdit').onclick=async()=>{try{const p=(await all()).find(p=>p.id===$('projectSelect').value);if(!p)throw Error('Create a project first');if(bytes($('transcript').value)>25*1048576)throw Error('Transcript exceeds 25 MiB');p.title=$('editTitle').value.trim()||'Untitled project';p.transcript=$('transcript').value;p.notes=$('notes').value;p.updatedAt=Date.now();await put(p);activeId=p.id;status('searchStatus','Changes saved locally.');await refresh()}catch(e){status('searchStatus',e.message)}};
+$('searchBtn').onclick=()=>{const q=$('searchTerm').value.trim().toLocaleLowerCase();if(!q){status('searchStatus','Enter a word or phrase.');return}const lines=$('transcript').value.split(/\n/).map((s,i)=>({s,i})).filter(x=>x.s.toLocaleLowerCase().includes(q));status('searchStatus',lines.length?lines.map(x=>`Line ${x.i+1}: ${x.s}`).join('\n'):'No matches found.')};
+function subtitleCues(t){return t.replace(/\r/g,'').split(/\n\s*\n/).map(block=>{const a=block.split('\n'),i=a.findIndex(x=>x.includes('-->'));if(i<0)return null;const m=a[i].match(/(\d{2}:\d{2}:\d{2}[,.]\d{3}|\d{2}:\d{2}[,.]\d{3})\s*-->\s*(\d{2}:\d{2}:\d{2}[,.]\d{3}|\d{2}:\d{2}[,.]\d{3})/);if(!m)return null;const fix=s=>s.split(':').length===2?'00:'+s.replace(',','.'):s.replace(',','.');return{start:fix(m[1]),end:fix(m[2]),text:a.slice(i+1).join('\n')}}).filter(Boolean)}
+document.querySelectorAll('[data-export]').forEach(b=>b.onclick=async()=>{try{const p=(await all()).find(p=>p.id===$('projectSelect').value);if(!p)throw Error('Select or create a project first');const ext=b.dataset.export;let data,type;if(ext==='txt'){data=p.transcript;type='text/plain;charset=utf-8'}else if(ext==='md'){data=`# ${p.title}\n\n${p.author?'Author: '+p.author+'\n\n':''}## Transcript\n\n${p.transcript}\n\n## Notes\n\n${p.notes||''}`;type='text/markdown;charset=utf-8'}else if(ext==='json'){data=JSON.stringify(p,null,2);type='application/json'}else{const cues=subtitleCues(p.transcript);if(!cues.length)throw Error('No valid subtitle timestamps found. No timestamps were invented.');data=(ext==='vtt'?'WEBVTT\n\n':'')+cues.map((c,i)=>(ext==='srt'?`${i+1}\n`:'')+`${c.start} --> ${c.end}\n${c.text}`).join('\n\n');type=ext==='vtt'?'text/vtt':'application/x-subrip'}download(`${p.title.replace(/[\\/:*?"<>|]+/g,'_')}.${ext}`,data,type)}catch(e){status('searchStatus',e.message)}});
+function makeCard(p){const el=document.createElement('div');el.className='item';const h=document.createElement('h3');h.textContent=p.title;const desc=document.createElement('p');desc.className='muted';desc.textContent=`${p.author||'Unknown creator'} · ${countWords(p.transcript)} words · ${new Date(p.updatedAt).toLocaleDateString()}`;const preview=document.createElement('p');preview.textContent=(p.transcript||p.fileName||'No transcript yet').slice(0,180);const row=document.createElement('div');row.className='row';const open=document.createElement('button');open.textContent='Open';open.onclick=()=>{activeId=p.id;show('editor');fillSelect()};const del=document.createElement('button');del.textContent='Delete';del.onclick=async()=>{if(confirm(`Delete "${p.title}"?`)){await remove(p.id);if(activeId===p.id)activeId=null;await refresh()}};row.append(open,del);el.append(h,desc,preview,row);return el}
+async function renderLibrary(){const q=$('filterText').value.trim().toLocaleLowerCase(),ps=(await all()).filter(p=>[p.title,p.author,p.transcript,p.notes].join(' ').toLocaleLowerCase().includes(q)).sort((a,b)=>b.updatedAt-a.updatedAt);$('libraryItems').replaceChildren(...ps.map(makeCard));if(!ps.length)$('libraryItems').textContent='No matching projects.'}
+$('filterText').oninput=()=>renderLibrary().catch(()=>{});
+async function refresh(){const ps=(await all()).sort((a,b)=>b.updatedAt-a.updatedAt);$('count').textContent=ps.length;$('words').textContent=ps.reduce((n,p)=>n+countWords(p.transcript),0).toLocaleString();$('recent').replaceChildren(...ps.slice(0,3).map(makeCard));if(!ps.length)$('recent').textContent='No projects yet.';await renderLibrary()}
+$('backup').onclick=async()=>download('zohreh-backup.json',JSON.stringify({app:'Zohreh',version:1,projects:await all()},null,2),'application/json');
+$('restoreBtn').onclick=()=>$('restoreFile').click();
+$('restoreFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{if(f.size>25*1048576)throw Error('Backup exceeds 25 MiB');const b=JSON.parse(await f.text());if(b.app!=='Zohreh'||!Array.isArray(b.projects))throw Error('Not a Zohreh backup');if(!confirm(`Import ${b.projects.length} projects? Existing matching IDs will be replaced.`))return;for(const p of b.projects){if(p&&typeof p.id==='string'&&typeof p.title==='string'&&typeof p.transcript==='string')await put(p)}await refresh();status('settingsStatus','Backup restored.')}catch(err){status('settingsStatus','Restore failed: '+err.message)}finally{e.target.value=''}};
+$('storageBtn').onclick=async()=>{if(!navigator.storage?.estimate){status('settingsStatus','Storage estimate is unavailable in this browser.');return}const e=await navigator.storage.estimate();status('settingsStatus',`Approximate storage used: ${((e.usage||0)/1048576).toFixed(2)} MiB\nQuota: ${e.quota?Math.round(e.quota/1048576)+' MiB':'not reported'}`)};
+$('deleteAll').onclick=async()=>{if(!confirm('Permanently delete all Zohreh projects from this browser?'))return;const tx=db.transaction(STORE,'readwrite');tx.objectStore(STORE).clear();tx.oncomplete=async()=>{activeId=null;await refresh();status('settingsStatus','All projects deleted.')};tx.onerror=()=>status('settingsStatus','Delete failed.')};
+(async()=>{try{await openDB();await refresh()}catch(e){status('importStatus','Local database could not start. Try a modern browser or a secure local/web origin.')}})();
+</script>
+</body>
+</html>

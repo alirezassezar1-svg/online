@@ -1,0 +1,255 @@
+<p>&lt;!doctype html&gt;</p>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>CodeForge AI — Code Repair Studio</title>
+<style>
+:root{--bg:#0a0b12;--panel:#11131e;--panel2:#171a28;--line:#292d40;--text:#f3f4fb;--muted:#9ba2bb;--red:#ff4d67;--violet:#9b7bff;--blue:#5da8ff;--green:#51d6a4;--amber:#ffc66d;--radius:16px;font:14px/1.5 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% 0%,#24132a 0,transparent 34%),radial-gradient(ellipse at 88% 0%,#101d38 0,transparent 30%),var(--bg);color:var(--text);min-height:100vh}button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit;border:1px solid var(--line);background:#1a1d2c;border-radius:10px;padding:9px 12px;transition:.18s}button:hover{border-color:#626b91;background:#23273a}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}button.primary{background:linear-gradient(120deg,#e83c5b,#8b54ef);border:0;font-weight:700}button.good{border-color:#286e5a;color:#8af0c9}button.danger{color:#ff9aa9}button:disabled{opacity:.4;cursor:not-allowed}.app{max-width:1600px;margin:auto;padding:20px}.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px;flex-wrap:wrap}.brand{display:flex;align-items:center;gap:12px}.logo{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,var(--red),var(--violet));font-size:23px;box-shadow:0 8px 30px #a33b7040}.brand h1{font-size:20px;line-height:1.2;margin:0;letter-spacing:-.5px}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}.top-actions{display:flex;gap:8px;flex-wrap:wrap}.status{color:var(--green);font-size:12px;display:flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}.hero{border:1px solid #383049;background:linear-gradient(110deg,#211526cc,#111b30cc);border-radius:20px;padding:20px;margin-bottom:16px;display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap}.hero h2{font-size:22px;margin:0 0 5px;letter-spacing:-.6px}.hero p{margin:0;color:var(--muted);max-width:720px}.hero strong{color:#fff}.hero-actions{display:flex;gap:8px;flex-wrap:wrap}.workspace{display:grid;grid-template-columns:260px minmax(0,1fr) 300px;gap:14px;align-items:stretch}.panel{background:#11131eeF;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;min-width:0;box-shadow:0 12px 38px #0002}.panel-head{padding:14px 15px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px}.panel-head h3{margin:0;font-size:13px;text-transform:uppercase;letter-spacing:.09em;color:#d8dafa}.panel-body{padding:14px}.file-tools{display:flex;gap:6px;margin-bottom:12px}.file-tools button{flex:1;padding:8px 6px;font-size:12px}.search{width:100%;background:#0b0d16;border:1px solid var(--line);color:var(--text);border-radius:9px;padding:10px;margin-bottom:12px}.file-list{display:flex;flex-direction:column;gap:4px;max-height:45vh;overflow:auto}.file-row{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:transparent;border-color:transparent;padding:9px 8px;font-size:12px;min-width:0}.file-row.active{background:#29243c;border-color:#52406e}.file-icon{color:var(--blue);font-size:14px;flex-shrink:0}.file-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.file-row small{color:var(--muted)}.editor-head{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:12px 14px;border-bottom:1px solid var(--line)}.tabs{display:flex;gap:5px;flex-wrap:wrap}.tab{font-size:12px;padding:7px 10px;background:transparent}.tab.active{background:#29243c;border-color:#6c5594}.editor-actions{display:flex;gap:6px;flex-wrap:wrap}.editor-actions button{font-size:12px;padding:7px 9px}.editor-title{padding:12px 15px 0;color:#bfc5de;font-size:12px;display:flex;justify-content:space-between;gap:10px}.editor{display:block;width:100%;height:390px;resize:vertical;border:0;border-top:1px solid #202438;background:#0b0d15;color:#dce4ff;padding:15px;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;tab-size:2;outline:none;white-space:pre;overflow:auto}.editor:focus{box-shadow:inset 0 0 0 1px #3e4e79}.input-area{width:100%;min-height:140px;resize:vertical;border:1px solid var(--line);background:#0b0d15;color:var(--text);border-radius:12px;padding:12px;font:12px/1.6 ui-monospace,monospace}.section-label{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;margin:0 0 9px}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{min-width:0}.stack{display:flex;flex-direction:column;gap:12px}.muted{color:var(--muted)}.small{font-size:12px}.divider{height:1px;background:var(--line);margin:14px 0}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}.metric{padding:10px;background:#0c0e17;border:1px solid var(--line);border-radius:11px}.metric b{display:block;font-size:20px}.metric span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}.issue{border:1px solid var(--line);background:#0e101a;border-radius:11px;padding:11px;margin-bottom:8px}.issue-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.sev{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:6px;padding:3px 6px}.sev.error{color:#ff8b9c;background:#4a202c}.sev.warning{color:#ffd08a;background:#43321c}.sev.info{color:#a8baff;background:#202b4b}.issue p{font-size:12px;color:#b6bdd4;margin:7px 0}.issue code{font-size:11px;color:#c9b6ff;overflow-wrap:anywhere}.issue button{font-size:11px;padding:5px 7px}.empty{color:var(--muted);text-align:center;padding:25px 12px;font-size:12px}.dropzone{border:1px dashed #4a506d;border-radius:12px;padding:16px;text-align:center;background:#0c0e18}.dropzone.drag{border-color:var(--violet);background:#211c35}.dropzone input{display:none}.dropzone label{cursor:pointer;display:block}.dropzone .big{font-size:22px;margin-bottom:4px}.notice{border-left:3px solid var(--amber);padding:9px 10px;background:#292116;color:#e8c997;font-size:11px;border-radius:0 8px 8px 0}.footer{padding:16px 3px;color:#747d9c;font-size:11px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.hidden{display:none!important}.mobile-menu{display:none}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#24283b;border:1px solid #555d7c;padding:11px 16px;border-radius:12px;box-shadow:0 12px 40px #0008;z-index:10;max-width:90vw}.pill{font-size:10px;border:1px solid #424761;border-radius:100px;padding:3px 7px;color:#b6bedc}.api-fields input,.api-fields select{width:100%;padding:9px;border:1px solid var(--line);background:#0b0d15;color:var(--text);border-radius:8px}.api-fields label{display:block;font-size:11px;color:var(--muted);margin:8px 0 5px}
+@media(max-width:1100px){.workspace{grid-template-columns:230px minmax(0,1fr)}.right-panel{grid-column:1/-1}.right-panel .panel-body{display:grid;grid-template-columns:1fr 1fr;gap:14px}.right-panel .panel-head{grid-column:1/-1}}
+@media(max-width:720px){.app{padding:12px}.brand h1{font-size:18px}.hero{padding:16px}.hero h2{font-size:19px}.workspace{grid-template-columns:1fr}.left-panel{order:2}.center-panel{order:1}.right-panel{order:3;grid-column:auto}.right-panel .panel-body{display:block}.file-list{max-height:220px}.editor{height:300px}.topbar{align-items:flex-start}.top-actions button{font-size:11px;padding:8px}.hero-actions{width:100%}.hero-actions button{flex:1}.metrics{grid-template-columns:repeat(3,1fr)}.metric b{font-size:17px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+ <div class="brand"><div class="logo" aria-hidden="true">⌘</div><div><h1>CodeForge <span style="color:var(--red)">AI</span></h1><p>Single-file code repair studio</p></div></div>
+ <div class="top-actions"><span class="status"><i class="dot"></i> Local workspace</span><button id="undoBtn" title="Undo (Ctrl+Z)">↶ Undo</button><button id="redoBtn" title="Redo (Ctrl+Y)">↷ Redo</button><button id="exportZip" class="primary">Export ZIP ↗</button></div>
+</header>
+<section class="hero">
+ <div><h2>Turn scattered snippets into a <span style="color:#b7a0ff">real project.</span></h2><p>Paste code from any model, organize files, inspect common issues, apply conservative fixes, and export your workspace. <strong>Code is never executed automatically.</strong></p></div>
+ <div class="hero-actions"><button id="analyzeBtn">⌕ Analyze project</button><button id="suggestBtn">✦ Suggest fixes</button><button id="applyBtn" class="primary">✓ Apply safe fixes</button></div>
+</section>
+<main class="workspace">
+ <section class="panel left-panel">
+  <div class="panel-head"><h3>Project Explorer</h3><span class="pill" id="fileCount">0 files</span></div>
+  <div class="panel-body">
+   <div class="file-tools"><button id="newFileBtn">＋ File</button><button id="renameBtn">Rename</button><button id="deleteBtn" class="danger">Delete</button></div>
+   <input class="search" id="fileSearch" placeholder="Search files…" aria-label="Search project files">
+   <div id="fileList" class="file-list" aria-label="Project files"></div>
+   <div class="divider"></div>
+   <p class="section-label">Import code</p>
+   <div class="dropzone" id="dropzone"><div class="big">⇧</div><label for="uploadFiles"><strong>Drop files here or browse</strong><br><span class="muted small">Code and text files · multiple allowed</span></label><input id="uploadFiles" type="file" multiple accept=".html,.htm,.css,.js,.mjs,.cjs,.ts,.tsx,.jsx,.json,.py,.php,.sql,.md,.txt,.xml,.yml,.yaml,.sh,.java,.go,.rs,.vue,.svelte,.svg,.toml,.ini"></div>
+   <p class="muted small">Imported files are read as text. No file is executed.</p>
+  </div>
+ </section>
+ <section class="panel center-panel">
+  <div class="editor-head"><div class="tabs"><button class="tab active" data-tab="editor">Editor</button><button class="tab" data-tab="intake">Snippet intake</button><button class="tab" data-tab="settings">AI settings</button></div><div class="editor-actions"><button id="copyBtn">Copy</button><button id="downloadFileBtn">Download file</button><button id="restoreBtn">Restore original</button></div></div>
+  <div id="editorView">
+   <div class="editor-title"><span id="activeFileLabel">No file selected</span><span id="lineCount">0 lines</span></div>
+   <textarea id="codeEditor" class="editor" spellcheck="false" aria-label="Code editor" placeholder="Choose or create a file to start editing…"></textarea>
+   <div class="panel-body"><div class="row" style="justify-content:space-between"><span class="muted small" id="dirtyState">All changes are saved locally when possible.</span><button id="saveFileBtn" class="good">Save changes</button></div></div>
+  </div>
+  <div id="intakeView" class="panel-body hidden stack">
+   <div><p class="section-label">Paste one or more snippets</p><textarea id="snippetInput" class="input-area" placeholder="Paste Markdown code fences, plain source code, or multiple AI responses here…&#10;&#10;Example:&#10;```html&#10;<!doctype html>…&#10;```&#10;```css&#10;body { margin: 0 }&#10;```"></textarea></div>
+   <div class="row"><button id="organizeBtn" class="primary">Parse & organize snippets</button><button id="clearSnippetBtn">Clear input</button><select id="organizeMode" aria-label="Organization mode"><option value="smart">Smart filenames</option><option value="fenced">Use fenced block labels</option></select></div>
+   <div class="notice">Parsing is heuristic. Unlabeled fragments may need manual review; source code is not compiled or executed.</div>
+   <div id="parseSummary" class="muted small">Paste snippets, then choose Parse & organize.</div>
+  </div>
+  <div id="aiPatchView" class="panel-body hidden stack">
+   <p class="section-label">AI repair preview</p>
+   <p class="muted small" id="aiPatchSummary">No AI patch generated.</p>
+   <div id="aiPatchList" class="stack"></div>
+   <div class="row"><button id="applyAiPatchBtn" class="primary" disabled>Apply selected changes</button><button id="discardAiPatchBtn">Discard patch</button></div>
+   <div class="notice">Review every proposed change. AI output is untrusted and is never applied automatically.</div>
+  </div>
+  <div id="settingsView" class="panel-body hidden stack">
+   <div><p class="section-label">Optional AI provider</p><p class="muted small">Core parsing and diagnostics work offline. For AI-assisted analysis, use a trusted backend proxy; putting a provider secret in a browser app exposes it to anyone who can inspect the page.</p></div>
+   <div class="api-fields">
+    <label for="aiEndpoint">Your backend proxy URL</label><input id="aiEndpoint" type="url" placeholder="https://your-domain.example/api/code-review">
+    <label for="aiModel">Model label (optional)</label><input id="aiModel" type="text" placeholder="e.g. code-review-model">
+   </div>
+   <div class="row"><button id="saveSettingsBtn" class="primary">Save settings</button><button id="testEndpointBtn">Check URL format</button></div>
+   <div class="divider"></div><p class="section-label">Live AI actions</p>
+   <div class="row"><button id="aiReviewBtn" class="primary">✦ AI Review</button><button id="aiRepairBtn">⚒ Generate repair patch</button></div>
+   <label for="aiInstructions" class="muted small">Additional instructions (optional)</label><textarea id="aiInstructions" class="input-area" style="min-height:75px" placeholder="e.g. Keep the public API unchanged; fix only runtime errors."></textarea>
+   <div id="aiStatus" class="muted small" role="status" aria-live="polite">Configure a backend proxy to enable live AI actions.</div>
+   <div class="notice">Requests send the selected project source to your configured backend. Use only a backend you trust. Never put provider API secrets in this HTML file.</div>
+   <p class="muted small" id="settingsStatus">No API keys are stored in this app.</p>
+  </div>
+ </section>
+ <section class="panel right-panel">
+  <div class="panel-head"><h3>Diagnostics</h3><button id="clearIssuesBtn" class="small">Clear</button></div>
+  <div class="panel-body">
+   <div><div class="metrics"><div class="metric"><b id="errorCount">0</b><span>Errors</span></div><div class="metric"><b id="warningCount">0</b><span>Warnings</span></div><div class="metric"><b id="infoCount">0</b><span>Suggestions</span></div></div><div class="row" style="margin-bottom:12px"><span class="pill">Static heuristics</span><span class="pill">Not a compiler</span></div><div id="issuesList"><div class="empty">Run Analyze to inspect the current project.</div></div></div>
+   <div><div class="divider"></div><p class="section-label">Export & project</p><div class="stack"><button id="exportJson">Export project JSON</button><button id="exportHtml">Export standalone HTML</button><button id="importJson">Import project JSON</button><input id="importJsonFile" type="file" accept=".json,application/json" class="hidden"><button id="newProjectBtn">New empty project</button></div><div class="divider"></div><p class="muted small">ZIP exports preserve relative paths and source text. Dependencies are recorded, not installed. Standalone HTML is generated only when an HTML file is selected or available; linked assets are not automatically inlined.</p></div>
+  </div>
+ </section>
+</main>
+<footer class="footer"><span>CODEFORGE AI · Local-first · No automatic code execution</span><span id="storageStatus">Checking local storage…</span></footer>
+</div>
+<div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = 'codeforge-ai-workspace-v1';
+let project = {name:'Untitled Project', files:[], activeId:null, original:{}, issues:[], settings:{endpoint:'',model:''}};
+let history = [], future = [], dirty = false, toastTimer = null, lastParse = [];
+const extLang = {html:'html',htm:'html',css:'css',js:'javascript',mjs:'javascript',cjs:'javascript',ts:'typescript',tsx:'tsx',jsx:'jsx',json:'json',py:'python',php:'php',sql:'sql',md:'markdown',txt:'text',xml:'xml',yml:'yaml',yaml:'yaml',sh:'shell',java:'java',go:'go',rs:'rust',vue:'vue',svelte:'svelte',svg:'xml',toml:'toml',ini:'ini'};
+function uid(){return 'f_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function toast(msg){const el=$('toast');el.textContent=msg;el.classList.remove('hidden');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.add('hidden'),2800)}
+function basename(path){return String(path).split('/').pop()||path}
+function language(path){const ext=(String(path).split('.').pop()||'').toLowerCase();return extLang[ext]||'text'}
+function snapshot(){return JSON.stringify({files:project.files,activeId:project.activeId,original:project.original,issues:project.issues,name:project.name,settings:project.settings})}
+function pushHistory(){history.push(snapshot());if(history.length>80)history.shift();future=[];updateHistoryButtons()}
+function restoreSnapshot(raw){try{const s=JSON.parse(raw);Object.assign(project,s);dirty=false;renderAll();persist()}catch(e){toast('Could not restore history state.')}}
+function undo(){if(!history.length)return;future.push(snapshot());restoreSnapshot(history.pop());toast('Undo complete')}
+function redo(){if(!future.length)return;history.push(snapshot());restoreSnapshot(future.pop());toast('Redo complete')}
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(project));$('storageStatus').textContent='Workspace saved on this device';return true}catch(e){$('storageStatus').textContent='Local storage unavailable or full';return false}}
+function loadPersisted(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw)return false;const d=JSON.parse(raw);if(!d||!Array.isArray(d.files))return false;project={...project,...d};project.files=project.files.filter(f=>f&&typeof f.path==='string'&&typeof f.content==='string').map(f=>({...f,id:f.id||uid()}));return true}catch(e){return false}}
+function activeFile(){return project.files.find(f=>f.id===project.activeId)||null}
+function uniquePath(path,excludeId=null){path=String(path||'untitled.txt').replace(/\\/g,'/').replace(/^\/+/, '').split('/').filter(p=>p&&p!=='.'&&p!=='..').join('/');if(!path)path='untitled.txt';const used=new Set(project.files.filter(f=>f.id!==excludeId).map(f=>f.path.toLowerCase()));if(!used.has(path.toLowerCase()))return path;const dot=path.lastIndexOf('.'),base=dot>path.lastIndexOf('/')?path.slice(0,dot):path,ext=dot>path.lastIndexOf('/')?path.slice(dot):'';let i=2,next;do{next=base+'-'+i+++ext}while(used.has(next.toLowerCase()));return next}
+function addFile(path,content='',opts={}){path=uniquePath(path);const f={id:uid(),path,content:String(content),language:language(path)};project.files.push(f);if(opts.original!==false)project.original[f.id]=f.content;if(!project.activeId||opts.activate)project.activeId=f.id;return f}
+function renderFiles(){const q=$('fileSearch').value.trim().toLowerCase(),list=$('fileList');list.replaceChildren();const files=project.files.filter(f=>f.path.toLowerCase().includes(q));$('fileCount').textContent=project.files.length+' file'+(project.files.length===1?'':'s');if(!files.length){const d=document.createElement('div');d.className='empty';d.textContent=project.files.length?'No matching files.':'No files yet. Paste snippets or create a file.';list.append(d);return}for(const f of files){const b=document.createElement('button');b.className='file-row'+(f.id===project.activeId?' active':'');b.type='button';b.setAttribute('aria-current',f.id===project.activeId?'page':'false');const icon=document.createElement('span');icon.className='file-icon';icon.textContent=({html:'◇',css:'◈',javascript:'JS',typescript:'TS',jsx:'⚛',tsx:'⚛',json:'{}',python:'Py'})[f.language]||'▤';const name=document.createElement('span');name.className='file-name';name.textContent=f.path;const lines=document.createElement('small');lines.textContent=f.content.split('\n').length;b.append(icon,name,lines);b.onclick=()=>selectFile(f.id);list.append(b)}}
+function selectFile(id){if(dirty&&!commitEditor(false))return;project.activeId=id;renderEditor();renderFiles()}
+function renderEditor(){const f=activeFile(),editor=$('codeEditor');editor.value=f?f.content:'';editor.disabled=!f;$('activeFileLabel').textContent=f?f.path:'No file selected';$('lineCount').textContent=(f?f.content.split('\n').length:0)+' lines';$('dirtyState').textContent=dirty?'Unsaved editor changes':'Workspace saves locally when possible';$('restoreBtn').disabled=!f||project.original[f.id]===undefined;$('downloadFileBtn').disabled=!f}
+function commitEditor(showToast=true){const f=activeFile();if(!f)return true;if(!dirty)return true;if(f.content!==$('codeEditor').value){pushHistory();f.content=$('codeEditor').value;f.language=language(f.path)}dirty=false;renderEditor();renderFiles();persist();if(showToast)toast('File saved');return true}
+function renderIssues(){const list=$('issuesList');list.replaceChildren();const issues=project.issues||[];$('errorCount').textContent=issues.filter(x=>x.severity==='error').length;$('warningCount').textContent=issues.filter(x=>x.severity==='warning').length;$('infoCount').textContent=issues.filter(x=>x.severity==='info').length;if(!issues.length){const d=document.createElement('div');d.className='empty';d.textContent='No diagnostics yet. Analyze the project to find common issues.';list.append(d);return}for(const issue of issues){const card=document.createElement('article');card.className='issue';const top=document.createElement('div');top.className='issue-top';const sev=document.createElement('span');sev.className='sev '+issue.severity;sev.textContent=issue.severity;const loc=document.createElement('span');loc.className='muted small';loc.textContent=(issue.path||'Project')+(issue.line?':'+issue.line:'');top.append(sev,loc);const title=document.createElement('strong');title.style.fontSize='12px';title.textContent=issue.title;const p=document.createElement('p');p.textContent=issue.message;card.append(top,title,p);if(issue.fix){const code=document.createElement('code');code.textContent='Suggested: '+issue.fix.label;card.append(code);const row=document.createElement('div');row.className='row';row.style.marginTop='8px';const btn=document.createElement('button');btn.textContent='Apply fix';btn.onclick=()=>applyIssueFix(issue);row.append(btn);card.append(row)}list.append(card)}}
+function addIssue(arr,f,severity,title,message,line=null,fix=null){arr.push({id:uid(),path:f?f.path:null,fileId:f?f.id:null,severity,title,message,line,fix})}
+function analyze(){commitEditor(false);const issues=[],paths=new Map();for(const f of project.files){const low=f.path.toLowerCase();if(paths.has(low))addIssue(issues,f,'error','Conflicting filename','Another file uses the same path with different casing or spelling.');paths.set(low,f.id);const c=f.content,lines=c.split('\n'),lang=f.language;
+ if(!c.trim())addIssue(issues,f,'warning','Empty file','This file contains no source code.');
+ if(/TODO|FIXME|XXX/.test(c))addIssue(issues,f,'info','Pending marker','Found a TODO/FIXME marker that may require implementation.');
+ if(/console\.log\s*\(/.test(c))addIssue(issues,f,'info','Debug logging','Console logging may be intentional; remove it if not needed.');
+ if(/eval\s*\(|new Function\s*\(/.test(c))addIssue(issues,f,'warning','Dynamic code execution','Review dynamic execution carefully. This detector is heuristic and does not assess all risks.');
+ if(/innerHTML\s*=/.test(c))addIssue(issues,f,'warning','Potential unsafe HTML insertion','Assigning untrusted strings to innerHTML can introduce injection risks; prefer textContent or sanitize trusted markup.');
+ if(lang==='javascript'||lang==='typescript'||lang==='jsx'||lang==='tsx'){const opens=(c.match(/\{/g)||[]).length,closes=(c.match(/\}/g)||[]).length;if(opens!==closes)addIssue(issues,f,'warning','Brace count mismatch',`Found ${opens} opening braces and ${closes} closing braces. Strings and comments can cause false positives.`);const parOpen=(c.match(/\(/g)||[]).length,parClose=(c.match(/\)/g)||[]).length;if(parOpen!==parClose)addIssue(issues,f,'warning','Parenthesis count mismatch',`Found ${parOpen} opening and ${parClose} closing parentheses. Review manually.`);if(/=\s*;/.test(c))addIssue(issues,f,'warning','Empty assignment','An assignment appears to have no value.');}
+ if(lang==='json'){try{JSON.parse(c)}catch(e){const m=String(e.message).match(/position\s+(\d+)/i);let line=null;if(m)line=c.slice(0,+m[1]).split('\n').length;addIssue(issues,f,'error','Invalid JSON',e.message,line)}}
+ if(lang==='html'){if(!/<!doctype\s+html/i.test(c)&&/<html[\s>]/i.test(c))addIssue(issues,f,'info','Missing doctype','Consider adding <!doctype html> at the top of the document.');if((c.match(/<script\b/gi)||[]).length>(c.match(/<\/script\s*>/gi)||[]).length)addIssue(issues,f,'warning','Unclosed script tag','A script opening tag may be missing a closing tag.');if((c.match(/<div\b/gi)||[]).length>(c.match(/<\/div\s*>/gi)||[]).length)addIssue(issues,f,'info','Possible unclosed div','Opening and closing div counts differ; nested markup may be valid, so verify manually.');}
+ if(/<script[^>]+src=["']https?:\/\//i.test(c)||/@import\s+url\(\s*["']?https?:\/\//i.test(c))addIssue(issues,f,'info','External dependency','This file references external resources that may require network access.');
+ const imports=[...c.matchAll(/(?:from\s*|import\s*\(|require\s*\()\s*['"](\.{1,2}\/[^'"]+)['"]/g)].map(m=>m[1]);for(const imp of imports){const base=f.path.includes('/')?f.path.slice(0,f.path.lastIndexOf('/')+1):'';const target=base+imp;const candidates=[target,target+'.js',target+'.ts',target+'.jsx',target+'.tsx',target+'.json',target+'/index.js',target+'/index.ts',target+'.css'];if(!project.files.some(x=>candidates.includes(x.path)))addIssue(issues,f,'warning','Possible missing local import',`Could not match "${imp}" to a project file. Aliases, package resolution, and bundler rules are not checked.`)}
+ }
+ project.issues=issues;renderIssues();persist();toast(`Analysis complete: ${issues.length} finding${issues.length===1?'':'s'} (static checks only)`)}
+function suggestFixes(){analyze();if(!project.issues.length)toast('No heuristic fixes suggested. Review code manually.');else toast('Suggestions are listed in Diagnostics; review each before applying.')}
+function safeFix(f){let c=f.content,changes=[];if(f.language==='html'&&/<html[\s>]/i.test(c)&&!/<doctype\s+html/i.test(c)){c='<!doctype html>\n'+c;changes.push('Added HTML doctype')}if(f.language==='json'){try{JSON.parse(c)}catch(e){/* JSON is never auto-rewritten without a parseable structure. */}}return {content:c,changes}}
+function applySafeFixes(){commitEditor(false);const candidates=project.files.map(f=>({f,...safeFix(f)})).filter(x=>x.content!==x.f.content);if(!candidates.length){toast('No conservative automatic fixes found.');return}pushHistory();for(const x of candidates)x.f.content=x.content;project.issues=[];renderAll();persist();toast(`Applied ${candidates.length} conservative fix${candidates.length===1?'':'es'}; use Undo to revert.`)}
+function applyIssueFix(issue){if(!issue.fix)return;const f=project.files.find(x=>x.id===issue.fileId);if(!f)return;pushHistory();if(issue.fix.type==='doctype'&&!/<!doctype\s+html/i.test(f.content))f.content='<!doctype html>\n'+f.content;project.issues=project.issues.filter(x=>x.id!==issue.id);renderAll();persist();toast('Suggested fix applied')}
+function renderAll(){renderFiles();renderEditor();renderIssues();updateHistoryButtons()}
+function updateHistoryButtons(){$('undoBtn').disabled=!history.length;$('redoBtn').disabled=!future.length}
+function switchTab(tab){for(const el of document.querySelectorAll('[data-tab]'))el.classList.toggle('active',el.dataset.tab===tab);$('editorView').classList.toggle('hidden',tab!=='editor');$('intakeView').classList.toggle('hidden',tab!=='intake');$('settingsView').classList.toggle('hidden',tab!=='settings');$('aiPatchView').classList.toggle('hidden',tab!=='patch')}
+function parseBlocks(input){const out=[];const re=/```([^\n`]*)\n([\s\S]*?)```/g;let m;while((m=re.exec(input))!==null){const info=m[1].trim().split(/\s+/),lang=(info[0]||'').toLowerCase(),name=info.slice(1).join(' ');out.push({lang,name,content:m[2].replace(/\n$/,'')})}return out}
+function inferPath(block,index,mode){const raw=block.name||'';if(raw&&(/\.[a-z0-9]{1,8}$/i.test(raw)||raw.includes('/')))return raw.replace(/^['"]|['"]$/g,'');const l=block.lang;if(mode==='fenced'&&l)return `snippet-${index+1}.${({js:'js',javascript:'js',ts:'ts',typescript:'ts',jsx:'jsx',tsx:'tsx',html:'html',css:'css',json:'json',python:'py',py:'py',php:'php',sql:'sql',xml:'xml',yaml:'yml',markdown:'md'})[l]||l}`;const normalized=({js:'javascript',ts:'typescript',py:'python',htm:'html'})[l]||l;const ext=Object.keys(extLang).find(k=>extLang[k]===normalized);return ext?`snippet-${index+1}.${ext}`:`snippet-${index+1}.txt`}
+function detectLangBlock(block){let l=block.lang.toLowerCase();if(l==='js')l='javascript';if(l==='ts')l='typescript';if(l==='py')l='python';if(l==='htm')l='html';if(l==='text'||l==='plaintext')l='text';return l}
+function organize(){const input=$('snippetInput').value;if(!input.trim()){toast('Paste code before organizing.');return}commitEditor(false);let blocks=parseBlocks(input);if(!blocks.length)blocks=[{lang:'',name:'',content:input.trim()}];pushHistory();const mode=$('organizeMode').value;let created=0;for(let i=0;i<blocks.length;i++){const b=blocks[i];let path=inferPath(b,i,mode),content=b.content;const lang=detectLangBlock(b);if(!b.lang){if(/^\s*<!doctype html|<html[\s>]/i.test(content))path=`index.html`;else if(/^\s*[\w.#:\s,>]+\{[^}]*\}/.test(content)&&!/[<>]/.test(content.slice(0,100)))path=`styles.css`;else if(/\b(const|let|var|function|=>|document\.|console\.)/.test(content))path=`app.js`}else if(!/\.[a-z0-9]{1,8}$/i.test(path)){const ext=Object.keys(extLang).find(k=>extLang[k]===lang);if(ext)path+='.'+ext}
+ const duplicate=project.files.find(f=>f.content.trim()===content.trim()&&content.trim());if(duplicate){continue}const f=addFile(path,content,{activate:created===0});if(lang&&lang!=='text'&&lang!=='plaintext')f.language=lang;created++}
+ $('parseSummary').textContent=`Parsed ${blocks.length} block(s); added ${created} new file(s). Duplicate content was skipped. Review filenames and diagnostics before exporting.`;renderAll();persist();switchTab('editor');toast(`Organized ${created} file${created===1?'':'s'}`)}
+function downloadBlob(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.rel='noopener';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function downloadText(text,name,type='text/plain;charset=utf-8'){downloadBlob(new Blob([text],{type}),name)}
+function exportJSON(){commitEditor(false);const payload={format:'CodeForgeProject',version:1,exportedAt:new Date().toISOString(),name:project.name,files:project.files.map(f=>({path:f.path,language:f.language,content:f.content})),dependencies:extractDependencies(),notes:'Dependencies are listed as detected references; this export does not install packages or verify build configuration.'};downloadText(JSON.stringify(payload,null,2),'codeforge-project.json','application/json;charset=utf-8');toast('Project JSON exported')}
+function extractDependencies(){const refs=new Set();for(const f of project.files){for(const m of f.content.matchAll(/(?:from\s*|require\s*\(|import\s*\()\s*['"]([^.'"][^'"]*)['"]/g)){const x=m[1];if(x&&!x.startsWith('/')&&!x.startsWith('.'))refs.add(x.split('/')[0].startsWith('@')?x.split('/').slice(0,2).join('/'):x.split('/')[0])}}return [...refs].sort()}
+function exportStandalone(){commitEditor(false);let f=activeFile();if(!f||f.language!=='html')f=project.files.find(x=>x.language==='html');if(!f){toast('No HTML file found. Create or import an .html file first.');return}downloadText(f.content,basename(f.path).endsWith('.html')?basename(f.path):'index.html','text/html;charset=utf-8');toast('HTML source exported; linked assets remain external')}
+function crc32(bytes){let crc=-1;for(const b of bytes){crc^=b;for(let j=0;j<8;j++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}return (crc^-1)>>>0}
+function u16(n){return [n&255,(n>>>8)&255]}function u32(n){return [n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255]}
+function makeZip(entries){const enc=new TextEncoder(),locals=[],centrals=[];let offset=0;for(const ent of entries){const name=enc.encode(ent.name),data=enc.encode(ent.content),crc=crc32(data),lh=new Uint8Array([...u32(0x04034b50),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...name,...data]);locals.push(lh);const ch=new Uint8Array([...u32(0x02014b50),...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset),...name]);centrals.push(ch);offset+=lh.length}const centralSize=centrals.reduce((n,x)=>n+x.length,0),end=new Uint8Array([...u32(0x06054b50),...u16(0),...u16(0),...u16(entries.length),...u16(entries.length),...u32(centralSize),...u32(offset),...u16(0)]);return new Blob([...locals,...centrals,end],{type:'application/zip'})}
+function exportZip(){commitEditor(false);if(!project.files.length){toast('Add at least one file before exporting.');return}try{const entries=project.files.map(f=>({name:f.path,content:f.content}));entries.push({name:'codeforge-manifest.json',content:JSON.stringify({format:'CodeForgeProject',version:1,name:project.name,files:project.files.map(f=>({path:f.path,language:f.language})),detectedDependencies:extractDependencies(),generatedAt:new Date().toISOString()},null,2)});downloadBlob(makeZip(entries),'codeforge-project.zip');toast('ZIP archive generated')}catch(e){toast('ZIP export failed: '+e.message)}}
+async function uploadFiles(fileList){commitEditor(false);const files=[...fileList];if(!files.length)return;pushHistory();let count=0;for(const file of files){try{const content=await file.text();const f=addFile(file.webkitRelativePath||file.name,content,{activate:count===0});f.language=language(f.path);count++}catch(e){toast('Could not read '+file.name)}}renderAll();persist();toast(`Imported ${count} file${count===1?'':'s'}`)}
+function newFile(){const path=prompt('New file path (example: src/app.js):','untitled.js');if(path===null)return;if(!path.trim()){toast('A filename is required.');return}pushHistory();const f=addFile(path,'',{activate:true});renderAll();persist();toast('Created '+f.path)}
+function renameFile(){const f=activeFile();if(!f){toast('Select a file first.');return}const path=prompt('Rename file or change its relative path:',f.path);if(path===null)return;if(!path.trim()){toast('A filename is required.');return}pushHistory();f.path=uniquePath(path,f.id);f.language=language(f.path);renderAll();persist();toast('File renamed')}
+function deleteFile(){const f=activeFile();if(!f){toast('Select a file first.');return}if(!confirm(`Delete "${f.path}" from this project?`))return;pushHistory();project.files=project.files.filter(x=>x.id!==f.id);delete project.original[f.id];project.activeId=project.files[0]?.id||null;renderAll();persist();toast('File deleted')}
+function restoreOriginal(){const f=activeFile();if(!f)return;if(project.original[f.id]===undefined){toast('No saved original is available for this file.');return}if(!confirm('Replace the current editor content with the original imported/created content?'))return;pushHistory();f.content=project.original[f.id];dirty=false;renderAll();persist();toast('Original content restored')}
+function newProject(){if(!confirm('Start a new empty project? Export or copy any work you need first.'))return;pushHistory();project={name:'Untitled Project',files:[],activeId:null,original:{},issues:[],settings:project.settings||{endpoint:'',model:''}};renderAll();persist();toast('New empty project created')}
+function importProjectJSON(file){file.text().then(raw=>{const d=JSON.parse(raw);if(!d||!Array.isArray(d.files))throw new Error('This JSON does not contain a files array.');const incoming=[];for(const item of d.files){if(!item||typeof item.path!=='string'||typeof item.content!=='string')continue;incoming.push({path:item.path,content:item.content})}if(!incoming.length)throw new Error('No valid files found in JSON.');pushHistory();for(const item of incoming){const f=addFile(item.path,item.content,{activate:project.files.length===0});project.original[f.id]=f.content}renderAll();persist();toast(`Imported ${incoming.length} project file(s)`)}).catch(e=>toast('Import failed: '+e.message))}
+function saveSettings(){const value=$('aiEndpoint').value.trim();if(value){try{const u=new URL(value);if(!['https:','http:'].includes(u.protocol)||u.username||u.password)throw new Error('Use a valid HTTP(S) URL without embedded credentials.')}catch(e){toast('Enter a valid HTTP(S) backend URL.');return}}project.settings={endpoint:value,model:$('aiModel').value.trim()};persist();$('settingsStatus').textContent=value?'Backend URL saved locally; no requests are sent.':'No backend URL configured. No API keys are stored.';toast('Settings saved')}
+function checkEndpoint(){const v=$('aiEndpoint').value.trim();if(!v){toast('Enter your backend URL first.');return}try{const u=new URL(v);if(!['https:','http:'].includes(u.protocol)||u.username||u.password)throw 0;toast('URL format looks valid; reachability and security are not tested.')}catch(e){toast('Invalid URL. Use a valid HTTP(S) URL without credentials.')}}
+<p>let pendingAiChanges = [];<br />
+function extractAIContent(data){<br />
+if(data &amp;&amp; Array.isArray(data.choices) &amp;&amp; data.choices[0]?.message?.content) return data.choices[0].message.content;<br />
+if(typeof data?.content === 'string') return data.content;<br />
+if(typeof data?.output_text === 'string') return data.output_text;<br />
+throw new Error('Backend response did not contain choices[0].message.content or content.');<br />
+}<br />
+function parseAIJson(text){<br />
+let raw=String(text).trim().replace(/^<code>(?:json)?\s*/i,'').replace(/\s*</code>$/,'');<br />
+try{return JSON.parse(raw)}catch(e){<br />
+const start=raw.indexOf('{'), end=raw.lastIndexOf('}');<br />
+if(start&gt;=0&amp;&amp;end&gt;start)return JSON.parse(raw.slice(start,end+1));<br />
+throw new Error('The model did not return valid JSON. Try again or adjust the backend prompt.');<br />
+}<br />
+}<br />
+async function callAI(mode){<br />
+commitEditor(false);<br />
+const endpoint=(project.settings?.endpoint||$('aiEndpoint').value||'').trim();<br />
+if(!endpoint){switchTab('settings');$('aiStatus').textContent='Set and save your backend proxy URL first.';toast('Configure an AI backend URL first.');return}<br />
+if(!project.files.length){toast('Add project files before using AI.');return}<br />
+let url;try{url=new URL(endpoint);if(!['http:','https:'].includes(url.protocol)||url.username||url.password)throw new Error()}catch(e){toast('Invalid backend URL.');return}<br />
+const selected=activeFile();<br />
+const sourceFiles=project.files.map(f=&gt;({path:f.path,language:f.language,content:f.content}));<br />
+const instructions=$('aiInstructions').value.trim();<br />
+const system = mode==='review'<br />
+? 'You are a senior software engineer reviewing untrusted source code. Do not execute code. Return ONLY valid JSON with schema {&quot;summary&quot;:&quot;...&quot;,&quot;findings&quot;:[{&quot;severity&quot;:&quot;error|warning|info&quot;,&quot;file&quot;:&quot;relative/path&quot;,&quot;line&quot;:1,&quot;title&quot;:&quot;...&quot;,&quot;explanation&quot;:&quot;...&quot;,&quot;suggestion&quot;:&quot;...&quot;}]}. Use only supplied paths. Do not invent test results. Be precise; distinguish verified syntax issues from hypotheses.'<br />
+: 'You are a senior software engineer proposing a minimal safe code repair. Do not execute code. Return ONLY valid JSON with schema {&quot;summary&quot;:&quot;...&quot;,&quot;changes&quot;:[{&quot;file&quot;:&quot;existing/relative/path&quot;,&quot;reason&quot;:&quot;...&quot;,&quot;content&quot;:&quot;FULL replacement file content&quot;}]}. Each change must refer to an existing supplied file. Include full replacement content, not a diff. Do not add files unless truly necessary; do not claim tests were run. If no safe repair is possible, return {&quot;summary&quot;:&quot;No safe repair proposed.&quot;,&quot;changes&quot;:[]}.';<br />
+const user = JSON.stringify({task:mode, selectedFile:selected?.path||null, instructions, files:sourceFiles});<br />
+const btn=mode==='review'?$('aiReviewBtn'):$('aiRepairBtn');btn.disabled=true;<br />
+$('aiStatus').textContent='Contacting configured AI backend…';<br />
+try{<br />
+const response=await fetch(url.href,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({model:project.settings?.model||$('aiModel').value.trim()||undefined,messages:[{role:'system',content:system},{role:'user',content:user}],response_format:{type:'json_object'}}),credentials:'same-origin',redirect:'error'});<br />
+if(!response.ok)throw new Error(<code>Backend returned HTTP ${response.status}. Check proxy logs and configuration.</code>);<br />
+const data=await response.json(), content=extractAIContent(data), parsed=parseAIJson(content);<br />
+if(mode==='review'){<br />
+const findings=Array.isArray(parsed.findings)?parsed.findings:[];<br />
+const issues=[];<br />
+for(const item of findings){const f=project.files.find(x=&gt;x.path===item.file);addIssue(issues,f,['error','warning','info'].includes(item.severity)?item.severity:'info',String(item.title||'AI finding'),String(item.explanation||item.suggestion||'No explanation provided.'),Number.isInteger(item.line)&amp;&amp;item.line&gt;0?item.line:null,null)}<br />
+project.issues=[...project.issues.filter(x=&gt;!x.aiGenerated),...issues.map(x=&gt;({...x,aiGenerated:true}))];<br />
+renderIssues();persist();$('aiStatus').textContent=<code>AI review complete: ${findings.length} finding(s). Model output is advisory; tests were not run.</code>;toast('AI review completed');<br />
+}else{<br />
+const changes=Array.isArray(parsed.changes)?parsed.changes:[];<br />
+pendingAiChanges=changes.filter(x=&gt;typeof x.file==='string'&amp;&amp;typeof x.content==='string'&amp;&amp;project.files.some(f=&gt;f.path===x.file)).map(x=&gt;({file:x.file,reason:String(x.reason||'AI-proposed change'),content:x.content,selected:true}));<br />
+renderAiPatch(String(parsed.summary||'Review the proposed file replacements.'),pendingAiChanges);<br />
+switchTab('patch');$('aiStatus').textContent=<code>AI proposed ${pendingAiChanges.length} change(s). Nothing has been applied.</code>;toast('AI patch ready for review');<br />
+}<br />
+}catch(e){$('aiStatus').textContent='AI request failed: '+e.message;toast('AI request failed. Check endpoint, CORS, and backend contract.')}<br />
+finally{btn.disabled=false}<br />
+}<br />
+function renderAiPatch(summary,changes){<br />
+$('aiPatchSummary').textContent=summary;<br />
+const list=$('aiPatchList');list.replaceChildren();<br />
+if(!changes.length){const d=document.createElement('div');d.className='empty';d.textContent='No valid changes returned. The backend must return existing file paths and complete replacement content.';list.append(d)}<br />
+changes.forEach((change,i)=&gt;{<br />
+const card=document.createElement('article');card.className='issue';<br />
+const label=document.createElement('label');label.style.display='flex';label.style.gap='8px';label.style.alignItems='flex-start';<br />
+const check=document.createElement('input');check.type='checkbox';check.checked=change.selected;check.onchange=()=&gt;{pendingAiChanges[i].selected=check.checked;$('applyAiPatchBtn').disabled=!pendingAiChanges.some(x=&gt;x.selected)};<br />
+const meta=document.createElement('span');meta.style.flex='1';<br />
+const name=document.createElement('strong');name.textContent=change.file;name.style.display='block';<br />
+const reason=document.createElement('span');reason.className='muted small';reason.textContent=change.reason;<br />
+meta.append(name,reason);label.append(check,meta);card.append(label);<br />
+const details=document.createElement('details');details.style.marginTop='8px';<br />
+const summaryEl=document.createElement('summary');summaryEl.textContent='Preview replacement ('+change.content.split('\n').length+' lines)';summaryEl.style.cursor='pointer';<br />
+const pre=document.createElement('pre');pre.textContent=change.content;pre.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;background:#090b12;padding:10px;border-radius:8px;font:11px/1.5 ui-monospace,monospace';<br />
+details.append(summaryEl,pre);card.append(details);list.append(card)<br />
+});<br />
+$('applyAiPatchBtn').disabled=!changes.some(x=&gt;x.selected);<br />
+}<br />
+function applyAiPatch(){<br />
+const selected=pendingAiChanges.filter(x=&gt;x.selected);if(!selected.length){toast('Select at least one change.');return}<br />
+const conflicts=selected.filter(x=&gt;!project.files.some(f=&gt;f.path===x.file));if(conflicts.length){toast('One or more target files no longer exist.');return}<br />
+if(!confirm(<code>Apply ${selected.length} AI-proposed full-file replacement(s)? This will overwrite current file contents. Undo will be available.</code>))return;<br />
+pushHistory();<br />
+for(const change of selected){const f=project.files.find(x=&gt;x.path===change.file);if(f)f.content=change.content}<br />
+pendingAiChanges=[];project.issues=[];renderAll();persist();switchTab('editor');toast(<code>Applied ${selected.length} AI change(s). Run Analyze and test the project.</code>)<br />
+}</p>
+<p>function init(){if(!loadPersisted()){addFile('index.html','&lt;!doctype html&gt;\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>My Project</title>\n</head>\n<body>\n  <h1>Hello, CodeForge!</h1>\n</body>\n</html>');project.original[project.files[0].id]=project.files[0].content;addFile('styles.css','body {\n  margin: 0;\n  font-family: system-ui, sans-serif;\n}\n');project.original[project.files[1].id]=project.files[1].content;addFile('app.js',&quot;// Add your JavaScript here.\n&quot;);project.original[project.files[2].id]=project.files[2].content;persist()}if(!project.activeId&amp;&amp;project.files[0])project.activeId=project.files[0].id;$('aiEndpoint').value=project.settings?.endpoint||'';$('aiModel').value=project.settings?.model||'';$('settingsStatus').textContent=project.settings?.endpoint?'Backend URL saved locally; no requests are sent.':'No API keys are stored in this app.';renderAll();updateHistoryButtons()}<br />
+$('codeEditor').addEventListener('input',()=&gt;{dirty=true;$('dirtyState').textContent='Unsaved editor changes';$('lineCount').textContent=$('codeEditor').value.split('\n').length+' lines'});<br />
+$('saveFileBtn').onclick=()=&gt;commitEditor(true);$('undoBtn').onclick=undo;$('redoBtn').onclick=redo;$('analyzeBtn').onclick=analyze;$('suggestBtn').onclick=suggestFixes;$('applyBtn').onclick=applySafeFixes;<br />
+$('newFileBtn').onclick=newFile;$('renameBtn').onclick=renameFile;$('deleteBtn').onclick=deleteFile;$('fileSearch').addEventListener('input',renderFiles);<br />
+$('copyBtn').onclick=async()=&gt;{const f=activeFile();if(!f)return;commitEditor(false);try{await navigator.clipboard.writeText(f.content);toast('File copied to clipboard')}catch(e){$('codeEditor').focus();$('codeEditor').select();toast('Clipboard access blocked; code selected for manual copy')}};<br />
+$('downloadFileBtn').onclick=()=&gt;{const f=activeFile();if(f){commitEditor(false);downloadText(f.content,basename(f.path));}};<br />
+$('restoreBtn').onclick=restoreOriginal;$('organizeBtn').onclick=organize;$('clearSnippetBtn').onclick=()=&gt;{$('snippetInput').value='';$('parseSummary').textContent='Paste snippets, then choose Parse &amp; organize.'};<br />
+$('exportZip').onclick=exportZip;$('exportJson').onclick=exportJSON;$('exportHtml').onclick=exportStandalone;$('newProjectBtn').onclick=newProject;$('clearIssuesBtn').onclick=()=&gt;{project.issues=[];renderIssues();persist()};<br />
+$('importJson').onclick=()=&gt;$('importJsonFile').click();$('importJsonFile').onchange=e=&gt;{if(e.target.files[0])importProjectJSON(e.target.files[0]);e.target.value=''};<br />
+$('uploadFiles').onchange=e=&gt;{uploadFiles(e.target.files);e.target.value=''};<br />
+$('dropzone').addEventListener('dragover',e=&gt;{e.preventDefault();$('dropzone').classList.add('drag')});$('dropzone').addEventListener('dragleave',()=&gt;$('dropzone').classList.remove('drag'));$('dropzone').addEventListener('drop',e=&gt;{e.preventDefault();$('dropzone').classList.remove('drag');uploadFiles(e.dataTransfer.files)});<br />
+document.querySelectorAll('[data-tab]').forEach(el=&gt;el.onclick=()=&gt;switchTab(el.dataset.tab));<br />
+$('saveSettingsBtn').onclick=saveSettings;$('testEndpointBtn').onclick=checkEndpoint;<br />
+$('aiReviewBtn').onclick=()=&gt;callAI('review');$('aiRepairBtn').onclick=()=&gt;callAI('repair');<br />
+$('applyAiPatchBtn').onclick=applyAiPatch;$('discardAiPatchBtn').onclick=()=&gt;{pendingAiChanges=[];renderAiPatch('Patch discarded.',[]);switchTab('editor')};<br />
+document.addEventListener('keydown',e=&gt;{const mod=e.ctrlKey||e.metaKey;if(mod&amp;&amp;e.key.toLowerCase()==='s'){e.preventDefault();commitEditor(true)}if(mod&amp;&amp;e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?redo():undo()}if(mod&amp;&amp;e.key.toLowerCase()==='y'){e.preventDefault();redo()}});<br />
+window.addEventListener('beforeunload',()=&gt;{if(dirty)commitEditor(false)});<br />
+init();<br />
+})();<br />
+</script></p>
+</body>
+</html>

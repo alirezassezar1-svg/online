@@ -1,0 +1,2590 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="theme-color" content="#03050c" />
+<title>SOLARIS — Interactive Solar System Simulator</title>
+<style>
+:root{
+  --bg:#03050c;
+  --glass:rgba(10,18,34,.74);
+  --glass-soft:rgba(255,255,255,.045);
+  --stroke:rgba(120,180,255,.18);
+  --stroke-strong:rgba(120,200,255,.42);
+  --cyan:#5fd8ff;
+  --violet:#a98cff;
+  --amber:#ffb765;
+  --text:#dbe7ff;
+  --muted:#8ea3c6;
+  --radius:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;padding:0;height:100%;width:100%;
+  background:var(--bg);color:var(--text);overflow:hidden;
+  overscroll-behavior:none;
+  font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Tahoma,Arial,"Noto Sans",sans-serif;
+  font-size:14px;line-height:1.45;
+  -webkit-font-smoothing:antialiased;
+}
+canvas#sky{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;}
+#vignette{position:fixed;inset:0;pointer-events:none;z-index:5;
+  background:radial-gradient(120% 90% at 50% 45%, rgba(0,0,0,0) 42%, rgba(0,0,0,.55) 100%);}
+.ic{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:0 0 auto}
+.ic-fill{fill:currentColor;stroke:none}
+
+/* ---------- top bar ---------- */
+#topbar{
+  position:fixed;top:0;left:0;right:0;z-index:20;display:flex;align-items:center;
+  justify-content:space-between;gap:8px;pointer-events:none;
+  padding:calc(8px + env(safe-area-inset-top)) calc(10px + env(safe-area-inset-right)) 8px calc(10px + env(safe-area-inset-left));
+}
+#topbar>*{pointer-events:auto}
+.brand{display:flex;align-items:center;gap:9px;background:var(--glass);backdrop-filter:blur(14px) saturate(140%);
+  -webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid var(--stroke);border-radius:12px;padding:6px 11px}
+.brand-mark{width:16px;height:16px;border-radius:50%;flex:0 0 auto;
+  background:radial-gradient(circle at 35% 35%, #fff3c9, #ffb765 45%, #d8721f 100%);
+  box-shadow:0 0 12px rgba(255,183,101,.65)}
+.brand-text{display:flex;flex-direction:column;line-height:1.12}
+.brand-text strong{font-size:13px;letter-spacing:.20em;font-weight:600}
+.brand-text span{font-size:9.5px;color:var(--muted);letter-spacing:.06em}
+.topbtns{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tb{
+  display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border-radius:11px;cursor:pointer;
+  background:var(--glass);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);
+  border:1px solid var(--stroke);color:var(--text);font-size:12px;font-family:inherit;
+  transition:background .18s,border-color .18s,transform .12s;
+}
+.tb:hover{background:rgba(95,216,255,.14);border-color:var(--stroke-strong)}
+.tb:active{transform:scale(.96)}
+.tb[aria-pressed="true"]{background:linear-gradient(135deg,rgba(95,216,255,.24),rgba(169,140,255,.24));border-color:var(--stroke-strong)}
+.tb span{display:none}
+@media (min-width:820px){.tb span{display:inline}}
+
+/* ---------- panels ---------- */
+.panel{
+  position:fixed;top:0;bottom:0;width:min(372px,92vw);z-index:30;display:flex;flex-direction:column;
+  background:var(--glass);backdrop-filter:blur(20px) saturate(150%);-webkit-backdrop-filter:blur(20px) saturate(150%);
+  border:1px solid var(--stroke);overflow:hidden;
+  transition:transform .34s cubic-bezier(.2,.85,.25,1);
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);
+}
+#panelControls{inset-inline-start:0;border-radius:0 18px 18px 0;transform:translateX(-104%)}
+#panelControls.open{transform:none}
+[dir="rtl"] #panelControls{transform:translateX(104%)}
+[dir="rtl"] #panelControls.open{transform:none}
+#panelData{inset-inline-end:0;border-radius:18px 0 0 18px;transform:translateX(104%)}
+#panelData.open{transform:none}
+[dir="rtl"] #panelData{transform:translateX(-104%)}
+[dir="rtl"] #panelData.open{transform:none}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:12px 14px 10px;border-bottom:1px solid var(--stroke);flex:0 0 auto}
+.panel-head h2{margin:0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+.panel-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:12px;display:flex;flex-direction:column;gap:11px}
+.x{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;font-family:inherit}
+.x:hover{color:var(--text);background:rgba(255,255,255,.08)}
+
+.card{background:var(--glass-soft);border:1px solid var(--stroke);border-radius:var(--radius);padding:11px 12px;display:flex;flex-direction:column;gap:9px}
+.card h3{margin:0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--violet);font-weight:600}
+.row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.lbl{font-size:12px;color:var(--muted)}
+.val{font-size:12.5px;font-variant-numeric:tabular-nums}
+.mono{font-variant-numeric:tabular-nums;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:11.5px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 11px;border-radius:10px;
+  border:1px solid var(--stroke);background:rgba(255,255,255,.05);color:var(--text);font-size:12px;
+  cursor:pointer;font-family:inherit;transition:background .18s,border-color .18s,transform .12s;white-space:nowrap}
+.btn:hover:not(:disabled){background:rgba(120,190,255,.14);border-color:var(--stroke-strong)}
+.btn:active:not(:disabled){transform:scale(.97)}
+.btn:disabled{opacity:.34;cursor:not-allowed}
+.btn.primary{background:linear-gradient(135deg,rgba(95,216,255,.20),rgba(169,140,255,.20));border-color:var(--stroke-strong)}
+.btn.wide{width:100%}
+.btn-row{display:flex;gap:7px;flex-wrap:wrap}
+.btn-row>.btn{flex:1 1 auto;min-width:70px}
+
+.switch{display:flex;align-items:center;gap:10px;padding:5px 2px;cursor:pointer;user-select:none;font-size:12.5px;position:relative}
+.switch input{position:absolute;opacity:0;width:1px;height:1px}
+.track{width:38px;height:21px;border-radius:99px;background:rgba(255,255,255,.11);position:relative;
+  transition:background .2s,border-color .2s;flex:0 0 auto;border:1px solid rgba(255,255,255,.13)}
+.thumb{position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:#9fb6d8;transition:left .2s,right .2s,background .2s}
+.switch input:checked+.track{background:linear-gradient(90deg,rgba(95,216,255,.55),rgba(169,140,255,.55));border-color:rgba(120,200,255,.5)}
+.switch input:checked+.track .thumb{left:20px;background:#eaf4ff}
+[dir="rtl"] .thumb{left:auto;right:2px}
+[dir="rtl"] .switch input:checked+.track .thumb{left:auto;right:20px}
+.switch input:focus-visible+.track{outline:2px solid var(--cyan);outline-offset:2px}
+
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:24px;background:transparent;margin:0;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:4px;border-radius:99px;background:linear-gradient(90deg,rgba(95,216,255,.75),rgba(169,140,255,.75))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:17px;height:17px;border-radius:50%;background:#eaf4ff;margin-top:-6.5px;box-shadow:0 0 10px rgba(95,216,255,.55);border:none}
+input[type=range]::-moz-range-track{height:4px;border-radius:99px;background:linear-gradient(90deg,rgba(95,216,255,.75),rgba(169,140,255,.75))}
+input[type=range]::-moz-range-thumb{width:17px;height:17px;border:none;border-radius:50%;background:#eaf4ff}
+input[type=range]:focus-visible{outline:2px solid var(--cyan);outline-offset:3px;border-radius:8px}
+
+select{background:rgba(10,20,38,.9);color:var(--text);border:1px solid var(--stroke);border-radius:9px;
+  padding:6px 8px;font-size:12px;font-family:inherit;max-width:100%}
+select:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+input[type=text],textarea{background:rgba(6,12,24,.9);color:var(--text);border:1px solid var(--stroke);border-radius:9px;
+  padding:8px;font-size:11.5px;font-family:ui-monospace,Menlo,Consolas,monospace;width:100%;resize:vertical}
+input[type=text]:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+
+/* ---------- experiment modal ---------- */
+.modal{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:14px;
+  background:rgba(2,4,10,.7);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px)}
+.modal.open{display:flex}
+.modal-card{width:min(780px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--glass);border:1px solid var(--stroke);border-radius:18px;
+  backdrop-filter:blur(22px) saturate(150%);-webkit-backdrop-filter:blur(22px) saturate(150%)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--stroke);flex:0 0 auto}
+.modal-head h2{margin:0;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);font-weight:600}
+.tabs{display:flex;gap:5px;padding:9px 12px 0;overflow-x:auto;flex:0 0 auto;-webkit-overflow-scrolling:touch}
+.tab{padding:7px 11px;border-radius:9px 9px 0 0;border:1px solid transparent;border-bottom:none;background:transparent;
+  color:var(--muted);font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tab.active{background:var(--glass-soft);border-color:var(--stroke);color:var(--text)}
+.modal-body{padding:13px;overflow-y:auto;-webkit-overflow-scrolling:touch;flex:1}
+.exp-pane{display:none;flex-direction:column;gap:11px}
+.exp-pane.active{display:flex}
+.result{background:rgba(4,10,22,.6);border:1px solid var(--stroke);border-radius:11px;padding:10px;
+  display:flex;flex-direction:column;gap:5px;font-size:12px;font-variant-numeric:tabular-nums}
+.result .k{color:var(--muted);font-size:11.5px}
+.result .line{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.note{font-size:11px;color:var(--muted);margin:0;line-height:1.5}
+.warn{color:var(--amber)}
+.good{color:#7fe3a8}
+.bad{color:#ff8f8f}
+.fld{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--muted);min-width:150px;flex:1}
+.fld .frow{display:flex;align-items:center;gap:8px}
+.fld output{font-variant-numeric:tabular-nums;color:var(--text);font-size:12px;min-width:64px;text-align:end}
+
+table.data{width:100%;border-collapse:collapse;font-size:11.5px;font-variant-numeric:tabular-nums}
+table.data th,table.data td{padding:5px 4px;text-align:start;border-bottom:1px solid rgba(120,180,255,.12)}
+table.data th{color:var(--muted);font-weight:500;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase}
+table.data tr:last-child td{border-bottom:none}
+
+#chart{width:100%;height:120px;display:block;border-radius:10px;background:rgba(4,10,22,.5);border:1px solid var(--stroke)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+  background:rgba(12,22,42,.95);border:1px solid var(--stroke-strong);border-radius:11px;padding:9px 14px;font-size:12px;
+  z-index:60;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;max-width:88vw;text-align:center}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.scroll-hint{font-size:10.5px;color:var(--muted);text-align:center;padding:2px 0 6px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:3px 0;border-bottom:1px dashed rgba(120,180,255,.1);font-size:12px}
+.kv:last-child{border-bottom:none}
+.kv .k{color:var(--muted)}
+.kv .v{font-variant-numeric:tabular-nums;text-align:end}
+.sect-title{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:2px 0 -3px}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.001ms !important;animation:none !important}}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true" focusable="false">
+  <symbol id="ic-sliders" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="7" cy="17" r="2.2"/></symbol>
+  <symbol id="ic-chart" viewBox="0 0 24 24"><path d="M4 4v16h16"/><path d="M7 15l3.5-4.5 3 3L20 7"/></symbol>
+  <symbol id="ic-flask" viewBox="0 0 24 24"><path d="M9.5 3h5"/><path d="M10.5 3v6.2L5.6 18a2 2 0 0 0 1.8 3h9.2a2 2 0 0 0 1.8-3l-4.9-8.8V3"/><path d="M7.6 15h8.8"/></symbol>
+  <symbol id="ic-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></symbol>
+  <symbol id="ic-expand" viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 15v5h-5"/><path d="M15 4h5v5"/><path d="M9 20H4v-5"/></symbol>
+  <symbol id="ic-play" viewBox="0 0 24 24"><path d="M7 4.5l12 7.5-12 7.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14" stroke-width="3"/></symbol>
+  <symbol id="ic-stepf" viewBox="0 0 24 24"><path d="M6 5l9 7-9 7z" fill="currentColor" stroke="none"/><path d="M18 5v14" stroke-width="2.4"/></symbol>
+  <symbol id="ic-stepb" viewBox="0 0 24 24"><path d="M18 5l-9 7 9 7z" fill="currentColor" stroke="none"/><path d="M6 5v14" stroke-width="2.4"/></symbol>
+  <symbol id="ic-reset" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 1 1-2.6-6.1"/><path d="M20.5 4.5V10h-5.4"/></symbol>
+  <symbol id="ic-dl" viewBox="0 0 24 24"><path d="M12 4v11"/><path d="M7.5 10.5L12 15l4.5-4.5"/><path d="M5 20h14"/></symbol>
+  <symbol id="ic-ul" viewBox="0 0 24 24"><path d="M12 16V5"/><path d="M7.5 9.5L12 5l4.5 4.5"/><path d="M5 20h14"/></symbol>
+</svg>
+
+<canvas id="sky" aria-label="Solar system simulation canvas" role="img"></canvas>
+<div id="vignette"></div>
+
+<header id="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text">
+      <strong>SOLARIS</strong>
+      <span data-i18n="tagline">Orbital Mechanics Laboratory</span>
+    </div>
+  </div>
+  <div class="topbtns">
+    <button class="tb" id="btnPanelControls" aria-pressed="false" data-i18n-title="controls">
+      <svg class="ic"><use href="#ic-sliders"/></svg><span data-i18n="controls">Controls</span></button>
+    <button class="tb" id="btnPanelData" aria-pressed="false" data-i18n-title="data">
+      <svg class="ic"><use href="#ic-chart"/></svg><span data-i18n="data">Data</span></button>
+    <button class="tb" id="btnPanelExp" aria-pressed="false" data-i18n-title="experiments">
+      <svg class="ic"><use href="#ic-flask"/></svg><span data-i18n="experiments">Experiments</span></button>
+    <button class="tb" id="btnLang" data-i18n-title="language">
+      <svg class="ic"><use href="#ic-globe"/></svg><span id="langLabel">فارسی</span></button>
+    <button class="tb" id="btnFull" data-i18n-title="fullscreen">
+      <svg class="ic"><use href="#ic-expand"/></svg><span data-i18n="fullscreen">Full screen</span></button>
+  </div>
+</header>
+
+<!-- ================= CONTROLS PANEL ================= -->
+<aside id="panelControls" class="panel" aria-label="Controls">
+  <div class="panel-head">
+    <h2 data-i18n="controls">Controls</h2>
+    <button class="x" data-close="panelControls" aria-label="Close">✕</button>
+  </div>
+  <div class="panel-body">
+
+    <section class="card">
+      <h3 data-i18n="timeMotion">Time &amp; Motion</h3>
+      <div class="btn-row">
+        <button class="btn primary" id="btnPlay"><svg class="ic"><use href="#ic-play" id="playIcon"/></svg><span id="playLabel" data-i18n="pause">Pause</span></button>
+        <button class="btn" id="btnStepBack" data-i18n-title="stepBack"><svg class="ic"><use href="#ic-stepb"/></svg></button>
+        <button class="btn" id="btnStepFwd" data-i18n-title="stepFwd"><svg class="ic"><use href="#ic-stepf"/></svg></button>
+        <button class="btn" id="btnResetSim" data-i18n-title="resetSim"><svg class="ic"><use href="#ic-reset"/></svg></button>
+      </div>
+      <div class="fld">
+        <div class="frow"><span data-i18n="speed">Time speed</span><output id="speedOut">5.0 d/s</output></div>
+        <input type="range" id="speedRange" min="0" max="1000" step="1" value="330" aria-label="Time speed" />
+      </div>
+      <div class="kv"><span class="k" data-i18n="elapsed">Elapsed (since J2000)</span><span class="v" id="elapsedOut">—</span></div>
+      <div class="kv"><span class="k" data-i18n="stepSize">Integration step</span><span class="v" id="dtOut">—</span></div>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="view">View</h3>
+      <div class="btn-row">
+        <button class="btn" id="btnZoomIn" data-i18n-title="zoomIn">+</button>
+        <button class="btn" id="btnZoomOut" data-i18n-title="zoomOut">−</button>
+        <button class="btn" id="btnResetView" data-i18n="resetView">Reset view</button>
+      </div>
+      <label class="switch"><input type="checkbox" id="tgTrails" checked><span class="track"><span class="thumb"></span></span><span data-i18n="trails">Orbital trails</span></label>
+      <label class="switch"><input type="checkbox" id="tgOrbits" checked><span class="track"><span class="thumb"></span></span><span data-i18n="orbits">Orbital paths</span></label>
+      <label class="switch"><input type="checkbox" id="tgLabels" checked><span class="track"><span class="thumb"></span></span><span data-i18n="labels">Labels</span></label>
+      <label class="switch"><input type="checkbox" id="tgConst"><span class="track"><span class="thumb"></span></span><span data-i18n="constellations">Constellation lines</span></label>
+      <label class="switch"><input type="checkbox" id="tgDwarfs"><span class="track"><span class="thumb"></span></span><span data-i18n="dwarfs">Show dwarf planets</span></label>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="scale">Scale system</h3>
+      <div class="btn-row">
+        <button class="btn primary" id="btnScaleSci" data-i18n="scientific">Scientific</button>
+        <button class="btn" id="btnScaleExp" data-i18n="exploration">Exploration</button>
+      </div>
+      <p class="note" id="scaleNote"></p>
+      <div class="kv"><span class="k" data-i18n="viewSpan">View width</span><span class="v" id="spanOut">—</span></div>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="physics">Physics model</h3>
+      <div class="btn-row">
+        <button class="btn primary" id="btnModeSimp" data-i18n="simplified">Sun-only gravity</button>
+        <button class="btn" id="btnModeNBody" data-i18n="nbody">Full N-body</button>
+      </div>
+      <div class="kv"><span class="k" data-i18n="integrator">Integrator</span><span class="v">Velocity Verlet</span></div>
+      <div class="kv"><span class="k" data-i18n="energy">Total energy</span><span class="v" id="energyOut">—</span></div>
+      <div class="kv"><span class="k" data-i18n="drift">Relative energy drift</span><span class="v" id="driftOut">—</span></div>
+      <p class="note" data-i18n="physNote"></p>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="settings">Settings</h3>
+      <div class="btn-row">
+        <button class="btn" id="btnExport"><svg class="ic"><use href="#ic-dl"/></svg><span data-i18n="exportCfg">Export</span></button>
+        <button class="btn" id="btnImport"><svg class="ic"><use href="#ic-ul"/></svg><span data-i18n="importCfg">Import</span></button>
+        <button class="btn" id="btnDefaults" data-i18n="defaults">Restore defaults</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="about">Model &amp; Sources</h3>
+      <p class="note" data-i18n="aboutText"></p>
+    </section>
+
+  </div>
+</aside>
+
+<!-- ================= DATA PANEL ================= -->
+<aside id="panelData" class="panel" aria-label="Data">
+  <div class="panel-head">
+    <h2 data-i18n="data">Data</h2>
+    <button class="x" data-close="panelData" aria-label="Close">✕</button>
+  </div>
+  <div class="panel-body">
+
+    <section class="card">
+      <h3 data-i18n="planetInfo">Body information</h3>
+      <div class="row"><span class="lbl" data-i18n="selectedBody">Selected body</span>
+        <select id="selBody" aria-label="Selected body"></select></div>
+      <div id="infoBody"></div>
+    </section>
+
+    <section class="card">
+      <h3 data-i18n="analytics">Analytics</h3>
+      <div id="analytics"></div>
+      <canvas id="chart" aria-label="Distance over time chart" role="img"></canvas>
+      <p class="note" data-i18n="chartNote">Chart plots the heliocentric distance of the selected body, sampled from the live simulation.</p>
+    </section>
+
+  </div>
+</aside>
+
+<!-- ================= EXPERIMENTS MODAL ================= -->
+<div class="modal" id="expModal" role="dialog" aria-modal="true" aria-label="Experiments">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h2 data-i18n="experiments">Experiments</h2>
+      <button class="x" data-close="expModal" aria-label="Close">✕</button>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="A" role="tab">A · <span data-i18n="expATitle">Initial speed</span></button>
+      <button class="tab" data-tab="B" role="tab">B · <span data-i18n="expBTitle">Orbital distance</span></button>
+      <button class="tab" data-tab="C" role="tab">C · <span data-i18n="expCTitle">Gravity &amp; mass</span></button>
+      <button class="tab" data-tab="D" role="tab">D · <span data-i18n="expDTitle">Two-body orbit</span></button>
+      <button class="tab" data-tab="E" role="tab">E · <span data-i18n="expETitle">Period comparison</span></button>
+    </div>
+    <div class="modal-body">
+
+      <!-- A -->
+      <div class="exp-pane active" id="paneA">
+        <p class="note" data-i18n="expAIntro"></p>
+        <div class="btn-row" style="align-items:flex-end">
+          <label class="fld"><span data-i18n="planet">Body</span><select id="expAPlanet"></select></label>
+          <label class="fld"><span data-i18n="speedFactor">Tangential speed factor</span>
+            <div class="frow"><input type="range" id="expAVel" min="0.3" max="1.6" step="0.005" value="1"><output id="expAVelOut">1.000</output></div>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="expAApply" data-i18n="apply">Apply to selected body</button>
+          <button class="btn" id="expAReset" data-i18n="resetSim">Reset</button>
+        </div>
+        <div class="result" id="expARes"></div>
+        <p class="note" data-i18n="expANote"></p>
+      </div>
+
+      <!-- B -->
+      <div class="exp-pane" id="paneB">
+        <p class="note" data-i18n="expBIntro"></p>
+        <label class="fld"><span data-i18n="distanceAU">Distance from Sun (AU)</span>
+          <div class="frow"><input type="range" id="expBDist" min="-0.7" max="1.7" step="0.005" value="0"><output id="expBDistOut">1.00 AU</output></div>
+        </label>
+        <label class="fld"><span data-i18n="speedFactor">Speed factor (1 = circular)</span>
+          <div class="frow"><input type="range" id="expBVel" min="0.5" max="1.5" step="0.005" value="1"><output id="expBVelOut">1.000</output></div>
+        </label>
+        <div class="btn-row">
+          <button class="btn primary" id="expBApply" data-i18n="createParticle">Create test particle</button>
+          <button class="btn" id="expBRemove" data-i18n="removeParticle">Remove particle</button>
+          <button class="btn" id="expBReset" data-i18n="resetSim">Reset</button>
+        </div>
+        <div class="result" id="expBRes"></div>
+        <p class="note" data-i18n="expBNote"></p>
+      </div>
+
+      <!-- C -->
+      <div class="exp-pane" id="paneC">
+        <p class="note" data-i18n="expCIntro"></p>
+        <div class="btn-row" style="align-items:flex-end">
+          <label class="fld"><span data-i18n="body">Body</span><select id="expCBody"></select></label>
+          <label class="fld"><span data-i18n="massFactor">Mass × reference</span>
+            <div class="frow"><input type="range" id="expCMass" min="-2" max="1.6" step="0.01" value="0"><output id="expCMassOut">1.00×</output></div>
+          </label>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="expCApply" data-i18n="applyMass">Apply mass</button>
+          <button class="btn" id="expCReset" data-i18n="resetMasses">Restore reference masses</button>
+        </div>
+        <div class="result" id="expCRes"></div>
+        <p class="note" data-i18n="expCNote"></p>
+      </div>
+
+      <!-- D -->
+      <div class="exp-pane" id="paneD">
+        <p class="note" data-i18n="expDIntro"></p>
+        <label class="fld"><span data-i18n="planet">Body</span><select id="expDPlanet"></select></label>
+        <div class="btn-row">
+          <button class="btn primary" id="expDApply" data-i18n="isolate">Isolate two-body system</button>
+          <button class="btn" id="expDRestore" data-i18n="restoreSystem">Restore full system</button>
+        </div>
+        <div class="result" id="expDRes"></div>
+        <p class="note" data-i18n="expDNote"></p>
+      </div>
+
+      <!-- E -->
+      <div class="exp-pane" id="paneE">
+        <p class="note" data-i18n="expEIntro"></p>
+        <div class="result" id="expERes" style="overflow-x:auto"></div>
+        <div class="btn-row">
+          <button class="btn primary" id="expEApply" data-i18n="refresh">Refresh table</button>
+          <button class="btn" id="expEReset" data-i18n="resetSim">Reset</button>
+        </div>
+        <p class="note" data-i18n="expENote"></p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+"use strict";
+(function(){
+
+/* ==================================================================
+   1. PHYSICAL CONSTANTS AND REFERENCE DATA
+   ------------------------------------------------------------------
+   Sources:
+   - G = 6.67430e-11 m^3 kg^-1 s^-2 (CODATA 2018)
+   - GM_sun = 1.32712440018e20 m^3 s^-2 (IAU / JPL DE440)
+   - Planetary masses, mean radii, semi-major axes, eccentricities,
+     longitudes of perihelion and mean anomalies at epoch:
+     NASA/JPL Solar System Dynamics "Planetary Fact Sheet" and the
+     approximate-element set of E. M. Standish (JPL).
+   - Epoch: J2000.0 = 2000-01-01 12:00 TT (JD 2451545.0)
+   ================================================================== */
+var G        = 6.67430e-11;
+var AU       = 1.495978707e11;
+var MSUN     = 1.98847e30;
+var RSUN     = 6.957e8;
+var MU_SUN   = G * MSUN;          // 1.32712e20 m^3/s^2
+var DAY      = 86400;
+var JYEAR    = 365.25 * DAY;
+var DEG      = Math.PI / 180;
+
+/* Reference planetary data (SI units, epoch J2000.0) */
+var PLANET_DATA = [
+  { id:'mercury', en:'Mercury', fa:'تیر', type:'planet', dwarf:false,
+    mass:3.3011e23, radius:2.4397e6, a:5.790905e10, e:0.205630, peri:77.456, M0:174.796,
+    period:87.9691, color:'#9c938a', light:'#d8cfc4', dark:'#2c2825', ring:false,
+    desc_en:'The smallest planet and the closest to the Sun. It is heavily cratered, has virtually no atmosphere, and its orbit is the most eccentric of the eight planets.',
+    desc_fa:'کوچک‌ترین سیاره و نزدیک‌ترین به خورشید. سطح آن به‌شدت دهانه‌دار است، جوّ قابل‌توجهی ندارد و مدارش از میان هشت سیاره، بیشترین خروج از مرکز را دارد.',
+    fact_en:'A single solar day on Mercury (sunrise to sunrise) lasts about 176 Earth days — two Mercurian years.',
+    fact_fa:'یک روز خورشیدی در تیر (از طلوع تا طلوع بعدی) حدود ۱۷۶ روز زمینی است — دو برابر سال آن.' },
+
+  { id:'venus', en:'Venus', fa:'ناهید', type:'planet', dwarf:false,
+    mass:4.8675e24, radius:6.0518e6, a:1.082090e11, e:0.006772, peri:131.533, M0:50.115,
+    period:224.701, color:'#e6c98a', light:'#fff2cf', dark:'#4a3a1e', ring:false,
+    desc_en:'Earth\u2019s near-twin in size, but with a runaway greenhouse atmosphere of carbon dioxide and sulphuric-acid clouds. Surface pressure is about 92 times Earth\u2019s.',
+    desc_fa:'از نظر اندازه تقریباً دوقلوی زمین است، اما جوّی گلخانه‌ای از دی‌اکسید کربن و ابرهای اسید سولفوریک دارد. فشار سطح آن حدود ۹۲ برابر زمین است.',
+    fact_en:'Venus rotates retrograde, and its rotation period (243 Earth days) is longer than its year (225 days).',
+    fact_fa:'ناهید در جهت معکوس می‌چرخد و دورهٔ چرخش آن (۲۴۳ روز زمینی) از سالش (۲۲۵ روز) طولانی‌تر است.' },
+
+  { id:'earth', en:'Earth', fa:'زمین', type:'planet', dwarf:false,
+    mass:5.97237e24, radius:6.371e6, a:1.495979e11, e:0.016710, peri:102.947, M0:357.529,
+    period:365.256, color:'#3d7fd6', light:'#9dd8ff', dark:'#0d1c33', ring:false,
+    desc_en:'The only planet known to host life. About 71% of its surface is liquid water and its atmosphere is roughly 78% nitrogen and 21% oxygen.',
+    desc_fa:'تنها سیاره‌ای که می‌دانیم میزبان حیات است. حدود ۷۱٪ سطح آن آب مایع است و جوّ آن تقریباً ۷۸٪ نیتروژن و ۲۱٪ اکسیژن دارد.',
+    fact_en:'Earth travels around the Sun at an average speed of about 29.78 km/s — roughly 107,000 km/h.',
+    fact_fa:'زمین با سرعت میانگین حدود ۲۹٫۷۸ کیلومتر بر ثانیه به دور خورشید می‌گردد — نزدیک به ۱۰۷٬۰۰۰ کیلومتر بر ساعت.' },
+
+  { id:'mars', en:'Mars', fa:'بهرام', type:'planet', dwarf:false,
+    mass:6.4171e23, radius:3.3895e6, a:2.279390e11, e:0.093400, peri:336.041, M0:19.373,
+    period:686.980, color:'#c1502e', light:'#ff9d70', dark:'#2e1106', ring:false,
+    desc_en:'A cold desert world with the tallest volcano and one of the deepest canyons in the Solar System. Its polar caps contain water ice and carbon-dioxide ice.',
+    desc_fa:'جهانی سرد و بیابانی با بلندترین آتشفشان و یکی از عمیق‌ترین دره‌های منظومهٔ شمسی. کلاهک‌های قطبی آن یخ آب و یخ دی‌اکسید کربن دارند.',
+    fact_en:'Olympus Mons rises about 22 km above the Martian datum — roughly 2.5 times the height of Mount Everest.',
+    fact_fa:'کوه المپوس حدود ۲۲ کیلومتر ارتفاع دارد — تقریباً ۲٫۵ برابر اورست.' },
+
+  { id:'jupiter', en:'Jupiter', fa:'برجیس', type:'planet', dwarf:false,
+    mass:1.8982e27, radius:6.9911e7, a:7.785720e11, e:0.048900, peri:14.728, M0:20.020,
+    period:4332.589, color:'#d8a878', light:'#f7e0c4', dark:'#3e2c1d', ring:false,
+    desc_en:'The most massive planet, a gas giant of hydrogen and helium. Its Great Red Spot is a storm wider than the Earth.',
+    desc_fa:'پرجرم‌ترین سیاره، غول گازی از هیدروژن و هلیوم. لکهٔ سرخ بزرگ آن طوفانی پهن‌تر از زمین است.',
+    fact_en:'Jupiter contains about 2.5 times the mass of all the other planets in the Solar System combined.',
+    fact_fa:'جرم برجیس حدود ۲٫۵ برابر مجموع جرم همهٔ سیارات دیگر منظومهٔ شمسی است.' },
+
+  { id:'saturn', en:'Saturn', fa:'کیوان', type:'planet', dwarf:false,
+    mass:5.6834e26, radius:5.8232e7, a:1.433530e12, e:0.056500, peri:92.599, M0:317.020,
+    period:10759.22, color:'#e3cfa0', light:'#f8eecb', dark:'#42381f', ring:true,
+    desc_en:'A gas giant famous for its bright ring system of icy particles. Its mean density is lower than that of water.',
+    desc_fa:'غولی گازی، نامدار به خاطر حلقه‌های روشنش از ذرات یخی. چگالی میانگین آن از آب کمتر است.',
+    fact_en:'Saturn\u2019s rings span roughly 280,000 km, yet in places they are less than 100 metres thick.',
+    fact_fa:'حلقه‌های کیوان حدود ۲۸۰٬۰۰۰ کیلومتر گستره دارند، اما در برخی جاها ضخامتشان کمتر از ۱۰۰ متر است.' },
+
+  { id:'uranus', en:'Uranus', fa:'اورانوس', type:'planet', dwarf:false,
+    mass:8.6810e25, radius:2.5362e7, a:2.875040e12, e:0.045700, peri:170.954, M0:142.239,
+    period:30688.5, color:'#8fd8e0', light:'#cdf6fa', dark:'#1a3d43', ring:false,
+    desc_en:'An ice giant tipped on its side by about 98 degrees relative to its orbit, which gives it extreme seasonal cycles.',
+    desc_fa:'غولی یخی که حدود ۹۸ درجه نسبت به مدارش کج شده است و همین چرخه‌های فصلی بسیار شدیدی برایش می‌سازد.',
+    fact_en:'Uranus was the first planet discovered with a telescope, by William Herschel in 1781.',
+    fact_fa:'اورانوس نخستین سیاره‌ای بود که با تلسکوپ کشف شد؛ ویلیام هرشل در ۱۷۸۱.' },
+
+  { id:'neptune', en:'Neptune', fa:'نپتون', type:'planet', dwarf:false,
+    mass:1.02413e26, radius:2.4622e7, a:4.504300e12, e:0.011300, peri:44.964, M0:256.228,
+    period:60182.0, color:'#4a6fdc', light:'#93aaff', dark:'#111d40', ring:false,
+    desc_en:'The most distant planet, a cold ice giant that hosts the fastest winds measured in the Solar System.',
+    desc_fa:'دورترین سیاره، غولی یخی و سرد که تندترین بادهای اندازه‌گیری‌شده در منظومهٔ شمسی را دارد.',
+    fact_en:'Neptune was found in 1846 by mathematical prediction before it was ever observed.',
+    fact_fa:'نپتون در ۱۸۴۶ نخست با پیش‌بینی ریاضی یافته شد و سپس رصد گردید.' },
+
+  { id:'pluto', en:'Pluto', fa:'پلوتو', type:'dwarf', dwarf:true,
+    mass:1.303e22, radius:1.1883e6, a:5.906380e12, e:0.248800, peri:224.068, M0:14.530,
+    period:90560.0, color:'#c9b7a4', light:'#efe4d5', dark:'#332c25', ring:false,
+    desc_en:'A dwarf planet of the Kuiper Belt, locked in a 2:3 mean-motion resonance with Neptune. It is not counted among the eight planets.',
+    desc_fa:'سیارهٔ کوتوله‌ای در کمربند کویپر که در رزونانس حرکتی ۲:۳ با نپتون قرار دارد. در شمار هشت سیاره به حساب نمی‌آید.',
+    fact_en:'Pluto\u2019s orbit is eccentric enough that it is sometimes closer to the Sun than Neptune.',
+    fact_fa:'مدار پلوتو آن‌قدر کشیده است که گاهی از نپتون به خورشید نزدیک‌تر می‌شود.' }
+];
+
+var SUN_INFO = {
+  en:'The Sun is a G2V main-sequence star holding about 99.86% of the mass of the Solar System. Its gravitational field dominates the orbital motion of every planet.',
+  fa:'خورشید ستاره‌ای از ردهٔ G2V است که حدود ۹۹٫۸۶٪ جرم منظومهٔ شمسی را در خود دارد. میدان گرانشی آن بر حرکت مداری همهٔ سیارات چیره است.',
+  fact_en:'Light from the Sun\u2019s core takes tens of thousands of years to reach the surface, but only about 8 minutes 20 seconds to reach Earth.',
+  fact_fa:'نور از هستهٔ خورشید ده‌ها هزار سال طول می‌کشد تا به سطح برسد، اما تنها حدود ۸ دقیقه و ۲۰ ثانیه تا زمین.'
+};
+
+/* ==================================================================
+   2. INTERNATIONALISATION
+   ================================================================== */
+var I18N = {
+en:{
+  tagline:'Orbital Mechanics Laboratory',
+  controls:'Controls', data:'Data', experiments:'Experiments', language:'Language', fullscreen:'Full screen',
+  timeMotion:'Time & Motion', play:'Play', pause:'Pause', stepBack:'Step back one step', stepFwd:'Step forward one step',
+  speed:'Time speed', resetSim:'Reset simulation', elapsed:'Elapsed (since J2000)', stepSize:'Integration step',
+  view:'View', zoomIn:'Zoom in', zoomOut:'Zoom out', resetView:'Reset view',
+  trails:'Orbital trails', labels:'Labels', constellations:'Constellation lines', orbits:'Orbital paths',
+  scale:'Scale system', scientific:'Scientific', exploration:'Exploration',
+  dwarfs:'Show dwarf planets', physics:'Physics model', simplified:'Sun-only gravity', nbody:'Full N-body',
+  integrator:'Integrator', energy:'Total energy', drift:'Relative energy drift',
+  settings:'Settings', exportCfg:'Export', importCfg:'Import', defaults:'Restore defaults',
+  about:'Model & Sources', planetInfo:'Body information', selectedBody:'Selected body', analytics:'Analytics',
+  viewSpan:'View width', chartNote:'Chart plots the heliocentric distance of the selected body, sampled from the live simulation.',
+  expATitle:'Initial speed', expBTitle:'Orbital distance', expCTitle:'Gravity & mass', expDTitle:'Two-body orbit', expETitle:'Period comparison',
+  planet:'Body', body:'Body', speedFactor:'Tangential speed factor', apply:'Apply to selected body', reset:'Reset',
+  distanceAU:'Distance from Sun (AU)', createParticle:'Create test particle', removeParticle:'Remove particle',
+  massFactor:'Mass × reference', applyMass:'Apply mass', resetMasses:'Restore reference masses',
+  isolate:'Isolate two-body system', restoreSystem:'Restore full system', refresh:'Refresh table',
+  planetClass:'Classification', meanRadius:'Mean radius (reference)', mass:'Mass (reference)',
+  meanDist:'Mean distance from Sun (reference)', orbPeriod:'Orbital period (reference)',
+  curDist:'Current distance from Sun (model)', curSpeed:'Current orbital speed (model)',
+  position:'Position in simulator frame', velocity:'Velocity in simulator frame',
+  description:'Description', fact:'Interesting fact', assumptions:'Assumptions & limitations',
+  simResult:'simulated', refData:'reference',
+  aboutText:'Reference data: NASA/JPL Solar System Dynamics planetary fact sheet and the J2000.0 approximate orbital elements of E. M. Standish (JPL). Epoch J2000.0 = 2000-01-01 12:00 TT. G = 6.67430e-11 m3 kg-1 s-2 (CODATA 2018); GM_sun = 1.32712440018e20 m3 s-2. Planet positions are the 2-D projection of the osculating orbit onto the ecliptic plane; orbital inclinations are ignored. This is not a high-precision ephemeris.',
+  physNote:'Velocity Verlet integration with a fixed step. "Sun-only gravity" treats the Sun as a fixed point mass (heliocentric approximation). "Full N-body" integrates mutual gravity between all active bodies in SI units.',
+  scaleNoteSci:'Scientific mode: distances between bodies are exactly 1:1 with reality. Planet radii are drawn with a minimum on-screen size so they remain visible — the drawn sizes are therefore not to scale with the distances.',
+  scaleNoteExp:'Exploration mode: orbital radii are compressed with a radial power law and planets are enlarged. Distances and sizes are NOT to scale; the ordering and the dynamics remain physically correct.',
+  expAIntro:'Experiment A — change the tangential speed of one planet and watch whether the orbit stays bound, becomes more elliptical, or escapes.',
+  expANote:'The reported ellipse is the osculating two-body orbit derived from the current heliocentric state vector under the Sun-only approximation. It ignores the gravity of the other planets.',
+  expBIntro:'Experiment B — place a test particle at a chosen heliocentric distance with a documented initial velocity and compare it with the original configuration.',
+  expBNote:'The test particle is massless in the Sun-only model (it does not perturb the planets). Its period is both computed from the osculating ellipse and measured from successive crossings of the +x axis.',
+  expCIntro:'Experiment C — change the mass of the Sun or of a planet and observe the effect on gravitational acceleration and on the motion of the other bodies.',
+  expCNote:'In the Sun-only model a planet\u2019s own mass does not change its orbit, because it behaves as a test particle in the Sun\u2019s field. Mutual perturbations appear only in the full N-body model.',
+  expDIntro:'Experiment D — isolate the Sun and one planet, remove the total momentum, and follow both bodies around their common centre of mass.',
+  expDNote:'This is a genuine two-body problem integrated in N-body mode. The centre of mass marker is computed from the actual masses and positions, not assumed.',
+  expEIntro:'Experiment E — compare the reference orbital periods with the periods derived from the live simulation state vectors.',
+  expENote:'Osculating periods are computed from the instantaneous heliocentric state vector; they differ slightly from the reference values because of the 2-D projection and the numerical integration.',
+  chartTime:'time', chartDist:'distance',
+  copied:'Copied to clipboard', imported:'Configuration imported', importFailed:'Import failed: invalid JSON',
+  exported:'Configuration exported', resetDone:'Simulation reset to J2000 initial conditions',
+  settingsRestored:'Default settings restored', noBody:'No body selected',
+  testParticle:'test particle', sun:'Sun', dwarf:'dwarf planet', star:'star',
+  bound:'bound (ellipse)', unbound:'unbound (escape)', parabolic:'marginally bound (parabola)',
+  massFactorLabel:'Mass multiplier', sunMass:'Sun', numBody:'N-body',
+  fullscreenUnsupported:'Full-screen is not available in this browser',
+  nanWarn:'Numerical instability detected — simulation paused and reset required.',
+  isRequired:'Two-body isolation requires N-body mode; it was switched on automatically.',
+  periapsis:'Periapsis (model)', apoapsis:'Apoapsis (model)', specificEnergy:'Specific orbital energy',
+  eccentricity:'Eccentricity', semiMajor:'Semi-major axis (model)', periodOsc:'Osculating period',
+  periodMeas:'Measured period', speedApplied:'Applied tangential speed', circularSpeed:'Local circular speed',
+  acceleration:'Acceleration produced', distanceNow:'Current separation',
+  keplerCheck:'T²/a³', referencePeriod:'Reference period',
+  barycentre:'Barycentre offset from Sun', totalMass:'Total mass', comVelocity:'Centre-of-mass velocity',
+  centreOfMass:'Centre of mass', momentumRemoved:'Total momentum removed',
+  expAResultTitle:'Orbit after applying the new speed',
+  expBResultTitle:'Test particle state', expCResultTitle:'Mass configuration', expDResultTitle:'Two-body configuration'
+},
+fa:{
+  tagline:'آزمایشگاه مکانیک مداری',
+  controls:'کنترل‌ها', data:'داده‌ها', experiments:'آزمایش‌ها', language:'زبان', fullscreen:'تمام‌صفحه',
+  timeMotion:'زمان و حرکت', play:'پخش', pause:'توقف', stepBack:'یک گام به عقب', stepFwd:'یک گام به جلو',
+  speed:'سرعت زمان', resetSim:'بازنشانی شبیه‌سازی', elapsed:'زمان سپری‌شده (از J2000)', stepSize:'گام انتگرال‌گیری',
+  view:'نمایش', zoomIn:'بزرگ‌نمایی', zoomOut:'کوچک‌نمایی', resetView:'بازنشانی نما',
+  trails:'ردهای مداری', labels:'برچسب‌ها', constellations:'خطوط صورت‌فلکی', orbits:'مسیرهای مداری',
+  scale:'سامانهٔ مقیاس', scientific:'علمی', exploration:'اکتشافی',
+  dwarfs:'نمایش سیارات کوتوله', physics:'مدل فیزیکی', simplified:'گرانش خورشیدمرکز', nbody:'جسم کامل N',
+  integrator:'انتگرال‌گیر', energy:'انرژی کل', drift:'رانش نسبی انرژی',
+  settings:'تنظیمات', exportCfg:'برون‌بری', importCfg:'درون‌بری', defaults:'بازگردانی پیش‌فرض‌ها',
+  about:'مدل و منابع', planetInfo:'اطلاعات جرم آسمانی', selectedBody:'جرم انتخاب‌شده', analytics:'تحلیل داده‌ها',
+  viewSpan:'پهنای میدان دید', chartNote:'نمودار، فاصلهٔ خورشیدمرکزی جرم انتخاب‌شده را از دادهٔ زندهٔ شبیه‌سازی نشان می‌دهد.',
+  expATitle:'سرعت اولیه', expBTitle:'فاصلهٔ مداری', expCTitle:'گرانش و جرم', expDTitle:'مدار دو‌جسمی', expETitle:'مقایسهٔ دوره‌ها',
+  planet:'جرم', body:'جرم', speedFactor:'ضریب سرعت مماسی', apply:'اعمال روی جرم انتخاب‌شده', reset:'بازنشانی',
+  distanceAU:'فاصله از خورشید (واحد نجومی)', createParticle:'ساخت ذرهٔ آزمون', removeParticle:'حذف ذره',
+  massFactor:'جرم × مقدار مرجع', applyMass:'اعمال جرم', resetMasses:'بازگردانی جرم‌های مرجع',
+  isolate:'جداسازی سامانهٔ دو‌جسمی', restoreSystem:'بازگردانی سامانهٔ کامل', refresh:'به‌روزرسانی جدول',
+  planetClass:'ردهٔ جرم', meanRadius:'شعاع میانگین (مرجع)', mass:'جرم (مرجع)',
+  meanDist:'فاصلهٔ میانگین از خورشید (مرجع)', orbPeriod:'دورهٔ مداری (مرجع)',
+  curDist:'فاصلهٔ کنونی از خورشید (مدل)', curSpeed:'سرعت مداری کنونی (مدل)',
+  position:'مکان در دستگاه شبیه‌ساز', velocity:'سرعت در دستگاه شبیه‌ساز',
+  description:'توضیح', fact:'نکتهٔ جالب', assumptions:'فرض‌ها و محدودیت‌ها',
+  simResult:'شبیه‌سازی', refData:'مرجع',
+  aboutText:'داده‌های مرجع: برگهٔ واقعیت‌های سیاره‌ای آزمایشگاه پیشرانش جت ناسا و عناصر مداری تقریبی J2000.0 اثر ا. م. استندیش. مبدأ زمانی J2000.0 = ۲۰۰۰-۰۱-۰۱ ساعت ۱۲:۰۰ TT. ثابت گرانش G = ۶٫۶۷۴۳۰e-11 و GM خورشید = ۱٫۳۲۷۱۲۴۴۰۰۱۸e20. مکان سیارات، تصویر دوبعدی مدار نوسانی بر صفحهٔ دائرةالبروج است و میل مداری نادیده گرفته شده. این یک تقویم نجومی دقیق نیست.',
+  physNote:'انتگرال‌گیری ورلت-سرعت با گام ثابت. حالت «گرانش خورشیدمرکز» خورشید را جرم نقطه‌ای ثابت می‌گیرد (تقریب خورشیدمرکزی). حالت «جسم کامل N» گرانش متقابل همهٔ اجرام فعال را در یکاهای SI انتگرال می‌گیرد.',
+  scaleNoteSci:'حالت علمی: فاصلهٔ میان اجرام دقیقاً ۱:۱ با واقعیت است. شعاع سیارات با کمینهٔ اندازهٔ روی صفحه رسم می‌شود تا دیده شوند؛ بنابراین اندازهٔ ترسیم‌شده با فاصله‌ها هم‌مقیاس نیست.',
+  scaleNoteExp:'حالت اکتشافی: شعاع مدارها با یک قانون توانی شعاعی فشرده و سیارات بزرگ‌نمایی شده‌اند. فاصله‌ها و اندازه‌ها هم‌مقیاس نیستند، اما ترتیب و دینامیک از نظر فیزیکی درست می‌ماند.',
+  expAIntro:'آزمایش الف — سرعت مماسی یک سیاره را تغییر دهید و ببینید مدار پایدار می‌ماند، کشیده‌تر می‌شود یا به فرار می‌رسد.',
+  expANote:'بیضی گزارش‌شده همان مدار نوسانی دو‌جسمی است که از بردار حالت خورشیدمرکزی کنونی و در تقریب خورشیدمرکز محاسبه شده است و گرانش سایر سیارات را نادیده می‌گیرد.',
+  expBIntro:'آزمایش ب — یک ذرهٔ آزمون را در فاصلهٔ دلخواه از خورشید با سرعت اولیهٔ مستند قرار دهید و آن را با پیکربندی اصلی مقایسه کنید.',
+  expBNote:'ذرهٔ آزمون در مدل خورشیدمرکز بی‌جرم است و سیارات را برنمی‌آشوبد. دورهٔ آن هم از بیضی نوسانی محاسبه می‌شود و هم از عبورهای پی‌درپی از محور +x اندازه‌گیری می‌شود.',
+  expCIntro:'آزمایش پ — جرم خورشید یا یک سیاره را تغییر دهید و اثرش را بر شتاب گرانشی و حرکت سایر اجرام ببینید.',
+  expCNote:'در مدل خورشیدمرکز، جرم خود سیاره مدارش را تغییر نمی‌دهد، زیرا مانند ذرهٔ آزمون در میدان خورشید رفتار می‌کند. آشوب‌های متقابل تنها در مدل جسم کامل N پدیدار می‌شوند.',
+  expDIntro:'آزمایش ت — خورشید و یک سیاره را جدا کنید، تکانهٔ کل را حذف کنید و هر دو را گرد مرکز جرم مشترکشان دنبال کنید.',
+  expDNote:'این یک مسئلهٔ واقعی دو‌جسمی است که در حالت جسم کامل N انتگرال گرفته می‌شود. نشانگر مرکز جرم از جرم‌ها و مکان‌های واقعی محاسبه می‌شود، نه به‌صورت فرضی.',
+  expEIntro:'آزمایش ث — دوره‌های مداری مرجع را با دوره‌های برگرفته از بردار حالت زندهٔ شبیه‌سازی مقایسه کنید.',
+  expENote:'دوره‌های نوسانی از بردار حالت خورشیدمرکزی لحظه‌ای محاسبه می‌شوند و به دلیل تصویر دوبعدی و انتگرال‌گیری عددی اندکی با مقادیر مرجع تفاوت دارند.',
+  chartTime:'زمان', chartDist:'فاصله',
+  copied:'در حافظه کپی شد', imported:'تنظیمات درون‌بری شد', importFailed:'درون‌بری ناموفق: JSON نامعتبر',
+  exported:'تنظیمات برون‌بری شد', resetDone:'شبیه‌سازی به شرایط اولیهٔ J2000 بازنشانی شد',
+  settingsRestored:'تنظیمات پیش‌فرض بازگردانده شد', noBody:'جرمی انتخاب نشده',
+  testParticle:'ذرهٔ آزمون', sun:'خورشید', dwarf:'سیارهٔ کوتوله', star:'ستاره',
+  bound:'پایدار (بیضی)', unbound:'ناپایدار (فرار)', parabolic:'مرزی (سهمی)',
+  massFactorLabel:'ضریب جرم', sunMass:'خورشید', numBody:'جسم N',
+  fullscreenUnsupported:'تمام‌صفحه در این مرورگر در دسترس نیست',
+  nanWarn:'ناپایداری عددی دیده شد — شبیه‌سازی متوقف شد و بازنشانی لازم است.',
+  isRequired:'جداسازی دو‌جسمی به حالت جسم کامل N نیاز دارد؛ به‌طور خودکار روشن شد.',
+  periapsis:'حضیض (مدل)', apoapsis:'اوج (مدل)', specificEnergy:'انرژی ویژهٔ مداری',
+  eccentricity:'خروج از مرکز', semiMajor:'نیم‌محور بزرگ (مدل)', periodOsc:'دورهٔ نوسانی',
+  periodMeas:'دورهٔ اندازه‌گیری‌شده', speedApplied:'سرعت مماسی اعمال‌شده', circularSpeed:'سرعت دایره‌ای محلی',
+  acceleration:'شتاب تولیدشده', distanceNow:'فاصلهٔ کنونی',
+  keplerCheck:'T²/a³', referencePeriod:'دورهٔ مرجع',
+  barycentre:'فاصلهٔ مرکز جرم از خورشید', totalMass:'جرم کل', comVelocity:'سرعت مرکز جرم',
+  centreOfMass:'مرکز جرم', momentumRemoved:'تکانهٔ کل حذف‌شده',
+  expAResultTitle:'مدار پس از اعمال سرعت جدید',
+  expBResultTitle:'وضعیت ذرهٔ آزمون', expCResultTitle:'پیکربندی جرم', expDResultTitle:'پیکربندی دو‌جسمی'
+}
+};
+
+/* ==================================================================
+   3. UTILITIES
+   ================================================================== */
+var numFmtCache = {};
+function getFmt(loc, digits){
+  var key = loc + '|' + digits;
+  if(!numFmtCache[key]){
+    numFmtCache[key] = new Intl.NumberFormat(loc, { maximumFractionDigits: digits, minimumFractionDigits: 0 });
+  }
+  return numFmtCache[key];
+}
+function fmt(v, digits){
+  if(v === null || v === undefined || !isFinite(v)) return '—';
+  digits = (digits === undefined) ? 2 : digits;
+  var loc = (state.lang === 'fa') ? 'fa-IR' : 'en-US';
+  try { return getFmt(loc, digits).format(v); } catch(e){ return String(v); }
+}
+var SUP = {'0':'\u2070','1':'\u00B9','2':'\u00B2','3':'\u00B3','4':'\u2074','5':'\u2075','6':'\u2076','7':'\u2077','8':'\u2078','9':'\u2079','-':'\u207B','+':'\u207A'};
+function sci(v, d){
+  if(v === null || v === undefined || !isFinite(v)) return '—';
+  d = (d === undefined) ? 3 : d;
+  if(v === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(v)));
+  var m = v / Math.pow(10, e);
+  var es = String(e).split('').map(function(c){ return SUP[c] || c; }).join('');
+  return m.toFixed(d) + ' \u00D7 10' + es;
+}
+function clamp(v, a, b){ return v < a ? a : (v > b ? b : v); }
+function T(key){
+  var d = I18N[state.lang];
+  return (d && d[key] !== undefined) ? d[key] : (I18N.en[key] !== undefined ? I18N.en[key] : key);
+}
+function toast(msg){
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.classList.remove('show'); }, 2200);
+}
+
+/* Deterministic PRNG for the star field */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+/* ==================================================================
+   4. STATE
+   ================================================================== */
+var state = {
+  lang: 'en',
+  running: true,
+  speedDaysPerSec: 5,
+  simTime: 0,                 // seconds since J2000.0
+  mode: 'simplified',         // 'simplified' | 'nbody'
+  scaleMode: 'scientific',    // 'scientific' | 'exploration'
+  showTrails: true,
+  showOrbits: true,
+  showLabels: true,
+  showConstellations: false,
+  showDwarfs: false,
+  selectedId: 'earth',
+  bodies: [],
+  dt: 6333,
+  E0: null,
+  acc: 0,
+  expIsolated: false,
+  series: [],
+  lastSeriesT: 0,
+  nanError: false
+};
+
+var cam = { cx: 0, cy: 0, scale: 1e-9, fitScale: 1e-9 };
+var panPx = { x: 0, y: 0 };
+
+var canvas, ctx, W = 0, H = 0, dpr = 1;
+var chartCanvas, chartCtx;
+var reduceMotion = false;
+
+/* Exploration-mode visual constants (documented, arbitrary but fixed) */
+var EXPL_P      = 0.55;      // radial compression exponent
+var EXPL_K_BODY = 5.7e6;     // display-radius coefficient for planets
+var EXPL_K_SUN  = 3.2e6;     // display-radius coefficient for the Sun
+
+/* ==================================================================
+   5. BODY CONSTRUCTION AND INITIAL CONDITIONS
+   ================================================================== */
+
+/* Convert classical elements to a 2-D Cartesian state (ecliptic projection). */
+function stateFromElements(a, e, periDeg, M0Deg, mu){
+  var n = Math.sqrt(mu / (a*a*a));
+  var M = M0Deg * DEG;
+  var E = M;
+  for(var i=0; i<80; i++){
+    var f = E - e*Math.sin(E) - M;
+    var fp = 1 - e*Math.cos(E);
+    if(fp === 0) break;
+    var d = f/fp;
+    E -= d;
+    if(Math.abs(d) < 1e-13) break;
+  }
+  var cosE = Math.cos(E), sinE = Math.sin(E);
+  var r = a*(1 - e*cosE);
+  var denom = 1 - e*cosE;
+  var xp = a*(cosE - e);
+  var yp = a*Math.sqrt(Math.max(0,1 - e*e))*sinE;
+  var vxp = -a*n*sinE/denom;
+  var vyp =  a*n*Math.sqrt(Math.max(0,1 - e*e))*cosE/denom;
+  var w = periDeg * DEG, cw = Math.cos(w), sw = Math.sin(w);
+  return {
+    x:  xp*cw - yp*sw,
+    y:  xp*sw + yp*cw,
+    vx: vxp*cw - vyp*sw,
+    vy: vxp*sw + vyp*cw,
+    r:  r,
+    speed: Math.hypot(vxp, vyp)
+  };
+}
+
+function makeSun(){
+  return {
+    id:'sun', type:'star', mass: MSUN, mass0: MSUN, radius: RSUN,
+    x:0, y:0, vx:0, vy:0, ax:0, ay:0,
+    active:true, fixed:true, dwarf:false,
+    color:'#ffcf7a', light:'#fff6d8', dark:'#c26a12',
+    trail: [], lastTrailT: -1e18, trailInterval: 1e18,
+    periodRef: null, aRef: null, eRef: null,
+    ring:false, isSun:true
+  };
+}
+
+function makePlanet(p){
+  var s = stateFromElements(p.a, p.e, p.peri, p.M0, MU_SUN);
+  return {
+    id: p.id, type: p.dwarf ? 'dwarf' : 'planet',
+    mass: p.mass, mass0: p.mass, radius: p.radius,
+    x: s.x, y: s.y, vx: s.vx, vy: s.vy, ax: 0, ay: 0,
+    active: true, fixed: false, dwarf: !!p.dwarf,
+    color: p.color, light: p.light, dark: p.dark, ring: !!p.ring,
+    color2: p.color,
+    trail: [], lastTrailT: -1e18,
+    trailInterval: (p.period * DAY) / 360,
+    periodRef: p.period, aRef: p.a, eRef: p.e,
+    data: p,
+    measuredPeriod: null, lastCrossT: null,
+    isSun: false
+  };
+}
+
+function resetSimulation(keepSelection){
+  state.bodies = [];
+  state.bodies.push(makeSun());
+  for(var i=0; i<PLANET_DATA.length; i++){
+    state.bodies.push(makePlanet(PLANET_DATA[i]));
+  }
+  state.simTime = 0;
+  state.acc = 0;
+  state.nanError = false;
+  state.expIsolated = false;
+  state.series = [];
+  state.lastSeriesT = 0;
+  applyFixedFlags();
+  computeAccel();
+  computeDt();
+  state.E0 = totalEnergy();
+  if(!keepSelection || !getBody(state.selectedId)) state.selectedId = 'earth';
+  fitView();
+  refreshBodySelectors();
+}
+
+function applyFixedFlags(){
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    b.fixed = (state.mode === 'simplified' && b.id === 'sun');
+  }
+}
+
+function getBody(id){
+  for(var i=0; i<state.bodies.length; i++) if(state.bodies[i].id === id) return state.bodies[i];
+  return null;
+}
+function isVisible(b){
+  if(!b.active) return false;
+  if(b.dwarf && !state.showDwarfs) return false;
+  return true;
+}
+function sunBody(){
+  for(var i=0; i<state.bodies.length; i++) if(state.bodies[i].id === 'sun') return state.bodies[i];
+  return state.bodies[0];
+}
+
+/* ==================================================================
+   6. PHYSICS
+   ================================================================== */
+function computeAccel(){
+  var bodies = state.bodies, n = bodies.length, i, j;
+  for(i=0; i<n; i++){ bodies[i].ax = 0; bodies[i].ay = 0; }
+
+  if(state.mode === 'simplified'){
+    for(i=0; i<n; i++){
+      var b = bodies[i];
+      if(b.fixed) continue;
+      var r2 = b.x*b.x + b.y*b.y;
+      var r = Math.sqrt(r2);
+      if(r < 1) continue;
+      var f = -MU_SUN / (r2 * r);
+      b.ax = f * b.x;
+      b.ay = f * b.y;
+    }
+  } else {
+    for(i=0; i<n; i++){
+      var bi = bodies[i];
+      if(!bi.active) continue;
+      for(j=i+1; j<n; j++){
+        var bj = bodies[j];
+        if(!bj.active) continue;
+        var dx = bj.x - bi.x, dy = bj.y - bi.y;
+        var rr2 = dx*dx + dy*dy;
+        if(rr2 < 1) continue;
+        var rr = Math.sqrt(rr2);
+        var inv = 1 / (rr2 * rr);
+        var gi = G * bj.mass * inv;
+        var gj = G * bi.mass * inv;
+        bi.ax += gi * dx;  bi.ay += gi * dy;
+        bj.ax -= gj * dx;  bj.ay -= gj * dy;
+      }
+    }
+  }
+}
+
+/* Velocity Verlet. Time-reversible: calling with a negative dt steps backwards. */
+function integrate(dt){
+  var bodies = state.bodies, n = bodies.length, i, b;
+  for(i=0; i<n; i++){
+    b = bodies[i];
+    if(b.fixed || !b.active) continue;
+    b.x += b.vx*dt + 0.5*b.ax*dt*dt;
+    b.y += b.vy*dt + 0.5*b.ay*dt*dt;
+    b.vx += 0.5*b.ax*dt;
+    b.vy += 0.5*b.ay*dt;
+  }
+  computeAccel();
+  for(i=0; i<n; i++){
+    b = bodies[i];
+    if(b.fixed || !b.active) continue;
+    b.vx += 0.5*b.ax*dt;
+    b.vy += 0.5*b.ay*dt;
+  }
+  state.simTime += dt;
+}
+
+function computeDt(){
+  var minP = Infinity;
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!b.active) continue;
+    if(b.periodRef){ minP = Math.min(minP, b.periodRef * DAY); }
+    else if(b.type === 'test'){
+      var r = Math.hypot(b.x, b.y);
+      if(r > 0){
+        var p = 2*Math.PI*Math.sqrt(r*r*r/MU_SUN);
+        if(isFinite(p) && p > 0) minP = Math.min(minP, p);
+      }
+    }
+  }
+  if(!isFinite(minP) || minP <= 0) minP = 365.25*DAY;
+  state.dt = clamp(minP/1200, 300, 20000);
+}
+
+function totalEnergy(){
+  var ke = 0, pe = 0, i, j;
+  var bodies = state.bodies;
+  for(i=0; i<bodies.length; i++){
+    var b = bodies[i];
+    if(!b.active) continue;
+    if(!b.fixed) ke += 0.5 * b.mass * (b.vx*b.vx + b.vy*b.vy);
+  }
+  if(state.mode === 'simplified'){
+    for(i=0; i<bodies.length; i++){
+      var bb = bodies[i];
+      if(!bb.active || bb.fixed) continue;
+      var r = Math.hypot(bb.x, bb.y);
+      if(r > 0) pe -= MU_SUN * bb.mass / r;
+    }
+  } else {
+    for(i=0; i<bodies.length; i++){
+      if(!bodies[i].active) continue;
+      for(j=i+1; j<bodies.length; j++){
+        if(!bodies[j].active) continue;
+        var dx = bodies[j].x - bodies[i].x, dy = bodies[j].y - bodies[i].y;
+        var rr = Math.hypot(dx, dy);
+        if(rr > 0) pe -= G * bodies[i].mass * bodies[j].mass / rr;
+      }
+    }
+  }
+  return ke + pe;
+}
+
+/* Osculating two-body elements from a heliocentric state vector. */
+function osculating(b){
+  var sun = sunBody();
+  var rx = b.x - sun.x, ry = b.y - sun.y;
+  var vx = b.vx - sun.vx, vy = b.vy - sun.vy;
+  var r = Math.hypot(rx, ry);
+  var v2 = vx*vx + vy*vy;
+  var mu = G * (sun.mass + b.mass);
+  var hz = rx*vy - ry*vx;
+  var energy = v2/2 - mu/r;
+  var a = (Math.abs(energy) > 1e-30) ? (-mu/(2*energy)) : Infinity;
+  var eSq = 1 + 2*energy*hz*hz/(mu*mu);
+  var e = Math.sqrt(Math.max(0, eSq));
+  var period = (energy < 0 && isFinite(a) && a > 0) ? 2*Math.PI*Math.sqrt(a*a*a/mu) : Infinity;
+  return {
+    r: r, v: Math.sqrt(v2), h: hz, energy: energy, a: a, e: e,
+    mu: mu, period: period,
+    periapsis: (e < 1 && isFinite(a)) ? a*(1-e) : NaN,
+    apoapsis:  (e < 1 && isFinite(a)) ? a*(1+e) : NaN
+  };
+}
+
+/* ==================================================================
+   7. CAMERA AND PROJECTION
+   ================================================================== */
+function displayScaleFactor(r){
+  if(state.scaleMode === 'scientific' || r < 1) return 1;
+  return Math.pow(r/AU, EXPL_P - 1);
+}
+function toDisplay(x, y, out){
+  var r = Math.hypot(x, y);
+  var f = displayScaleFactor(r);
+  out.x = x*f; out.y = y*f;
+  return out;
+}
+var _tmpD = {x:0, y:0};
+function project(x, y){
+  toDisplay(x, y, _tmpD);
+  return {
+    x: W/2 + (_tmpD.x - cam.cx) * cam.scale,
+    y: H/2 + (_tmpD.y - cam.cy) * cam.scale
+  };
+}
+function displayExtent(){
+  var maxD = 0;
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!isVisible(b)) continue;
+    var r = Math.hypot(b.x, b.y);
+    var d = r * displayScaleFactor(r);
+    if(d > maxD) maxD = d;
+  }
+  if(maxD <= 0) maxD = AU;
+  return maxD;
+}
+function fitView(){
+  var maxD = displayExtent();
+  cam.cx = 0; cam.cy = 0;
+  cam.scale = (Math.min(W, H) * 0.44) / (maxD * 1.06);
+  cam.fitScale = cam.scale;
+  panPx.x = 0; panPx.y = 0;
+}
+function zoomLimits(){
+  return { min: cam.fitScale/60, max: cam.fitScale*120000 };
+}
+function zoomAt(factor, sx, sy){
+  var lim = zoomLimits();
+  var ns = clamp(cam.scale * factor, lim.min, lim.max);
+  if(ns === cam.scale) return;
+  if(sx === undefined){ sx = W/2; sy = H/2; }
+  var dx0 = cam.cx + (sx - W/2)/cam.scale;
+  var dy0 = cam.cy + (sy - H/2)/cam.scale;
+  cam.scale = ns;
+  cam.cx = dx0 - (sx - W/2)/cam.scale;
+  cam.cy = dy0 - (sy - H/2)/cam.scale;
+}
+
+/* Screen radius for a body */
+function bodyRadiusPx(b){
+  if(state.scaleMode === 'scientific'){
+    var rp = b.radius * cam.scale;
+    var minPx = b.isSun ? 3.2 : 1.8;
+    return Math.max(rp, minPx);
+  }
+  var dr;
+  if(b.isSun){
+    dr = EXPL_K_SUN * Math.pow(b.radius, 0.4);
+  } else if(b.type === 'test'){
+    dr = 4e9;
+  } else {
+    dr = EXPL_K_BODY * Math.pow(b.radius, 0.4);
+  }
+  return Math.max(dr * cam.scale, b.isSun ? 3.2 : 2.2);
+}
+
+/* ==================================================================
+   8. STAR FIELD
+   ================================================================== */
+var stars = [];
+var constLines = [];
+function buildStars(){
+  var rnd = mulberry32(20240617);
+  var count = reduceMotion ? 420 : 760;
+  stars = [];
+  for(var i=0; i<count; i++){
+    var d = rnd();
+    stars.push({
+      x: rnd(), y: rnd(),
+      s: 0.6 + d*1.6,
+      a: 0.20 + rnd()*0.75,
+      depth: d,
+      tw: rnd()*Math.PI*2
+    });
+  }
+  constLines = [];
+  for(var g=0; g<14; g++){
+    var idx = Math.floor(rnd()*stars.length);
+    var chain = [idx];
+    var len = 3 + Math.floor(rnd()*4);
+    for(var k=0; k<len; k++){
+      var best = -1, bestD = 1e9;
+      for(var t=0; t<24; t++){
+        var c = Math.floor(rnd()*stars.length);
+        if(chain.indexOf(c) >= 0) continue;
+        var dx = stars[c].x - stars[chain[chain.length-1]].x;
+        var dy = stars[c].y - stars[chain[chain.length-1]].y;
+        var dd = dx*dx + dy*dy;
+        if(dd < bestD){ bestD = dd; best = c; }
+      }
+      if(best >= 0) chain.push(best);
+    }
+    constLines.push(chain);
+  }
+}
+
+function drawStars(t){
+  var i, s;
+  for(i=0; i<stars.length; i++){
+    s = stars[i];
+    var px = s.x*W + panPx.x * 0.035 * s.depth;
+    var py = s.y*H + panPx.y * 0.035 * s.depth;
+    px = ((px % W) + W) % W;
+    py = ((py % H) + H) % H;
+    var a = s.a;
+    if(!reduceMotion) a *= 0.82 + 0.18*Math.sin(t*0.0011 + s.tw);
+    ctx.fillStyle = 'rgba(214,232,255,' + a.toFixed(3) + ')';
+    var sz = s.s * (1 + s.depth*0.5);
+    ctx.fillRect(px, py, sz, sz);
+  }
+}
+
+function drawConstellations(){
+  if(!state.showConstellations) return;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(120,170,255,0.13)';
+  ctx.lineWidth = 0.8;
+  for(var g=0; g<constLines.length; g++){
+    var chain = constLines[g];
+    ctx.beginPath();
+    for(var k=0; k<chain.length; k++){
+      var s = stars[chain[k]];
+      if(!s) continue;
+      var px = ((s.x*W + panPx.x*0.035*s.depth) % W + W) % W;
+      var py = ((s.y*H + panPx.y*0.035*s.depth) % H + H) % H;
+      if(k === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* ==================================================================
+   9. RENDERING
+   ================================================================== */
+var bgGrad = null;
+var _p = {x:0,y:0};
+
+function resizeCanvas(){
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = canvas.clientWidth;
+  H = canvas.clientHeight;
+  canvas.width = Math.max(1, Math.round(W*dpr));
+  canvas.height = Math.max(1, Math.round(H*dpr));
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  bgGrad = ctx.createRadialGradient(W*0.5, H*0.45, 0, W*0.5, H*0.45, Math.max(W,H)*0.85);
+  bgGrad.addColorStop(0, '#070d1c');
+  bgGrad.addColorStop(0.55, '#04070f');
+  bgGrad.addColorStop(1, '#010206');
+
+  if(chartCanvas){
+    var cw = chartCanvas.clientWidth || 300;
+    chartCanvas.width = Math.max(1, Math.round(cw*dpr));
+    chartCanvas.height = Math.round(120*dpr);
+  }
+}
+
+function drawOrbitPath(b){
+  if(b.isSun || b.type === 'test') return;
+  var sun = sunBody();
+  var el = osculating(b);
+  if(!isFinite(el.a) || el.a <= 0) return;
+  var e = el.e;
+  if(e >= 1) return; // unbound: no closed path to draw
+  var p = el.a * (1 - e*e);
+  if(!isFinite(p) || p <= 0) return;
+
+  // direction of perihelion from the eccentricity vector
+  var rx = b.x - sun.x, ry = b.y - sun.y;
+  var vx = b.vx - sun.vx, vy = b.vy - sun.vy;
+  var h = rx*vy - ry*vx;
+  var mu = el.mu;
+  var r = Math.hypot(rx, ry);
+  var ex = (vy*h)/mu - rx/r;
+  var ey = -(vx*h)/mu - ry/r;
+  var omega = Math.atan2(ey, ex);
+
+  var sunP = project(sun.x, sun.y);
+  var N = 128;
+  ctx.beginPath();
+  for(var i=0; i<=N; i++){
+    var nu = (i/N) * Math.PI*2;
+    var rr = p / (1 + e*Math.cos(nu));
+    if(!isFinite(rr) || rr <= 0) continue;
+    var ang = nu + omega;
+    var wx = sun.x + rr*Math.cos(ang);
+    var wy = sun.y + rr*Math.sin(ang);
+    var pp = project(wx, wy);
+    if(i === 0) ctx.moveTo(pp.x, pp.y);
+    else ctx.lineTo(pp.x, pp.y);
+  }
+  ctx.strokeStyle = hexA(b.color, 0.20);
+  ctx.lineWidth = 1;
+  ctx.stroke();
+}
+
+function hexA(hex, a){
+  var h = hex.replace('#','');
+  if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  var n = parseInt(h, 16);
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
+
+function drawTrails(){
+  if(!state.showTrails) return;
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!isVisible(b) || b.isSun || b.type === 'test') continue;
+    var tr = b.trail;
+    if(tr.length < 2) continue;
+    ctx.beginPath();
+    for(var k=0; k<tr.length; k++){
+      var pp = project(tr[k][0], tr[k][1]);
+      if(k === 0) ctx.moveTo(pp.x, pp.y);
+      else ctx.lineTo(pp.x, pp.y);
+    }
+    ctx.strokeStyle = hexA(b.color, 0.34);
+    ctx.lineWidth = 1.1;
+    ctx.stroke();
+  }
+}
+
+function drawSun(p, R, t){
+  var pulse = reduceMotion ? 1 : (1 + 0.045*Math.sin(t*0.0016));
+  var glowR = R * (7.5 * pulse);
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  var g1 = ctx.createRadialGradient(p.x, p.y, R*0.6, p.x, p.y, glowR);
+  g1.addColorStop(0, 'rgba(255,196,110,0.55)');
+  g1.addColorStop(0.22, 'rgba(255,150,60,0.20)');
+  g1.addColorStop(0.55, 'rgba(255,120,40,0.06)');
+  g1.addColorStop(1, 'rgba(255,100,20,0)');
+  ctx.fillStyle = g1;
+  ctx.beginPath(); ctx.arc(p.x, p.y, glowR, 0, Math.PI*2); ctx.fill();
+
+  var g2 = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, Math.max(R, 2.5)*1.9);
+  g2.addColorStop(0, '#fffdf2');
+  g2.addColorStop(0.35, '#ffe9a8');
+  g2.addColorStop(0.7, '#ffb14a');
+  g2.addColorStop(1, 'rgba(255,140,40,0.35)');
+  ctx.fillStyle = g2;
+  ctx.beginPath(); ctx.arc(p.x, p.y, Math.max(R, 2.5)*1.5, 0, Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, Math.max(R, 2.2), 0, Math.PI*2);
+  ctx.fillStyle = '#fff2c4';
+  ctx.fill();
+}
+
+function drawBody(b, t){
+  var p = project(b.x, b.y);
+  var R = bodyRadiusPx(b);
+  if(p.x < -R-80 || p.x > W+R+80 || p.y < -R-80 || p.y > H+R+80) return;
+
+  if(b.isSun){ drawSun(p, R, t); return; }
+
+  var sun = sunBody();
+  var sp = project(sun.x, sun.y);
+  var lx = sp.x - p.x, ly = sp.y - p.y;
+  var ll = Math.hypot(lx, ly) || 1;
+  lx /= ll; ly /= ll;
+
+  // soft glow halo
+  if(R > 3){
+    var halo = ctx.createRadialGradient(p.x, p.y, R*0.85, p.x, p.y, R*2.6);
+    halo.addColorStop(0, hexA(b.color, 0.20));
+    halo.addColorStop(1, hexA(b.color, 0));
+    ctx.fillStyle = halo;
+    ctx.beginPath(); ctx.arc(p.x, p.y, R*2.6, 0, Math.PI*2); ctx.fill();
+  }
+
+  // rings behind
+  if(b.ring && R > 4){
+    ctx.save();
+    ctx.strokeStyle = hexA(b.light, 0.42);
+    ctx.lineWidth = Math.max(1, R*0.42);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, R*1.75, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.strokeStyle = hexA(b.color, 0.28);
+    ctx.lineWidth = Math.max(1, R*0.22);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, R*2.15, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  var grad = ctx.createRadialGradient(
+    p.x + lx*R*0.45, p.y + ly*R*0.45, Math.max(0.5, R*0.08),
+    p.x, p.y, R*1.08
+  );
+  grad.addColorStop(0, b.light);
+  grad.addColorStop(0.48, b.color);
+  grad.addColorStop(1, b.dark);
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, R, 0, Math.PI*2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  if(b.type === 'test'){
+    ctx.setLineDash([3,3]);
+    ctx.strokeStyle = '#7fe3a8';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(R, 3.4)*1.9, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(b.dwarf){
+    ctx.setLineDash([2,3]);
+    ctx.strokeStyle = hexA(b.light, 0.65);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(R, 2.4) + 2.5, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+  if(b.id === state.selectedId){
+    ctx.setLineDash([4,4]);
+    ctx.strokeStyle = 'rgba(95,216,255,0.9)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.max(R, 3) + 7, 0, Math.PI*2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+}
+
+function drawLabels(){
+  if(!state.showLabels) return;
+  ctx.font = '11px system-ui,-apple-system,Segoe UI,Tahoma,sans-serif';
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'middle';
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!isVisible(b)) continue;
+    var p = project(b.x, b.y);
+    if(p.x < -60 || p.x > W+60 || p.y < -20 || p.y > H+20) continue;
+    var R = bodyRadiusPx(b);
+    var name = bodyDisplayName(b);
+    var tx = p.x + Math.max(R, 3) + 7;
+    var ty = p.y - Math.max(R, 3) - 7;
+    if(ty < 12) ty = p.y + Math.max(R,3) + 10;
+    var wpx = ctx.measureText(name).width;
+    ctx.fillStyle = 'rgba(3,7,16,0.55)';
+    ctx.fillRect(tx-3, ty-8, wpx+6, 16);
+    ctx.fillStyle = (b.id === state.selectedId) ? '#8fe6ff' : 'rgba(203,220,246,0.86)';
+    ctx.fillText(name, tx, ty);
+  }
+}
+
+function bodyDisplayName(b){
+  if(b.isSun) return T('sun');
+  if(b.type === 'test') return T('testParticle');
+  var d = b.data;
+  if(!d) return b.id;
+  return (state.lang === 'fa') ? d.fa : d.en;
+}
+
+function render(t){
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = bgGrad || '#03050c';
+  ctx.fillRect(0, 0, W, H);
+
+  drawStars(t);
+  drawConstellations();
+
+  if(state.showOrbits){
+    for(var i=0; i<state.bodies.length; i++){
+      var b = state.bodies[i];
+      if(!isVisible(b) || b.isSun) continue;
+      drawOrbitPath(b);
+    }
+  }
+  drawTrails();
+
+  for(var j=0; j<state.bodies.length; j++){
+    var bb = state.bodies[j];
+    if(!isVisible(bb)) continue;
+    drawBody(bb, t);
+  }
+
+  drawBarycentre();
+  drawLabels();
+}
+
+function drawBarycentre(){
+  if(!state.expIsolated) return;
+  var totalM = 0, cx = 0, cy = 0;
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!b.active) continue;
+    totalM += b.mass;
+    cx += b.mass * b.x;
+    cy += b.mass * b.y;
+  }
+  if(totalM <= 0) return;
+  cx /= totalM; cy /= totalM;
+  var p = project(cx, cy);
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255,183,101,0.9)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(p.x-7, p.y); ctx.lineTo(p.x+7, p.y);
+  ctx.moveTo(p.x, p.y-7); ctx.lineTo(p.x, p.y+7);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+  ctx.stroke();
+  ctx.restore();
+}
+
+/* ==================================================================
+   10. TRAIL MANAGEMENT
+   ================================================================== */
+var MAX_TRAIL = 520;
+function updateTrails(){
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!b.active || b.isSun || b.type === 'test') continue;
+    if(state.simTime - b.lastTrailT >= b.trailInterval || b.lastTrailT < -1e17){
+      b.lastTrailT = state.simTime;
+      b.trail.push([b.x, b.y]);
+      if(b.trail.length > MAX_TRAIL) b.trail.shift();
+    }
+  }
+}
+
+/* ==================================================================
+   11. UI WIRING
+   ================================================================== */
+function $(id){ return document.getElementById(id); }
+
+function applyI18n(){
+  document.documentElement.lang = state.lang;
+  document.documentElement.dir = (state.lang === 'fa') ? 'rtl' : 'ltr';
+
+  var nodes = document.querySelectorAll('[data-i18n]');
+  for(var i=0; i<nodes.length; i++){
+    var k = nodes[i].getAttribute('data-i18n');
+    var v = I18N[state.lang][k];
+    if(v !== undefined) nodes[i].textContent = v;
+  }
+  var tnodes = document.querySelectorAll('[data-i18n-title]');
+  for(var j=0; j<tnodes.length; j++){
+    var tk = tnodes[j].getAttribute('data-i18n-title');
+    var tv = I18N[state.lang][tk];
+    if(tv !== undefined){ tnodes[j].title = tv; tnodes[j].setAttribute('aria-label', tv); }
+  }
+  $('langLabel').textContent = (state.lang === 'en') ? 'فارسی' : 'English';
+  updateScaleNote();
+  refreshBodySelectors();
+  updateInfo(true);
+  updateExperimentResults();
+}
+
+function updateScaleNote(){
+  $('scaleNote').textContent = (state.scaleMode === 'scientific') ? T('scaleNoteSci') : T('scaleNoteExp');
+}
+
+function setPressed(){
+  $('btnScaleSci').classList.toggle('primary', state.scaleMode === 'scientific');
+  $('btnScaleExp').classList.toggle('primary', state.scaleMode === 'exploration');
+  $('btnModeSimp').classList.toggle('primary', state.mode === 'simplified');
+  $('btnModeNBody').classList.toggle('primary', state.mode === 'nbody');
+  $('btnPanelControls').setAttribute('aria-pressed', $('panelControls').classList.contains('open') ? 'true':'false');
+  $('btnPanelData').setAttribute('aria-pressed', $('panelData').classList.contains('open') ? 'true':'false');
+  $('btnPanelExp').setAttribute('aria-pressed', $('expModal').classList.contains('open') ? 'true':'false');
+  $('tgTrails').checked = state.showTrails;
+  $('tgOrbits').checked = state.showOrbits;
+  $('tgLabels').checked = state.showLabels;
+  $('tgConst').checked = state.showConstellations;
+  $('tgDwarfs').checked = state.showDwarfs;
+  $('playLabel').textContent = state.running ? T('pause') : T('play');
+  var use = document.querySelector('#playIcon');
+  if(use) use.setAttribute('href', state.running ? '#ic-pause' : '#ic-play');
+  $('btnStepBack').disabled = false;
+  $('btnStepFwd').disabled = false;
+}
+
+function refreshBodySelectors(){
+  var ids = ['selBody','expAPlanet','expDPlanet','expCBody'];
+  for(var s=0; s<ids.length; s++){
+    var sel = $(ids[s]);
+    if(!sel) continue;
+    var prev = sel.value;
+    sel.innerHTML = '';
+    for(var i=0; i<state.bodies.length; i++){
+      var b = state.bodies[i];
+      if(!isVisible(b)) continue;
+      var opt = document.createElement('option');
+      opt.value = b.id;
+      opt.textContent = bodyDisplayName(b) + (b.dwarf ? ' (' + T('dwarf') + ')' : '');
+      sel.appendChild(opt);
+    }
+    if(prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
+    else if(sel.querySelector('option[value="' + state.selectedId + '"]')) sel.value = state.selectedId;
+  }
+}
+
+function openPanel(id, open){
+  var el = $(id);
+  if(!el) return;
+  if(open) el.classList.add('open'); else el.classList.remove('open');
+  setPressed();
+}
+
+/* ---------- control bindings ---------- */
+function bindControls(){
+  $('btnPanelControls').addEventListener('click', function(){
+    var open = !$('panelControls').classList.contains('open');
+    $('panelData').classList.remove('open');
+    openPanel('panelControls', open);
+  });
+  $('btnPanelData').addEventListener('click', function(){
+    var open = !$('panelData').classList.contains('open');
+    $('panelControls').classList.remove('open');
+    openPanel('panelData', open);
+  });
+  $('btnPanelExp').addEventListener('click', function(){
+    var open = !$('expModal').classList.contains('open');
+    openPanel('expModal', open);
+  });
+  var closes = document.querySelectorAll('[data-close]');
+  for(var i=0; i<closes.length; i++){
+    closes[i].addEventListener('click', function(){
+      var t = this.getAttribute('data-close');
+      if(t === 'expModal') $('expModal').classList.remove('open');
+      else $(t).classList.remove('open');
+      setPressed();
+    });
+  }
+  $('expModal').addEventListener('click', function(e){
+    if(e.target === this){ this.classList.remove('open'); setPressed(); }
+  });
+
+  $('btnLang').addEventListener('click', function(){
+    state.lang = (state.lang === 'en') ? 'fa' : 'en';
+    saveSettings();
+    applyI18n();
+    setPressed();
+  });
+
+  $('btnFull').addEventListener('click', function(){
+    var el = document.documentElement;
+    try{
+      if(!document.fullscreenElement && !document.webkitFullscreenElement){
+        if(el.requestFullscreen) el.requestFullscreen();
+        else if(el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+        else toast(T('fullscreenUnsupported'));
+      } else {
+        if(document.exitFullscreen) document.exitFullscreen();
+        else if(document.webkitExitFullscreen) document.webkitExitFullscreen();
+      }
+    }catch(e){ toast(T('fullscreenUnsupported')); }
+  });
+
+  $('btnPlay').addEventListener('click', function(){
+    state.running = !state.running;
+    setPressed();
+  });
+  $('btnStepBack').addEventListener('click', function(){ manualStep(-1); });
+  $('btnStepFwd').addEventListener('click', function(){ manualStep(1); });
+  $('btnResetSim').addEventListener('click', function(){
+    resetSimulation(true);
+    clearTestParticle();
+    computeDt();
+    state.E0 = totalEnergy();
+    toast(T('resetDone'));
+    setPressed();
+    updateInfo(true);
+  });
+
+  var speedRange = $('speedRange');
+  speedRange.addEventListener('input', function(){
+    var t = parseInt(this.value, 10)/1000;
+    state.speedDaysPerSec = 0.25 * Math.pow(2000/0.25, t);
+    $('speedOut').textContent = fmt(state.speedDaysPerSec, state.speedDaysPerSec < 10 ? 2 : 0) + ' d/s';
+    saveSettings();
+  });
+  speedRange.addEventListener('change', saveSettings);
+
+  $('btnZoomIn').addEventListener('click', function(){ zoomAt(1.45); });
+  $('btnZoomOut').addEventListener('click', function(){ zoomAt(1/1.45); });
+  $('btnResetView').addEventListener('click', function(){ fitView(); });
+
+  $('tgTrails').addEventListener('change', function(){ state.showTrails = this.checked; saveSettings(); });
+  $('tgOrbits').addEventListener('change', function(){ state.showOrbits = this.checked; saveSettings(); });
+  $('tgLabels').addEventListener('change', function(){ state.showLabels = this.checked; saveSettings(); });
+  $('tgConst').addEventListener('change', function(){ state.showConstellations = this.checked; saveSettings(); });
+  $('tgDwarfs').addEventListener('change', function(){
+    state.showDwarfs = this.checked; saveSettings(); refreshBodySelectors(); setPressed();
+  });
+
+  $('btnScaleSci').addEventListener('click', function(){
+    state.scaleMode = 'scientific'; updateScaleNote(); saveSettings(); setPressed();
+  });
+  $('btnScaleExp').addEventListener('click', function(){
+    state.scaleMode = 'exploration'; updateScaleNote(); saveSettings(); setPressed();
+  });
+
+  $('btnModeSimp').addEventListener('click', function(){
+    if(state.expIsolated) restoreFullSystem();
+    state.mode = 'simplified';
+    applyFixedFlags(); computeAccel(); state.E0 = totalEnergy();
+    saveSettings(); setPressed(); updateInfo(true);
+  });
+  $('btnModeNBody').addEventListener('click', function(){
+    state.mode = 'nbody';
+    applyFixedFlags(); computeAccel(); state.E0 = totalEnergy();
+    saveSettings(); setPressed(); updateInfo(true);
+  });
+
+  $('btnExport').addEventListener('click', exportConfig);
+  $('btnImport').addEventListener('click', importConfig);
+  $('btnDefaults').addEventListener('click', function(){
+    restoreDefaults();
+  });
+
+  $('selBody').addEventListener('change', function(){
+    state.selectedId = this.value;
+    updateInfo(true);
+  });
+}
+
+function manualStep(dir){
+  if(state.nanError) return;
+  var steps = 1;
+  for(var i=0; i<steps; i++) integrate(state.dt * dir);
+  updateTrails();
+  state.acc = 0;
+  if(!checkFinite()) return;
+}
+
+/* ==================================================================
+   12. POINTER INTERACTION
+   ================================================================== */
+var pointers = new Map();
+var dragState = null;
+var pinchState = null;
+
+function bindCanvas(){
+  canvas.addEventListener('pointerdown', function(e){
+    canvas.setPointerCapture(e.pointerId);
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if(pointers.size === 1){
+      dragState = { id: e.pointerId, sx: e.clientX, sy: e.clientY, moved: 0 };
+      pinchState = null;
+    } else if(pointers.size === 2){
+      var pts = Array.from(pointers.values());
+      pinchState = {
+        dist: Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y),
+        scale: cam.scale,
+        mx: (pts[0].x + pts[1].x)/2,
+        my: (pts[0].y + pts[1].y)/2
+      };
+      dragState = null;
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  canvas.addEventListener('pointermove', function(e){
+    if(!pointers.has(e.pointerId)) return;
+    var prev = pointers.get(e.pointerId);
+    var dx = e.clientX - prev.x;
+    var dy = e.clientY - prev.y;
+    pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if(pointers.size === 1 && dragState){
+      cam.cx -= dx / cam.scale;
+      cam.cy -= dy / cam.scale;
+      panPx.x -= dx; panPx.y -= dy;
+      dragState.moved += Math.abs(dx) + Math.abs(dy);
+    } else if(pointers.size === 2 && pinchState){
+      var pts = Array.from(pointers.values());
+      var d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if(pinchState.dist > 4 && d > 4){
+        var rect = canvas.getBoundingClientRect();
+        var mx = (pts[0].x + pts[1].x)/2 - rect.left;
+        var my = (pts[0].y + pts[1].y)/2 - rect.top;
+        var target = clamp(pinchState.scale * (d / pinchState.dist), zoomLimits().min, zoomLimits().max);
+        zoomAt(target / cam.scale, mx, my);
+      }
+    }
+    e.preventDefault();
+  }, { passive: false });
+
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if(dragState && dragState.id === e.pointerId){
+      if(dragState.moved < 8) handleTap(e.clientX, e.clientY);
+      dragState = null;
+    }
+    if(pointers.size < 2) pinchState = null;
+    if(pointers.size === 1){
+      var remaining = Array.from(pointers.entries())[0];
+      dragState = { id: remaining[0], sx: remaining[1].x, sy: remaining[1].y, moved: 100 };
+    }
+  }
+  canvas.addEventListener('pointerup', endPointer);
+  canvas.addEventListener('pointercancel', function(e){ pointers.delete(e.pointerId); dragState = null; pinchState = null; });
+
+  canvas.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var rect = canvas.getBoundingClientRect();
+    var f = Math.exp(-e.deltaY * 0.0016);
+    zoomAt(f, e.clientX - rect.left, e.clientY - rect.top);
+  }, { passive: false });
+
+  canvas.addEventListener('contextmenu', function(e){ e.preventDefault(); });
+}
+
+function handleTap(cx, cy){
+  var rect = canvas.getBoundingClientRect();
+  var sx = cx - rect.left, sy = cy - rect.top;
+  var best = null, bestD = 30;
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!isVisible(b)) continue;
+    var p = project(b.x, b.y);
+    var d = Math.hypot(p.x - sx, p.y - sy);
+    if(d < bestD){ bestD = d; best = b; }
+  }
+  if(best){
+    state.selectedId = best.id;
+    var sel = $('selBody');
+    if(sel) sel.value = best.id;
+    updateInfo(true);
+    openPanel('panelData', true);
+  }
+}
+
+/* ==================================================================
+   13. INFORMATION PANEL AND ANALYTICS
+   ================================================================== */
+var lastHud = 0;
+
+function updateInfo(force){
+  var b = getBody(state.selectedId);
+  var host = $('infoBody');
+  if(!host) return;
+  if(!b){ host.innerHTML = '<p class="note">' + T('noBody') + '</p>'; return; }
+
+  var el = osculating(b);
+  var lines = [];
+
+  if(b.isSun){
+    lines.push(kv(T('planetClass'), T('star')));
+    lines.push(kv(T('meanRadius'), sci(RSUN, 3) + ' m'));
+    lines.push(kv(T('mass'), sci(MSUN, 3) + ' kg'));
+    lines.push(kv(T('position'), fmt(b.x/1e9, 3) + ', ' + fmt(b.y/1e9, 3) + ' ×10⁹ m'));
+    lines.push(kv(T('velocity'), fmt(b.vx/1000, 3) + ', ' + fmt(b.vy/1000, 3) + ' km/s'));
+    lines.push('<div class="sect-title">' + T('description') + '</div><p class="note">' + (state.lang==='fa'?SUN_INFO.fa:SUN_INFO.en) + '</p>');
+    lines.push('<div class="sect-title">' + T('fact') + '</div><p class="note">' + (state.lang==='fa'?SUN_INFO.fact_fa:SUN_INFO.fact_en) + '</p>');
+    lines.push('<div class="sect-title">' + T('assumptions') + '</div><p class="note">' +
+      (state.mode === 'simplified'
+        ? (state.lang==='fa'
+          ? 'در حالت خورشیدمرکز، خورشید در مبدأ ثابت گرفته می‌شود؛ بنابراین سرعت مداری آن صفر گزارش می‌شود.'
+          : 'In the Sun-only mode the Sun is held fixed at the origin, so its modelled velocity reads as zero.')
+        : (state.lang==='fa'
+          ? 'در حالت جسم کامل N، خورشید آزادانه حرکت می‌کند و سرعت گزارش‌شده از مجموع تکانهٔ سامانهٔ فعال به‌دست می‌آید.'
+          : 'In N-body mode the Sun moves freely; the reported velocity follows from the total momentum of the active system.')) +
+      '</p>');
+    host.innerHTML = lines.join('');
+    return;
+  }
+
+  var d = b.data;
+  var name = bodyDisplayName(b);
+  var cls = b.type === 'test' ? T('testParticle') : (b.dwarf ? T('dwarf') : (state.lang==='fa' ? 'سیاره' : 'planet'));
+
+  lines.push('<div class="kv"><span class="k">' + T('planetClass') + '</span><span class="v">' + name + ' — ' + cls + '</span></div>');
+
+  if(d){
+    lines.push(kv(T('meanRadius') + ' <span style="opacity:.6">(' + T('refData') + ')</span>', fmt(b.radius/1000, 1) + ' km'));
+    lines.push(kv(T('mass') + ' <span style="opacity:.6">(' + T('refData') + ')</span>', sci(b.mass0, 4) + ' kg'));
+    lines.push(kv(T('meanDist') + ' <span style="opacity:.6">(' + T('refData') + ')</span>', fmt(d.a/AU, 4) + ' AU'));
+    lines.push(kv(T('orbPeriod') + ' <span style="opacity:.6">(' + T('refData') + ')</span>', fmt(d.period, 3) + ' d'));
+  } else {
+    lines.push(kv(T('mass'), sci(b.mass, 4) + ' kg'));
+  }
+
+  lines.push('<div class="sect-title">' + T('simResult') + '</div>');
+  lines.push(kv(T('curDist'), fmt(el.r/AU, 4) + ' AU'));
+  lines.push(kv(T('curSpeed'), fmt(el.v/1000, 3) + ' km/s'));
+  lines.push(kv(T('position'), fmt(b.x/1e9, 3) + ', ' + fmt(b.y/1e9, 3) + ' ×10⁹ m'));
+  lines.push(kv(T('velocity'), fmt(b.vx/1000, 3) + ', ' + fmt(b.vy/1000, 3) + ' km/s'));
+  lines.push(kv(T('semiMajor'), isFinite(el.a) ? fmt(el.a/AU, 4) + ' AU' : '—'));
+  lines.push(kv(T('eccentricity'), fmt(el.e, 4)));
+  lines.push(kv(T('periodOsc'), isFinite(el.period) ? fmt(el.period/DAY, 2) + ' d' : '—'));
+
+  if(d){
+    lines.push('<div class="sect-title">' + T('description') + '</div><p class="note">' +
+      (state.lang==='fa' ? d.desc_fa : d.desc_en) + '</p>');
+    lines.push('<div class="sect-title">' + T('fact') + '</div><p class="note">' +
+      (state.lang==='fa' ? d.fact_fa : d.fact_en) + '</p>');
+  }
+
+  var assumption;
+  if(state.mode === 'simplified'){
+    assumption = (state.lang==='fa')
+      ? 'مدار نوسانی از بردار حالت خورشیدمرکزی محاسبه شده و گرانش سایر سیارات را نادیده می‌گیرد. میل مداری و تصویر دوبعدی باعث اختلاف با مقادیر مرجع می‌شوند. مقادیر «مرجع» ثابت‌اند و مقادیر «شبیه‌سازی» از مدل زنده می‌آیند.'
+      : 'The osculating orbit is derived from the heliocentric state vector and ignores the gravity of the other planets. The 2-D projection and the numerical integration cause small departures from the reference values. Values marked "reference" are fixed catalogue data; values marked "simulated" come from the live model.';
+  } else {
+    assumption = (state.lang==='fa')
+      ? 'در حالت جسم کامل N، عناصر نوسانی از موقعیت نسبی به خورشید محاسبه می‌شوند و شامل آشوب‌های سیاره‌ای هستند؛ بنابراین می‌توانند کمی تغییر کنند. مقادیر مرجع ثابت‌اند.'
+      : 'In N-body mode the osculating elements are computed from the position relative to the Sun and include planetary perturbations, so they drift slightly. Reference values remain fixed.';
+  }
+  lines.push('<div class="sect-title">' + T('assumptions') + '</div><p class="note">' + assumption + '</p>');
+
+  host.innerHTML = lines.join('');
+  void force;
+}
+
+function kv(k, v){
+  return '<div class="kv"><span class="k">' + k + '</span><span class="v">' + v + '</span></div>';
+}
+
+function updateAnalytics(){
+  var b = getBody(state.selectedId);
+  var host = $('analytics');
+  if(!host) return;
+  if(!b){ host.innerHTML = ''; return; }
+  var el = osculating(b);
+  var out = [];
+  out.push(kv(T('elapsed'), formatElapsed(state.simTime)));
+  out.push(kv(T('selectedBody'), bodyDisplayName(b)));
+  out.push(kv(T('curDist'), fmt(el.r/AU, 4) + ' AU'));
+  out.push(kv(T('curSpeed'), fmt(el.v/1000, 3) + ' km/s'));
+  if(b.periodRef){
+    out.push(kv(T('referencePeriod'), fmt(b.periodRef, 2) + ' d'));
+    out.push(kv(T('periodOsc'), isFinite(el.period) ? fmt(el.period/DAY, 2) + ' d' : '—'));
+  }
+  var E = totalEnergy();
+  out.push(kv(T('energy'), sci(E, 4) + ' J'));
+  if(state.E0 && isFinite(state.E0) && state.E0 !== 0){
+    var drift = Math.abs((E - state.E0)/state.E0);
+    out.push(kv(T('drift'), sci(drift, 3)));
+  }
+  host.innerHTML = out.join('');
+}
+
+function formatElapsed(sec){
+  var days = sec / DAY;
+  if(Math.abs(days) < 1) return fmt(sec/3600, 2) + ' h';
+  if(Math.abs(days) < 900) return fmt(days, 2) + ' d';
+  return fmt(days/365.25, 3) + ' yr';
+}
+
+function pushSeries(){
+  var b = getBody(state.selectedId);
+  if(!b) return;
+  if(state.simTime - state.lastSeriesT < 0) { state.series = []; }
+  state.lastSeriesT = state.simTime;
+  var el = osculating(b);
+  state.series.push({ t: state.simTime, d: el.r/AU, v: el.v/1000 });
+  if(state.series.length > 260) state.series.shift();
+}
+
+function drawChart(){
+  if(!chartCtx || !chartCanvas) return;
+  var w = chartCanvas.clientWidth || 300;
+  var h = 120;
+  chartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  chartCtx.clearRect(0, 0, w, h);
+
+  var s = state.series;
+  if(s.length < 2){
+    chartCtx.fillStyle = 'rgba(142,163,198,0.6)';
+    chartCtx.font = '11px system-ui,sans-serif';
+    chartCtx.textAlign = 'center';
+    chartCtx.fillText('…', w/2, h/2);
+    return;
+  }
+  var padL = 34, padR = 8, padT = 10, padB = 18;
+  var iw = w - padL - padR, ih = h - padT - padB;
+
+  var minD = Infinity, maxD = -Infinity;
+  for(var i=0; i<s.length; i++){
+    if(s[i].d < minD) minD = s[i].d;
+    if(s[i].d > maxD) maxD = s[i].d;
+  }
+  if(!isFinite(minD) || !isFinite(maxD)) return;
+  if(maxD - minD < 1e-9){ maxD = minD + Math.max(1e-6, Math.abs(minD)*0.01); }
+  var padY = (maxD - minD) * 0.12;
+  minD -= padY; maxD += padY;
+
+  chartCtx.strokeStyle = 'rgba(120,180,255,0.16)';
+  chartCtx.lineWidth = 1;
+  for(var g=0; g<=3; g++){
+    var yy = padT + ih*g/3;
+    chartCtx.beginPath();
+    chartCtx.moveTo(padL, yy);
+    chartCtx.lineTo(padL + iw, yy);
+    chartCtx.stroke();
+  }
+
+  chartCtx.beginPath();
+  for(var k=0; k<s.length; k++){
+    var x = padL + iw * (k/(s.length-1));
+    var y = padT + ih * (1 - (s[k].d - minD)/(maxD - minD));
+    if(k === 0) chartCtx.moveTo(x, y); else chartCtx.lineTo(x, y);
+  }
+  var grad = chartCtx.createLinearGradient(padL, 0, padL + iw, 0);
+  grad.addColorStop(0, 'rgba(95,216,255,0.9)');
+  grad.addColorStop(1, 'rgba(169,140,255,0.9)');
+  chartCtx.strokeStyle = grad;
+  chartCtx.lineWidth = 1.6;
+  chartCtx.stroke();
+
+  chartCtx.fillStyle = 'rgba(142,163,198,0.85)';
+  chartCtx.font = '9.5px system-ui,sans-serif';
+  chartCtx.textAlign = 'right';
+  chartCtx.fillText(fmt(maxD, 3), padL - 4, padT + 8);
+  chartCtx.fillText(fmt(minD, 3), padL - 4, padT + ih);
+  chartCtx.textAlign = 'left';
+  chartCtx.fillText(T('chartDist') + ' (AU)', padL, h - 5);
+  chartCtx.textAlign = 'right';
+  chartCtx.fillText(formatElapsed(s[s.length-1].t - s[0].t), padL + iw, h - 5);
+}
+
+/* ==================================================================
+   14. EXPERIMENTS
+   ================================================================== */
+function clearTestParticle(){
+  for(var i=state.bodies.length-1; i>=0; i--){
+    if(state.bodies[i].type === 'test') state.bodies.splice(i, 1);
+  }
+  refreshBodySelectors();
+}
+
+/* ---- Experiment A ---- */
+function expAApply(){
+  var id = $('expAPlanet').value;
+  var b = getBody(id);
+  if(!b || b.isSun) return;
+  var f = parseFloat($('expAVel').value);
+  var r = Math.hypot(b.x, b.y);
+  if(r <= 0) return;
+  var vc = Math.sqrt(MU_SUN / r);
+  var tx = -b.y/r, ty = b.x/r;
+  var h = b.x*b.vy - b.y*b.vx;
+  if(h < 0){ tx = -tx; ty = -ty; }
+  b.vx = f * vc * tx;
+  b.vy = f * vc * ty;
+  b.trail = [];
+  b.lastTrailT = -1e18;
+  state.selectedId = b.id;
+  refreshBodySelectors();
+  updateExperimentResults();
+}
+
+function renderExpA(){
+  var b = getBody($('expAPlanet').value);
+  var host = $('expARes');
+  if(!b || b.isSun){ host.innerHTML = '<p class="note">' + T('noBody') + '</p>'; return; }
+  var el = osculating(b);
+  var r = el.r;
+  var vc = Math.sqrt(MU_SUN / r);
+  var kind = (el.energy < -1e-6) ? 'bound' : (el.energy > 1e-6 ? 'unbound' : 'parabolic');
+
+  var html = '<div class="line"><span class="k">' + T('speedApplied') + '</span><span>' + fmt(el.v/1000, 4) + ' km/s</span></div>';
+  html += '<div class="line"><span class="k">' + T('circularSpeed') + '</span><span>' + fmt(vc/1000, 4) + ' km/s</span></div>';
+  html += '<div class="line"><span class="k">' + T('specificEnergy') + '</span><span>' + sci(el.energy, 4) + ' J/kg</span></div>';
+  html += '<div class="line"><span class="k">' + T('eccentricity') + '</span><span>' + fmt(el.e, 4) + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('semiMajor') + '</span><span>' +
+    (kind === 'bound' && isFinite(el.a) ? fmt(el.a/AU, 4) + ' AU' : '—') + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('periodOsc') + '</span><span>' +
+    (isFinite(el.period) ? fmt(el.period/DAY, 3) + ' d' : '—') + '</span></div>';
+  if(kind === 'bound'){
+    html += '<div class="line"><span class="k">' + T('periapsis') + '</span><span>' + fmt(el.periapsis/AU, 4) + ' AU</span></div>';
+    html += '<div class="line"><span class="k">' + T('apoapsis') + '</span><span>' + fmt(el.apoapsis/AU, 4) + ' AU</span></div>';
+  }
+  var cls = (kind === 'bound') ? 'good' : (kind === 'unbound' ? 'bad' : 'warn');
+  html += '<div class="line"><span class="k">' + T('planetClass') + '</span><span class="' + cls + '">' + T(kind) + '</span></div>';
+  host.innerHTML = html;
+}
+
+/* ---- Experiment B ---- */
+function expBCreate(){
+  clearTestParticle();
+  var dAU = Math.exp(parseFloat($('expBDist').value));
+  var f = parseFloat($('expBVel').value);
+  var r = dAU * AU;
+  var vc = Math.sqrt(MU_SUN / r);
+  var sun = sunBody();
+  var tb = {
+    id: 'test', type: 'test', mass: 0, mass0: 0, radius: 1e6,
+    x: sun.x + r, y: sun.y,
+    vx: sun.vx, vy: sun.vy + f*vc,
+    ax: 0, ay: 0,
+    active: true, fixed: false, dwarf: false,
+    color: '#7fe3a8', light: '#c9ffe0', dark: '#1d4530', ring: false,
+    trail: [], lastTrailT: -1e18, trailInterval: 1e18,
+    periodRef: null, aRef: null, eRef: null,
+    data: null, crossT: null, periodMeasured: null, lastAngle: null,
+    isSun: false
+  };
+  state.bodies.push(tb);
+  computeDt();
+  state.selectedId = 'test';
+  refreshBodySelectors();
+  updateExperimentResults();
+}
+
+function updateTestParticle(){
+  var tb = null;
+  for(var i=0; i<state.bodies.length; i++) if(state.bodies[i].type === 'test') tb = state.bodies[i];
+  if(!tb) return;
+  var ang = Math.atan2(tb.y - sunBody().y, tb.x - sunBody().x);
+  if(tb.lastAngle !== null){
+    var prev = tb.lastAngle;
+    // detect crossing of the +x axis in the direction of increasing angle
+    if(prev < 0 && ang >= 0 && (ang - prev) < Math.PI){
+      if(tb.crossT !== null && state.simTime > tb.crossT){
+        tb.periodMeasured = state.simTime - tb.crossT;
+      }
+      tb.crossT = state.simTime;
+    }
+  }
+  tb.lastAngle = ang;
+}
+
+function renderExpB(){
+  var tb = null;
+  for(var i=0; i<state.bodies.length; i++) if(state.bodies[i].type === 'test') tb = state.bodies[i];
+  var host = $('expBRes');
+  if(!tb){ host.innerHTML = '<p class="note">—</p>'; return; }
+  var el = osculating(tb);
+  var earth = getBody('earth');
+  var earthEl = earth ? osculating(earth) : null;
+
+  var html = '<div class="line"><span class="k">' + T('curDist') + '</span><span>' + fmt(el.r/AU, 4) + ' AU</span></div>';
+  html += '<div class="line"><span class="k">' + T('curSpeed') + '</span><span>' + fmt(el.v/1000, 4) + ' km/s</span></div>';
+  html += '<div class="line"><span class="k">' + T('eccentricity') + '</span><span>' + fmt(el.e, 5) + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('periodOsc') + '</span><span>' +
+    (isFinite(el.period) ? fmt(el.period/DAY, 4) + ' d' : '—') + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('periodMeas') + '</span><span>' +
+    (tb.periodMeasured !== null ? fmt(tb.periodMeasured/DAY, 4) + ' d' : '—') + '</span></div>';
+  if(earthEl){
+    html += '<div class="line"><span class="k">' + (state.lang==='fa'?'نسبت دوره به زمین':'Period vs Earth') + '</span><span>' +
+      (isFinite(el.period) ? fmt(el.period/(earth.periodRef*DAY), 4) : '—') + ' ×</span></div>';
+    html += '<div class="line"><span class="k">' + (state.lang==='fa'?'نسبت سرعت به زمین':'Speed vs Earth') + '</span><span>' +
+      fmt(el.v/earthEl.v, 4) + ' ×</span></div>';
+  }
+  html += '<div class="line"><span class="k">' + T('keplerCheck') + '</span><span>' +
+    (isFinite(el.period) && isFinite(el.a) ?
+      fmt(Math.pow(el.period/JYEAR, 2) / Math.pow(el.a/AU, 3), 5) + ' yr²/AU³' : '—') + '</span></div>';
+  host.innerHTML = html;
+}
+
+/* ---- Experiment C ---- */
+function expCApply(){
+  var id = $('expCBody').value;
+  var b = getBody(id);
+  if(!b) return;
+  var f = Math.pow(10, parseFloat($('expCMass').value));
+  b.mass = b.mass0 * f;
+  computeAccel();
+  state.E0 = totalEnergy();
+  updateExperimentResults();
+}
+
+function renderExpC(){
+  var b = getBody($('expCBody').value);
+  var host = $('expCRes');
+  if(!b){ host.innerHTML = ''; return; }
+  var html = '<div class="line"><span class="k">' + T('body') + '</span><span>' + bodyDisplayName(b) + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('mass') + '</span><span>' + sci(b.mass, 4) + ' kg</span></div>';
+  html += '<div class="line"><span class="k">' + (state.lang==='fa'?'ضریب نسبت به مرجع':'Factor vs reference') + '</span><span>' +
+    fmt(b.mass/b.mass0, 4) + ' ×</span></div>';
+  html += '<div class="line"><span class="k">' + (state.lang==='fa'?'پارامتر گرانشی μ = GM':'Gravitational parameter μ = GM') + '</span><span>' +
+    sci(G*b.mass, 4) + ' m³/s²</span></div>';
+  html += '<div class="line" style="margin-top:4px"><span class="k" style="font-weight:600">' + T('acceleration') + '</span></div>';
+
+  var ref = getBody(state.selectedId) || getBody('earth');
+  for(var i=0; i<state.bodies.length; i++){
+    var t = state.bodies[i];
+    if(t === b || !t.active || t.isSun) continue;
+    var dx = t.x - b.x, dy = t.y - b.y;
+    var r = Math.hypot(dx, dy);
+    if(r <= 0) continue;
+    var acc = G * b.mass / (r*r);
+    var sunAcc = (b.isSun) ? null : (G * MSUN / (Math.hypot(t.x - sunBody().x, t.y - sunBody().y) ** 2));
+    html += '<div class="line"><span class="k">' + bodyDisplayName(t) + ' @ ' + fmt(r/AU, 3) + ' AU</span><span>' +
+      sci(acc, 3) + ' m/s²' + (sunAcc !== null ? ' <span style="opacity:.55">(' + fmt(acc/sunAcc*100, 2) + '% of Sun)</span>' : '') + '</span></div>';
+  }
+  if(ref){
+    var rr = Math.hypot(ref.x - b.x, ref.y - b.y);
+    if(rr > 0){
+      html += '<div class="line" style="margin-top:4px"><span class="k">' + T('acceleration') + ' → ' + bodyDisplayName(ref) + '</span><span>' +
+        sci(G*b.mass/(rr*rr), 4) + ' m/s²</span></div>';
+    }
+  }
+  host.innerHTML = html;
+}
+
+/* ---- Experiment D ---- */
+function expDIsolate(){
+  var id = $('expDPlanet').value;
+  var planet = getBody(id);
+  if(!planet || planet.isSun) return;
+  clearTestParticle();
+
+  state.mode = 'nbody';
+  applyFixedFlags();
+
+  var sun = sunBody();
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    b.active = (b === sun || b === planet);
+  }
+
+  // Remove total momentum and place the centre of mass at the origin
+  var totalM = sun.mass + planet.mass;
+  var cx = (sun.mass*sun.x + planet.mass*planet.x)/totalM;
+  var cy = (sun.mass*sun.y + planet.mass*planet.y)/totalM;
+  var px = (sun.mass*sun.vx + planet.mass*planet.vx)/totalM;
+  var py = (sun.mass*sun.vy + planet.mass*planet.vy)/totalM;
+  sun.x -= cx; sun.y -= cy; sun.vx -= px; sun.vy -= py;
+  planet.x -= cx; planet.y -= cy; planet.vx -= px; planet.vy -= py;
+
+  sun.trail = []; sun.lastTrailT = -1e18;
+  planet.trail = []; planet.lastTrailT = -1e18;
+  planet.trailInterval = planet.periodRef ? (planet.periodRef*DAY)/360 : 1e18;
+
+  state.expIsolated = true;
+  state.selectedId = planet.id;
+  computeAccel();
+  computeDt();
+  state.E0 = totalEnergy();
+  state.simTime = 0;
+  refreshBodySelectors();
+  setPressed();
+  updateExperimentResults();
+}
+
+function restoreFullSystem(){
+  for(var i=0; i<state.bodies.length; i++) state.bodies[i].active = true;
+  state.expIsolated = false;
+  applyFixedFlags();
+  computeAccel();
+  state.E0 = totalEnergy();
+  refreshBodySelectors();
+  setPressed();
+}
+
+function renderExpD(){
+  var host = $('expDRes');
+  var sun = sunBody();
+  var planet = getBody($('expDPlanet').value);
+  if(!planet || planet.isSun){ host.innerHTML = '<p class="note">' + T('noBody') + '</p>'; return; }
+  var totalM = sun.mass + planet.mass;
+  var cx = (sun.mass*sun.x + planet.mass*planet.x)/totalM;
+  var cy = (sun.mass*sun.y + planet.mass*planet.y)/totalM;
+  var vx = (sun.mass*sun.vx + planet.mass*planet.vx)/totalM;
+  var vy = (sun.mass*sun.vy + planet.mass*planet.vy)/totalM;
+  var el = osculating(planet);
+  var sep = Math.hypot(sun.x - planet.x, sun.y - planet.y);
+
+  var html = '<div class="line"><span class="k">' + T('totalMass') + '</span><span>' + sci(totalM, 4) + ' kg</span></div>';
+  html += '<div class="line"><span class="k">' + T('centreOfMass') + '</span><span>' + fmt(cx/AU, 6) + ', ' + fmt(cy/AU, 6) + ' AU</span></div>';
+  html += '<div class="line"><span class="k">' + T('comVelocity') + '</span><span>' + fmt(vx, 3) + ', ' + fmt(vy, 3) + ' m/s</span></div>';
+  html += '<div class="line"><span class="k">' + T('barycentre') + '</span><span>' + fmt(Math.hypot(sun.x-cx, sun.y-cy)/1e3, 2) + ' km</span></div>';
+  html += '<div class="line"><span class="k">' + T('distanceNow') + '</span><span>' + fmt(sep/AU, 6) + ' AU</span></div>';
+  html += '<div class="line"><span class="k">' + T('eccentricity') + '</span><span>' + fmt(el.e, 5) + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('periodOsc') + '</span><span>' + (isFinite(el.period) ? fmt(el.period/DAY, 4) + ' d' : '—') + '</span></div>';
+  html += '<div class="line"><span class="k">' + T('momentumRemoved') + '</span><span>' + (state.expIsolated ? '✓' : '—') + '</span></div>';
+  host.innerHTML = html;
+}
+
+/* ---- Experiment E ---- */
+function renderExpE(){
+  var host = $('expERes');
+  var rows = [];
+  rows.push('<table class="data"><thead><tr>' +
+    '<th>' + T('body') + '</th>' +
+    '<th>a (AU)</th>' +
+    '<th>' + T('referencePeriod') + ' (d)</th>' +
+    '<th>' + T('periodOsc') + ' (d)</th>' +
+    '<th>' + T('curSpeed') + ' (km/s)</th>' +
+    '<th>T²/a³</th>' +
+    '</tr></thead><tbody>');
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!isVisible(b) || b.isSun) continue;
+    var el = osculating(b);
+    var tref = b.periodRef ? fmt(b.periodRef, 3) : '—';
+    var tosc = isFinite(el.period) ? fmt(el.period/DAY, 3) : '—';
+    var ar = b.aRef ? b.aRef/AU : el.a/AU;
+    var ratio = (isFinite(el.period) && isFinite(el.a)) ?
+      fmt(Math.pow(el.period/JYEAR, 2)/Math.pow(el.a/AU, 3), 5) : '—';
+    rows.push('<tr><td>' + bodyDisplayName(b) + '</td>' +
+      '<td>' + fmt(ar, 4) + '</td>' +
+      '<td>' + tref + '</td>' +
+      '<td>' + tosc + '</td>' +
+      '<td>' + fmt(el.v/1000, 3) + '</td>' +
+      '<td>' + ratio + '</td></tr>');
+  }
+  rows.push('</tbody></table>');
+  host.innerHTML = rows.join('');
+}
+
+function updateExperimentResults(){
+  renderExpA();
+  renderExpB();
+  renderExpC();
+  renderExpD();
+  renderExpE();
+}
+
+function bindExperiments(){
+  var tabs = document.querySelectorAll('.tab');
+  for(var i=0; i<tabs.length; i++){
+    tabs[i].addEventListener('click', function(){
+      var t = this.getAttribute('data-tab');
+      var all = document.querySelectorAll('.tab');
+      for(var k=0; k<all.length; k++) all[k].classList.remove('active');
+      this.classList.add('active');
+      var panes = document.querySelectorAll('.exp-pane');
+      for(var m=0; m<panes.length; m++) panes[m].classList.remove('active');
+      $('pane' + t).classList.add('active');
+      updateExperimentResults();
+    });
+  }
+
+  $('expAVel').addEventListener('input', function(){
+    $('expAVelOut').textContent = parseFloat(this.value).toFixed(3);
+  });
+  $('expAApply').addEventListener('click', expAApply);
+  $('expAReset').addEventListener('click', function(){
+    resetSimulation(true); clearTestParticle(); computeDt(); state.E0 = totalEnergy();
+    $('expAVel').value = 1; $('expAVelOut').textContent = '1.000';
+    setPressed(); updateExperimentResults();
+  });
+
+  $('expBDist').addEventListener('input', function(){
+    var d = Math.exp(parseFloat(this.value));
+    $('expBDistOut').textContent = d.toFixed(3) + ' AU';
+  });
+  $('expBVel').addEventListener('input', function(){
+    $('expBVelOut').textContent = parseFloat(this.value).toFixed(3);
+  });
+  $('expBApply').addEventListener('click', expBCreate);
+  $('expBRemove').addEventListener('click', function(){
+    clearTestParticle(); computeDt(); updateExperimentResults();
+  });
+  $('expBReset').addEventListener('click', function(){
+    resetSimulation(true); clearTestParticle(); computeDt(); state.E0 = totalEnergy();
+    setPressed(); updateExperimentResults();
+  });
+  $('expBDistOut').textContent = '1.000 AU';
+
+  $('expCMass').addEventListener('input', function(){
+    var f = Math.pow(10, parseFloat(this.value));
+    $('expCMassOut').textContent = (f >= 1 ? f.toFixed(2) : f.toFixed(3)) + '×';
+  });
+  $('expCApply').addEventListener('click', expCApply);
+  $('expCReset').addEventListener('click', function(){
+    for(var i=0; i<state.bodies.length; i++) state.bodies[i].mass = state.bodies[i].mass0;
+    computeAccel(); state.E0 = totalEnergy();
+    $('expCMass').value = 0; $('expCMassOut').textContent = '1.00×';
+    updateExperimentResults();
+  });
+
+  $('expDApply').addEventListener('click', expDIsolate);
+  $('expDRestore').addEventListener('click', function(){
+    resetSimulation(true); computeDt(); state.E0 = totalEnergy();
+    setPressed(); updateExperimentResults();
+  });
+
+  $('expEApply').addEventListener('click', renderExpE);
+  $('expEReset').addEventListener('click', function(){
+    resetSimulation(true); clearTestParticle(); computeDt(); state.E0 = totalEnergy();
+    setPressed(); updateExperimentResults();
+  });
+}
+
+/* ==================================================================
+   15. IMPORT / EXPORT
+   ================================================================== */
+function currentSettings(){
+  return {
+    lang: state.lang,
+    speedDaysPerSec: state.speedDaysPerSec,
+    mode: state.mode,
+    scaleMode: state.scaleMode,
+    showTrails: state.showTrails,
+    showOrbits: state.showOrbits,
+    showLabels: state.showLabels,
+    showConstellations: state.showConstellations,
+    showDwarfs: state.showDwarfs,
+    selectedId: state.selectedId
+  };
+}
+
+function exportConfig(){
+  var payload = {
+    app: 'SOLARIS',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    settings: currentSettings(),
+    simulation: {
+      timeSecondsSinceJ2000: state.simTime,
+      bodies: state.bodies.map(function(b){
+        return {
+          id: b.id, mass: b.mass, active: b.active,
+          x: b.x, y: b.y, vx: b.vx, vy: b.vy
+        };
+      })
+    }
+  };
+  var text = JSON.stringify(payload, null, 2);
+  try{
+    var blob = new Blob([text], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'solaris-config.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+    toast(T('exported'));
+  }catch(e){
+    try{
+      navigator.clipboard.writeText(text);
+      toast(T('copied'));
+    }catch(e2){ toast('—'); }
+  }
+}
+
+function importConfig(){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json,.json,text/plain';
+  input.style.display = 'none';
+  input.addEventListener('change', function(){
+    var f = input.files && input.files[0];
+    if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(String(reader.result));
+        applyImported(data);
+      }catch(e){ toast(T('importFailed')); }
+    };
+    reader.readAsText(f);
+  });
+  document.body.appendChild(input);
+  input.click();
+  setTimeout(function(){ document.body.removeChild(input); }, 1000);
+}
+
+function applyImported(data){
+  if(!data || typeof data !== 'object'){ toast(T('importFailed')); return; }
+  var s = data.settings;
+  if(s){
+    if(s.lang === 'fa' || s.lang === 'en') state.lang = s.lang;
+    if(typeof s.speedDaysPerSec === 'number') state.speedDaysPerSec = clamp(s.speedDaysPerSec, 0.25, 2000);
+    if(s.mode === 'nbody' || s.mode === 'simplified') state.mode = s.mode;
+    if(s.scaleMode === 'scientific' || s.scaleMode === 'exploration') state.scaleMode = s.scaleMode;
+    state.showTrails = !!s.showTrails;
+    state.showOrbits = !!s.showOrbits;
+    state.showLabels = !!s.showLabels;
+    state.showConstellations = !!s.showConstellations;
+    state.showDwarfs = !!s.showDwarfs;
+    if(typeof s.selectedId === 'string') state.selectedId = s.selectedId;
+  }
+
+  resetSimulation(true);
+  applyFixedFlags();
+
+  var sim = data.simulation;
+  if(sim && Array.isArray(sim.bodies)){
+    for(var i=0; i<sim.bodies.length; i++){
+      var ib = sim.bodies[i];
+      var b = getBody(ib.id);
+      if(!b) continue;
+      if(typeof ib.mass === 'number' && isFinite(ib.mass)) b.mass = ib.mass;
+      if(typeof ib.x === 'number' && isFinite(ib.x)) b.x = ib.x;
+      if(typeof ib.y === 'number' && isFinite(ib.y)) b.y = ib.y;
+      if(typeof ib.vx === 'number' && isFinite(ib.vx)) b.vx = ib.vx;
+      if(typeof ib.vy === 'number' && isFinite(ib.vy)) b.vy = ib.vy;
+      if(typeof ib.active === 'boolean') b.active = ib.active;
+    }
+    if(typeof sim.timeSecondsSinceJ2000 === 'number' && isFinite(sim.timeSecondsSinceJ2000)){
+      state.simTime = sim.timeSecondsSinceJ2000;
+    }
+  }
+
+  computeAccel();
+  computeDt();
+  state.E0 = totalEnergy();
+  state.series = [];
+
+  // reflect UI
+  var t = Math.log(state.speedDaysPerSec/0.25) / Math.log(2000/0.25);
+  $('speedRange').value = Math.round(clamp(t, 0, 1) * 1000);
+  $('speedOut').textContent = fmt(state.speedDaysPerSec, state.speedDaysPerSec < 10 ? 2 : 0) + ' d/s';
+
+  updateScaleNote();
+  applyI18n();
+  refreshBodySelectors();
+  setPressed();
+  updateInfo(true);
+  updateExperimentResults();
+  toast(T('imported'));
+}
+
+/* ==================================================================
+   16. PERSISTENCE
+   ================================================================== */
+var STORAGE_KEY = 'solaris.settings.v1';
+function saveSettings(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(currentSettings()));
+  }catch(e){ /* storage unavailable — the simulator still works */ }
+}
+function loadSettings(){
+  try{
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function restoreDefaults(){
+  try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+  state.lang = 'en';
+  state.speedDaysPerSec = 5;
+  state.mode = 'simplified';
+  state.scaleMode = 'scientific';
+  state.showTrails = true;
+  state.showOrbits = true;
+  state.showLabels = true;
+  state.showConstellations = false;
+  state.showDwarfs = false;
+  state.selectedId = 'earth';
+  state.running = true;
+  resetSimulation(true);
+  clearTestParticle();
+  computeDt();
+  state.E0 = totalEnergy();
+  $('speedRange').value = Math.round(Math.log(5/0.25)/Math.log(2000/0.25)*1000);
+  $('speedOut').textContent = '5.00 d/s';
+  updateScaleNote();
+  applyI18n();
+  setPressed();
+  fitView();
+  toast(T('settingsRestored'));
+}
+
+/* ==================================================================
+   17. MAIN LOOP
+   ================================================================== */
+var MAX_STEPS_PER_FRAME = 4000;
+
+function checkFinite(){
+  for(var i=0; i<state.bodies.length; i++){
+    var b = state.bodies[i];
+    if(!isFinite(b.x) || !isFinite(b.y) || !isFinite(b.vx) || !isFinite(b.vy)){
+      state.nanError = true;
+      state.running = false;
+      setPressed();
+      toast(T('nanWarn'));
+      return false;
+    }
+  }
+  return true;
+}
+
+var lastFrame = 0;
+function loop(now){
+  requestAnimationFrame(loop);
+  if(document.hidden){ lastFrame = now; return; }
+
+  var dtReal = (now - lastFrame) / 1000;
+  lastFrame = now;
+  if(!isFinite(dtReal) || dtReal < 0) dtReal = 0;
+  if(dtReal > 0.25) dtReal = 0.25;
+
+  if(state.running && !state.nanError){
+    var simSeconds = state.speedDaysPerSec * DAY * dtReal;
+    state.acc += simSeconds;
+    var steps = 0;
+    while(state.acc >= state.dt && steps < MAX_STEPS_PER_FRAME){
+      integrate(state.dt);
+      state.acc -= state.dt;
+      steps++;
+      updateTestParticle();
+    }
+    if(steps >= MAX_STEPS_PER_FRAME) state.acc = 0;
+    if(steps > 0){
+      updateTrails();
+      if(!checkFinite()) return;
+    }
+  }
+
+  render(now);
+
+  if(now - lastHud > 220){
+    lastHud = now;
+    updateInfo(false);
+    updateAnalytics();
+    pushSeries();
+    drawChart();
+    $('elapsedOut').textContent = formatElapsed(state.simTime);
+    $('dtOut').textContent = fmt(state.dt/3600, 2) + ' h';
+    var spanDisp = (2 * (W/2) / cam.scale);
+    var spanAU = (state.scaleMode === 'scientific')
+      ? spanDisp / AU
+      : Math.pow(spanDisp / AU, 1/EXPL_P);
+    $('spanOut').textContent = fmt(spanAU, spanAU < 10 ? 3 : 1) + ' AU';
+    var E = totalEnergy();
+    $('energyOut').textContent = sci(E, 3) + ' J';
+    if(state.E0 && isFinite(state.E0) && state.E0 !== 0){
+      $('driftOut').textContent = sci(Math.abs((E - state.E0)/state.E0), 3);
+    }
+    if(state.nanError) $('driftOut').textContent = '—';
+    if($('expModal').classList.contains('open')) updateExperimentResults();
+  }
+}
+
+/* ==================================================================
+   18. BOOT
+   ================================================================== */
+function boot(){
+  canvas = $('sky');
+  ctx = canvas.getContext('2d', { alpha: false });
+  chartCanvas = $('chart');
+  chartCtx = chartCanvas.getContext('2d');
+
+  reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  resizeCanvas();
+  buildStars();
+
+  var saved = loadSettings();
+  if(saved){
+    if(saved.lang === 'fa' || saved.lang === 'en') state.lang = saved.lang;
+    if(typeof saved.speedDaysPerSec === 'number') state.speedDaysPerSec = clamp(saved.speedDaysPerSec, 0.25, 2000);
+    if(saved.mode === 'nbody' || saved.mode === 'simplified') state.mode = saved.mode;
+    if(saved.scaleMode === 'scientific' || saved.scaleMode === 'exploration') state.scaleMode = saved.scaleMode;
+    if(typeof saved.showTrails === 'boolean') state.showTrails = saved.showTrails;
+    if(typeof saved.showOrbits === 'boolean') state.showOrbits = saved.showOrbits;
+    if(typeof saved.showLabels === 'boolean') state.showLabels = saved.showLabels;
+    if(typeof saved.showConstellations === 'boolean') state.showConstellations = saved.showConstellations;
+    if(typeof saved.showDwarfs === 'boolean') state.showDwarfs = saved.showDwarfs;
+    if(typeof saved.selectedId === 'string') state.selectedId = saved.selectedId;
+  }
+
+  resetSimulation(true);
+  clearTestParticle();
+  computeDt();
+  state.E0 = totalEnergy();
+
+  var t = Math.log(state.speedDaysPerSec/0.25) / Math.log(2000/0.25);
+  $('speedRange').value = Math.round(clamp(t, 0, 1) * 1000);
+  $('speedOut').textContent = fmt(state.speedDaysPerSec, state.speedDaysPerSec < 10 ? 2 : 0) + ' d/s';
+
+  bindControls();
+  bindCanvas();
+  bindExperiments();
+
+  applyI18n();
+  updateScaleNote();
+  setPressed();
+  updateInfo(true);
+  updateAnalytics();
+  updateExperimentResults();
+
+  window.addEventListener('resize', function(){
+    resizeCanvas();
+    fitView();
+  });
+  window.addEventListener('orientationchange', function(){
+    setTimeout(function(){ resizeCanvas(); fitView(); }, 250);
+  });
+  document.addEventListener('visibilitychange', function(){
+    lastFrame = performance.now();
+  });
+
+  if(window.innerWidth >= 1100){
+    openPanel('panelControls', true);
+    openPanel('panelData', true);
+  }
+
+  lastFrame = performance.now();
+  requestAnimationFrame(loop);
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+else boot();
+
+})();
+</script>
+</body>
+</html>

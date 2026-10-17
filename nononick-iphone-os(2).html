@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NONONICK Hub · مرکز اتصال پروژه‌ها</title>
+<meta name="theme-color" content="#07080f">
+<meta name="description" content="مرکز محلی مدیریت فایل‌ها و اتصال پروژه‌ها؛ مستقل و بدون سرور">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--pg:#e4e6f6;--pg2:#c6c1f0;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--pg:#07080f;--pg2:#171335}}
+:root[data-theme="dark"]{--pg:#07080f;--pg2:#171335}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%;overflow:hidden}
+body{display:grid;place-items:center;font-family:'Vazirmatn',system-ui,-apple-system,'Segoe UI',Tahoma,sans-serif;background:radial-gradient(100% 80% at 50% 0,var(--pg2),var(--pg));background-color:var(--pg)}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #4fd8ff;outline-offset:2px}
+#ph{--ac:#6c7bff;--mut:#9aa0c8;position:relative;width:440px;height:956px;flex:none;border-radius:66px;background:#05060d;border:11px solid #2a2b33;box-shadow:0 0 0 2px #5a5b64,0 40px 100px #0009;overflow:hidden;color:#eef0ff}
+#isl{position:absolute;top:11px;left:50%;translate:-50% 0;width:130px;height:35px;border-radius:20px;background:#000;z-index:90;display:flex;align-items:center;justify-content:center;gap:8px;font-size:10px;letter-spacing:.14em;font-weight:600;direction:ltr}
+#isl i{width:8px;height:8px;border-radius:50%;background:#2fe0ff;box-shadow:0 0 8px #2fe0ff}
+#sb{position:absolute;top:0;inset-inline:0;height:54px;display:flex;justify-content:space-between;align-items:center;padding:8px 34px 0;font-size:15px;font-weight:600;z-index:70;pointer-events:none}
+#sb small{font-weight:400;color:var(--mut);margin-inline-start:8px}
+.sc{position:absolute;inset:56px 0 100px;overflow:auto;padding:6px 16px 20px;display:none}
+.sc.on{display:block}
+.hero{position:relative;padding:22px;border-radius:30px;background:linear-gradient(160deg,#1e2147,#0b0c1d 70%);border:1px solid #ffffff1f;overflow:hidden;min-height:250px;text-align:start}
+.hero::before{content:"";position:absolute;left:-26px;top:70px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#d7e4ff,var(--ac) 45%,#35197f 85%);box-shadow:0 0 70px var(--ac)}
+.hero>*{position:relative;margin-inline-start:auto;max-width:62%}
+.hero small{display:block;color:#4fd8ff;font-size:13px}
+.hero h1{font-size:36px;font-weight:800;line-height:1.3;background:linear-gradient(90deg,#4fd8ff,var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent;overflow-wrap:anywhere}
+.hero p{font-size:13px;line-height:2;color:var(--mut);margin:6px 0 14px}
+.bt{display:flex;gap:8px;flex-wrap:wrap}
+.pb,.sb{padding:9px 18px;border-radius:99px;font-size:13px;font-weight:600}
+.pb{background:linear-gradient(90deg,#4a7bff,var(--ac))}
+.sb{border:1px solid #ffffff2e}
+.hd{display:flex;justify-content:space-between;align-items:center;margin:20px 2px 12px}
+.hd h2{font-size:17px}
+.hd button{font-size:13px;color:#4fd8ff}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 6px}
+.ap{display:grid;justify-items:center;gap:6px;font-size:11px;position:relative}
+.ap i{display:grid;place-items:center;width:62px;height:62px;border-radius:19px;font-style:normal;font-size:30px;box-shadow:inset 0 1px 0 #fff4,0 6px 14px #0006}
+.ap i.pl{background:#ffffff14;color:var(--mut)}
+.ap span{max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ap.on::after{content:"";position:absolute;top:0;inset-inline-end:8px;width:9px;height:9px;border-radius:50%;background:#35e08f}
+.ed .ap i{outline:2px dashed #4fd8ff;outline-offset:2px}
+.tbar{position:absolute;bottom:24px;inset-inline:14px;height:66px;display:flex;padding:6px;border-radius:30px;background:#171a2e;border:1px solid #ffffff1c;z-index:60}
+.tbar button{flex:1;display:grid;place-items:center;align-content:center;border-radius:24px;font-size:11px;color:var(--mut)}
+.tbar button b{font-size:20px;font-weight:400}
+.tbar button.on{background:#ffffff16;color:#fff}
+#hi{position:absolute;bottom:8px;left:50%;translate:-50% 0;width:140px;height:18px;z-index:120;display:grid;place-items:center}
+#hi::after{content:"";width:134px;height:5px;border-radius:9px;background:#fff9}
+#ov{position:absolute;inset:0;z-index:50;background:#05060d;display:none;flex-direction:column;padding-top:54px}
+#ovb{display:flex;align-items:center;gap:6px;padding:4px 12px 8px}
+#ovb h4{flex:1;text-align:center;font-size:14px}
+#ovb button{padding:6px 12px;border-radius:99px;background:#ffffff14;font-size:13px}
+#fr{position:relative;flex:1;margin-bottom:24px;background:#fff}
+.fr{position:absolute;inset:0;width:100%;height:100%;border:0;background:#fff}
+.in{width:100%;padding:11px 12px;margin:5px 0 12px;border-radius:12px;border:1px solid #ffffff26;background:#ffffff0d;color:inherit;font:inherit}
+.in[type=color]{padding:2px;height:42px}
+textarea.in{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;height:300px;direction:ltr;text-align:left;white-space:pre}
+.ck{display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:14px}
+#sh{position:absolute;inset:0;z-index:100;display:none;align-items:flex-end;background:#0008}
+#shc{width:100%;max-height:88%;overflow:auto;background:#14162b;border-radius:28px 28px 0 0;padding:20px 18px 40px}
+#shc h3{margin-bottom:12px;font-size:16px;overflow-wrap:anywhere}
+#shc label{font-size:12px;color:var(--mut)}
+.ac{display:grid;gap:8px}
+.ac button,.li{padding:13px 14px;border-radius:14px;background:#ffffff0f;text-align:start;font-size:14px}
+.drop{border:2px dashed #ffffff30;border-radius:22px;padding:20px;text-align:center;color:var(--mut);font-size:13px;line-height:2}
+.drop.hot{border-color:#4fd8ff;color:#fff}
+.fi{display:flex;align-items:center;gap:10px;width:100%;padding:11px 12px;margin-top:8px;border-radius:16px;background:#ffffff0c;text-align:start}
+.fi i{font-style:normal;font-size:22px}.fi b{flex:1;font-weight:600;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:ltr;text-align:start}.fi small{color:var(--mut)}
+.mut{color:var(--mut);font-size:13px;line-height:2}
+.rw{display:flex;align-items:center;gap:10px;padding:11px 14px;margin-top:8px;border-radius:16px;background:#ffffff0c;font-size:14px}
+.rw span{flex:1}.rw button{color:#ff7a7a;font-size:13px}
+select.in{appearance:none}
+.log{font:11px/1.8 ui-monospace,Menlo,Consolas,monospace;color:#b9f5d0;direction:ltr;text-align:left;background:#000a;border-radius:14px;padding:10px;max-height:170px;overflow:auto;white-space:pre-wrap}
+ .notice{padding:12px 14px;border-radius:16px;background:#4fd8ff12;border:1px solid #4fd8ff30;font-size:12px;line-height:1.9;color:#cbdcff;margin:10px 0}
+ .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.stat{background:#ffffff0b;border:1px solid #ffffff12;border-radius:15px;padding:10px;text-align:center}.stat b{display:block;font-size:18px}.stat small{font-size:11px;color:var(--mut)}
+ .pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.pcard{background:#ffffff0b;border:1px solid #ffffff18;border-radius:16px;overflow:hidden;min-width:0}.pcard img{width:100%;height:110px;object-fit:cover;background:#171a2e;display:block}.pcard .pbody{padding:10px}.pcard h3{font-size:13px;overflow-wrap:anywhere;margin-bottom:5px}.pcard p{font-size:11px;line-height:1.7;color:var(--mut);max-height:54px;overflow:hidden}.pcard .pactions{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}.pcard button{background:#ffffff12;border-radius:9px;padding:6px;font-size:11px}.pcard .pickp{float:left}.pcount{font-size:12px;color:var(--mut)}.search{width:100%;padding:12px 14px;border-radius:14px;border:1px solid #ffffff22;background:#ffffff0c;color:inherit;font:inherit;margin:10px 0}
+#toast{position:absolute;top:64px;left:50%;translate:-50% 0;z-index:200;padding:8px 16px;border-radius:99px;background:#fff;color:#111;font-size:13px;display:none}
+@media (max-width:560px){#ph{width:100vw;height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));border:0;border-radius:0;box-shadow:none}#isl,#sb{display:none}.sc{inset:12px 0 100px}#ov{padding-top:8px}#toast{top:16px}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="ph">
+ <div id="isl"><span>NONONICK</span><i></i></div>
+ <div id="sb"><span id="tm"></span><span>5G ▮▮▮</span></div>
+ <section class="sc on" id="s-home">
+  <div class="hero" id="hero" data-c="hero"></div><div class="notice" id="storageNotice">بررسی وضعیت ذخیره‌سازی…</div>
+  <div class="hd"><h2>برنامه‌ها</h2><button id="edb" data-c="tgl">ویرایش</button></div>
+  <div class="grid" id="grid"></div>
+ </section>
+ <section class="sc" id="s-files">
+  <div class="hd" style="margin-top:6px"><h2>فایل‌ها و پروژه‌ها</h2><button data-c="export">خروجی ZIP همه</button></div>
+  <div class="stats"><div class="stat"><b id="statFiles">۰</b><small>فایل</small></div><div class="stat"><b id="statApps">۰</b><small>برنامه</small></div><div class="stat"><b id="statSize">۰ KB</b><small>فضای فایل‌ها</small></div></div>
+  <input class="search" id="fileSearch" placeholder="جست‌وجوی فایل یا مسیر…" aria-label="جست‌وجوی فایل‌ها" dir="auto">
+  <label class="drop" id="drop" style="display:block;cursor:pointer">فایل، پروژهٔ فشرده (ZIP) یا کل فضای کار را اینجا رها کن<br>یا برای انتخاب بزن<input id="pick" type="file" multiple accept=".zip,.json,.html,.htm,.css,.js,.mjs,.ts,.tsx,.jsx,.json,.md,.txt,.svg,.xml,.csv,.png,.jpg,.jpeg,.webp,.pdf" hidden></label>
+  <div class="hd"><h2>انتقال و همگام‌سازی</h2></div>
+  <div class="notice">بستهٔ قابل‌انتقال شامل فایل‌ها، فهرست برنامه‌ها و اتصال‌هاست. آن را در دستگاه دیگر وارد کن. این همگام‌سازی دستی و آفلاین است؛ همگام‌سازی خودکار بین دستگاه‌ها به سرور نیاز دارد.</div>
+  <div class="bt"><button class="pb" data-c="portableExport">ساخت بستهٔ انتقال</button><button class="sb" data-c="snapshot">ذخیرهٔ نقطهٔ بازگشت</button><button class="sb" data-c="snapshots">مدیریت نسخه‌ها</button></div>
+  <div id="flist"></div>
+ </section>
+ <section class="sc" id="s-portfolio">
+  <div class="hd" style="margin-top:6px"><h2>استودیو پورتفولیو و ریمیکس</h2><button data-c="newPortfolio">＋ افزودن</button></div>
+  <div class="notice">برای تعداد زیاد نمونه‌کار طراحی شده: تصویر، توضیح، لینک، تگ و کد را نگه دار؛ چند مورد را انتخاب کن و یک ریمیکس بساز. داده‌ها در همین مرورگر ذخیره می‌شوند. برای انتقال، JSON بگیر یا بستهٔ کامل را خروجی بگیر.</div>
+  <div class="bt"><button class="pb" data-c="newPortfolio">＋ نمونه‌کار</button><button class="sb" data-c="importPortfolio">واردکردن JSON</button><button class="sb" data-c="exportPortfolios">خروجی همه</button><button class="sb" data-c="remixSelected">ریمیکس انتخاب‌شده‌ها</button></div>
+  <input class="search" id="portfolioSearch" placeholder="جست‌وجوی عنوان، توضیح، تگ…" aria-label="جست‌وجوی پورتفولیو" dir="auto">
+  <div class="pcount" id="portfolioCount">۰ نمونه‌کار</div><div class="pgrid" id="portfolioGrid"></div>
+  <input id="portfolioPick" type="file" accept="application/json,.json" hidden>
+ </section>
+ <section class="sc" id="s-links">
+  <div class="hd" style="margin-top:6px"><h2>اتصال‌ها</h2></div>
+  <div class="notice"><b>وضعیت پل ارتباطی:</b> پیام‌رسانی داخلی بین فایل‌های اجراشده در همین مرکز کار می‌کند. سایت‌های آنلاین فقط باز می‌شوند؛ برای تبادل داده با آن‌ها باید خود سایت از SDK و قرارداد پیام NONONICK پشتیبانی کند. بدون سرور، همگام‌سازی ابری خودکار ممکن نیست.</div><p class="mut">برای ارسال مستقیم از <span dir="ltr">NONO.send("project-id", data)</span> و برای دریافت از <span dir="ltr">NONO.on((data, from) =&gt; …)</span> استفاده کن. فقط به برنامه‌های مورد اعتماد دسترسی بده.</p>
+  <div id="rules"></div>
+  <div style="margin-top:14px"><select class="in" id="ra"></select><select class="in" id="rb"></select><button class="pb" data-c="addrule">افزودن اتصال</button></div>
+  <div class="hd"><h2>در حال اجرا</h2></div><div id="runl"></div>
+  <div class="hd"><h2>گزارش پیام‌ها</h2></div><div class="log" id="log">—</div>
+ </section>
+ <section class="sc" id="s-set">
+  <div class="hd" style="margin-top:6px"><h2>تنظیمات</h2></div>
+  <label class="mut">عنوان</label><input class="in" data-k="t" id="k1">
+  <label class="mut">توضیح</label><input class="in" data-k="s" id="k2">
+  <label class="mut">رنگ اصلی</label><input class="in" type="color" data-k="ac" id="k3">
+  <div class="bt"><button class="pb" data-c="export">خروجی کامل (ZIP)</button><button class="sb" data-c="exportjson">خروجی تنظیمات JSON</button><button class="sb" data-c="import">ورودی ZIP/JSON/فایل</button><button class="sb" id="rst" data-c="reset">بازنشانی</button></div>
+  <div class="notice"><b>ذخیره‌سازی محلی:</b> داده‌ها روی همین مرورگر و دستگاه می‌مانند. برای انتقال به دستگاه دیگر از ZIP استفاده کن. این نسخه سرور، همگام‌سازی ابری، حساب کاربری یا دسترسی خودکار به فایل‌های بیرون از مرورگر ندارد.</div>
+  <p class="mut" style="margin-top:8px">اگر صفحه را در حالت خصوصی یا مرورگری با محدودیت ذخیره‌سازی باز کنی، نگهداری داده‌ها ممکن است محدود شود. از فایل ZIP پشتیبان بگیر.</p>
+ </section>
+ <div id="ov"><div id="ovb"><button data-c="home">‹ خانه</button><h4 id="ovt"></h4><button data-c="reload">⟳</button><button data-c="stopcur">✕</button></div><div id="fr"></div></div>
+ <nav class="tbar" id="tabs"><button data-c="go" data-v="home" class="on"><b>🏠</b>خانه</button><button data-c="go" data-v="files"><b>📁</b>فایل‌ها</button><button data-c="go" data-v="portfolio"><b>🎨</b>نمونه‌کار</button><button data-c="go" data-v="links"><b>🔗</b>اتصال‌ها</button><button data-c="go" data-v="set"><b>⚙️</b>تنظیمات</button></nav>
+ <button id="hi" data-c="home" aria-label="خانه"></button>
+ <div id="sh"><div id="shc"></div></div>
+ <div id="toast"></div>
+</div>
+<datalist id="fl"></datalist>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])),fa=n=>Number(n).toLocaleString("fa-IR"),uid=()=>"a"+Math.random().toString(36).slice(2,8);
+const MIME={html:"text/html",htm:"text/html",css:"text/css",js:"text/javascript",json:"application/json",txt:"text/plain",md:"text/markdown",svg:"image/svg+xml",csv:"text/csv"};
+const mime=n=>MIME[n.split(".").pop().toLowerCase()]||"application/octet-stream";
+const isText=f=>/^text\/|json|javascript|xml|svg/.test(f.type)||/\.(txt|md|html?|css|js|json|csv|svg|xml)$/i.test(f.n);
+const toBlob=(d,n)=>d instanceof Blob?d:new Blob([d instanceof ArrayBuffer||ArrayBuffer.isView(d)?d:typeof d==="string"?d:JSON.stringify(d,null,2)],{type:mime(n)});
+let S,ed=false,cur=null,tab="home";const run={},LOG=[];
+/* ---------- storage (IndexedDB, falls back to memory) ---------- */
+const mem={f:{},k:{}};
+const idb=new Promise(r=>{try{const q=indexedDB.open("nono-os",1);q.onupgradeneeded=()=>{q.result.createObjectStore("f");q.result.createObjectStore("k")};q.onsuccess=()=>r(q.result);q.onerror=()=>r(null)}catch(e){r(null)}});
+async function db(st,op,k,v){const d=await idb;if(!d){const m=mem[st];if(op==="put")m[k]=v;else if(op==="del")delete m[k];else if(op==="get")return m[k];else if(op==="keys")return Object.keys(m);return}
+ return new Promise(res=>{try{const t=d.transaction(st,op==="get"||op==="keys"?"readonly":"readwrite"),s=t.objectStore(st),q=op==="put"?s.put(v,k):op==="del"?s.delete(k):op==="get"?s.get(k):s.getAllKeys();q.onsuccess=()=>res(q.result);q.onerror=()=>res()}catch(e){res()}})}
+const save=()=>db("k","put","S",S);
+const MAX_TEXT_IMPORT=20*1024*1024;
+function logEvent(msg){LOG.unshift(new Date().toLocaleTimeString("en-GB")+"  "+String(msg));LOG.length=Math.min(LOG.length,60);if(tab==="links")renderLinks()}
+function bytesToB64(buf){let bin="",u=new Uint8Array(buf);for(let i=0;i<u.length;i+=8192)bin+=String.fromCharCode(...u.subarray(i,i+8192));return btoa(bin)}
+function b64ToBlob(s,type){const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:type||"application/octet-stream"})}
+async function portableExport(){const fs=await files(),items=[];for(const f of fs)items.push({name:f.n,type:f.type,data:bytesToB64(await f.blob.arrayBuffer())});const pkg={format:"nononick-portable-v1",version:1,createdAt:new Date().toISOString(),state:S,files:items};download(new Blob([JSON.stringify(pkg)],{type:"application/json"}),"nononick-portable-workspace.json");toast("بستهٔ انتقال آماده شد")}
+async function makeSnapshot(){const fs=await files(),items=[];for(const f of fs)items.push({name:f.n,type:f.type,data:bytesToB64(await f.blob.arrayBuffer())});const old=(await db("k","get","snapshots"))||[];old.unshift({id:uid(),at:new Date().toISOString(),state:JSON.parse(JSON.stringify(S)),files:items});while(old.length>5)old.pop();await db("k","put","snapshots",old);toast("نقطهٔ بازگشت ذخیره شد")}
+async function showSnapshots(){const a=(await db("k","get","snapshots"))||[];sheet('<h3>نسخه‌های پشتیبان محلی</h3>'+ (a.length?a.map((x,i)=>`<div class="rw"><span>${esc(new Date(x.at).toLocaleString())} · ${fa(x.files.length)} فایل</span><button data-c="restoreSnapshot" data-v="${esc(x.id)}">بازیابی</button></div>`).join(""):'<p class="mut">هنوز نسخه‌ای ذخیره نشده است.</p>')+'<p class="mut" style="margin-top:12px">حداکثر ۵ نسخه در همین مرورگر نگهداری می‌شود.</p>')}
+async function restoreSnapshot(id){if(!confirm("بازیابی نسخهٔ انتخاب‌شده؟ فایل‌های هم‌نام جایگزین می‌شوند."))return;const a=(await db("k","get","snapshots"))||[],x=a.find(v=>v.id===id);if(!x)return;for(const k of await db("f","keys")||[])await db("f","del",k);for(const f of x.files||[]){if(safePath(f.name))await putFile(f.name,b64ToBlob(f.data,f.type))}S=x.state||S;await save();renderAll();closeSheet();toast("نسخه بازیابی شد")}
+async function importPortable(raw){if(!raw||raw.format!=="nononick-portable-v1"||!raw.state||!Array.isArray(raw.files))return false;if(raw.files.length>5000)throw Error("تعداد فایل‌ها بیش از حد مجاز است");for(const f of raw.files){const n=safePath(f.name);if(!n||typeof f.data!=="string"||f.data.length>MAX_TEXT_IMPORT*2)continue;await putFile(n,b64ToBlob(f.data,f.type))}const w=raw.state;if(Array.isArray(w.apps))S.apps=[...S.apps.filter(a=>!w.apps.some(b=>b&&b.id===a.id)),...w.apps.filter(a=>a&&typeof a.id==="string"&&typeof a.name==="string"&&typeof a.src==="string")];if(Array.isArray(w.rules))S.rules=[...S.rules,...w.rules.filter(r=>r&&S.apps.some(a=>a.id===r.a)&&S.apps.some(a=>a.id===r.b)&&!S.rules.some(q=>q.a===r.a&&q.b===r.b))];if(w.cfg&&typeof w.cfg==="object")S.cfg={...S.cfg,...w.cfg};if(w.sh&&typeof w.sh==="object")S.sh={...S.sh,...w.sh};if(Array.isArray(w.portfolios))S.portfolios=[...(S.portfolios||[]),...w.portfolios.filter(p=>p&&typeof p.title==="string")];await save();return true}
+async function putFile(n,d){const b=toBlob(d,n);await db("f","put",n,{n,type:b.type||mime(n),blob:b})}
+async function files(){const ks=await db("f","keys")||[];return(await Promise.all(ks.map(k=>db("f","get",k)))).filter(Boolean).sort((a,b)=>a.n.localeCompare(b.n))}
+async function readFile(n){const f=await db("f","get",n);if(!f)return null;if(isText(f))return{n,type:f.type,text:await f.blob.text()};const u=new Uint8Array(await f.blob.arrayBuffer());let s="";for(let i=0;i<u.length;i+=8192)s+=String.fromCharCode.apply(null,u.subarray(i,i+8192));return{n,type:f.type,b64:btoa(s)}}
+function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display="none",2200)}
+async function download(b,n){const base=n.split("/").pop();let d=null;try{d=await window.claude?.use("downloads")}catch(e){}
+ if(d){try{await d.save({filename:base,data:b});toast("خروجی ذخیره شد");return}catch(e){if(e.code==="declined")return;if(e.code==="rejected_extension"&&window.JSZip){try{const z=new JSZip();z.file(base,b);await d.save({filename:base+".zip",data:await z.generateAsync({type:"blob"})});return}catch(x){return}}}}
+ const u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=base;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000)}
+/* ---------- seed ---------- */
+const DS='<!doctype html><meta charset=utf-8><body style="font-family:system-ui;background:#12163a;color:#fff;padding:20px"><h3>📤 فرستنده</h3><input id=i placeholder="پیام" style="padding:10px;width:60%"> <button onclick="NONO.send(null,{text:i.value})" style="padding:10px">ارسال</button><p style="opacity:.6;font-size:13px">این برنامه با NONO.send پیام می‌فرستد.</p>';
+const DR='<!doctype html><meta charset=utf-8><body style="font-family:system-ui;background:#0d2a2a;color:#fff;padding:20px"><h3>📥 گیرنده</h3><pre id=o>منتظر پیام…</pre><script>NONO.on((d,f)=>{o.textContent+="\\n"+f+": "+JSON.stringify(d)})<\/script>';
+const seed=()=>({apps:[{id:"web",name:"وب‌سایت",icon:"🌐",color:"#2f6bff",src:"https://nononick.ir"},{id:"snd",name:"فرستنده",icon:"📤",color:"#7a4dff",src:"demo-sender.html"},{id:"rcv",name:"گیرنده",icon:"📥",color:"#12a6a0",src:"demo-receiver.html"}],rules:[{a:"snd",b:"rcv"}],cfg:{t:"NONONICK",s:"وب‌سایت، اپلیکیشن و ابزارهای تعاملی — همه در یک سیستم‌عامل شخصی.",ac:"#6c7bff"},sh:{}});
+/* ---------- bridge injected into every file-app ---------- */
+function BR(id){const cb=[],pend={};let c=0;const p=(t,d)=>parent.postMessage(Object.assign({nono:1,t},d),"*"),rq=(t,d)=>new Promise((resolve,reject)=>{const q=++c;const timer=setTimeout(()=>{delete pend[q];reject(new Error("NONONICK request timed out"))},15000);pend[q]=v=>{clearTimeout(timer);resolve(v)};p(t,Object.assign({q},d))});
+ window.NONO={id,send:(to,data)=>p("send",{to,data}),on:f=>cb.push(f),get:k=>rq("get",{k}),set:(k,v)=>rq("set",{k,v}),list:()=>rq("list"),read:n=>rq("read",{n}),write:(n,data)=>rq("write",{n,data}),save:(n,data)=>p("save",{n,data})};
+ addEventListener("message",e=>{if(e.source!==parent)return;const m=e.data;if(!m||!m.nono)return;if(m.q&&pend[m.q]){pend[m.q](m.r);delete pend[m.q]}else if(m.t==="msg")cb.forEach(f=>f(m.data,m.from))})}
+const bridge=id=>"<script>("+BR.toString()+")("+JSON.stringify(id)+")<\/script>";
+const inject=(h,id)=>{const B=bridge(id);return /<head[^>]*>/i.test(h)?h.replace(/<head[^>]*>/i,m=>m+B):/<!doctype[^>]*>/i.test(h)?h.replace(/<!doctype[^>]*>/i,m=>m+B):B+h};
+/* ---------- running apps ---------- */
+async function mount(app){if(!app)return null;if(run[app.id])return run[app.id];const fr=document.createElement("iframe"),r={app,fr,q:[],ready:false};run[app.id]=r;fr.className="fr";fr.style.display="none";
+ fr.setAttribute("sandbox","allow-scripts allow-forms allow-modals allow-popups allow-downloads");
+ fr.onload=()=>{r.ready=true;r.q.splice(0).forEach(m=>fr.contentWindow.postMessage(m,"*"))};
+ if(/^https?:\/\//i.test(app.src))fr.src=app.src;else{const f=await db("f","get",app.src);fr.srcdoc=f?inject(await f.blob.text(),app.id):'<body style="font-family:system-ui;padding:24px;direction:rtl">فایل «'+esc(app.src)+'» پیدا نشد. از تب فایل‌ها اضافه‌اش کن.'}
+ $("#fr").appendChild(fr);renderHome();return r}
+function stop(id){const r=run[id];if(!r)return;r.fr.remove();delete run[id];if(cur===id)home();renderHome()}
+async function openApp(id){const a=S.apps.find(x=>x.id===id),r=await mount(a);if(!r)return;cur=id;document.querySelectorAll(".fr").forEach(f=>f.style.display=f===r.fr?"block":"none");$("#ovt").textContent=a.name;$("#ov").style.display="flex"}
+function home(){cur=null;$("#ov").style.display="none"}
+const nm=id=>(S.apps.find(a=>a.id===id)||{name:id}).name;
+async function deliver(id,from,data){const r=run[id]||await mount(S.apps.find(a=>a.id===id));if(!r)return;const m={nono:1,t:"msg",from,data};r.ready?r.fr.contentWindow.postMessage(m,"*"):r.q.push(m)}
+function route(from,to,data){let size=0;try{size=JSON.stringify(data??null).length}catch(e){logEvent("Rejected unserializable message");return}if(size>100000){logEvent("Rejected oversized message (>100 KB)");return}const t=to&&S.apps.find(a=>a.id===to);let ids;if(to){ids=t&&S.rules.some(r=>r.a===from&&r.b===to)?[t.id]:[]}else{ids=S.rules.filter(r=>r.a===from).map(r=>r.b)}ids=ids.filter((id,i)=>id!==from&&ids.indexOf(id)===i);
+ LOG.unshift(new Date().toLocaleTimeString("en-GB")+"  "+nm(from)+" → "+(ids.map(nm).join(", ")||"—")+"  "+JSON.stringify(data).slice(0,80));LOG.length=Math.min(LOG.length,30);ids.forEach(i=>deliver(i,nm(from),data));if(tab==="links")renderLinks()}
+addEventListener("message",async e=>{const m=e.data;if(!m||!m.nono||!m.t)return;const r=Object.values(run).find(x=>x.fr.contentWindow===e.source);if(!r)return;const rep=v=>e.source.postMessage({nono:1,q:m.q,r:v},"*");if(/^https?:\/\//i.test(r.app.src)){logEvent("Ignored bridge message from remote app: "+r.app.name);return}
+ if(m.t==="send")route(r.app.id,m.to,m.data);else if(m.t==="get")rep(S.sh[m.k]);else if(m.t==="set"){S.sh[m.k]=m.v;save();rep(true)}
+ else if(m.t==="list")rep((await files()).map(f=>({n:f.n,type:f.type,size:f.blob.size})));else if(m.t==="read")rep(await readFile(m.n));
+ else if(m.t==="write"){await putFile(m.n,m.data);rep(true);renderFiles()}else if(m.t==="save")download(toBlob(m.data,m.n),m.n)});
+/* ---------- files in / out ---------- */
+function safePath(path){path=String(path||"").replace(/\\/g,"/").replace(/^\/+/,"");const parts=path.split("/");if(!path||parts.some(x=>!x||x==="."||x==="..")||path.length>240||/[\x00-\x1f]/.test(path))return null;return path}
+function uniqueName(name){const clean=safePath(name)||("imported-"+Date.now()+".bin");return clean}
+async function ingest(list){let n=0,skipped=0;for(const f of list){try{if(/\.json$/i.test(f.name)){const raw=JSON.parse(await f.text());if(raw&&raw.format==="nononick-portable-v1"){if(await importPortable(raw)){n++;continue}}if(raw&&raw.format==="nononick-settings-v1"){if(Array.isArray(raw.apps))S.apps=raw.apps.filter(a=>a&&a.id&&a.name&&a.src);if(Array.isArray(raw.rules))S.rules=raw.rules.filter(r=>r&&r.a&&r.b);if(raw.cfg&&typeof raw.cfg==="object")S.cfg={...S.cfg,...raw.cfg};if(raw.sh&&typeof raw.sh==="object")S.sh={...S.sh,...raw.sh};if(Array.isArray(raw.portfolios))S.portfolios=[...(S.portfolios||[]),...raw.portfolios.map(cleanPortfolio)];n++;continue}await putFile(uniqueName(f.name),f);n++;continue}
+ if(/\.zip$/i.test(f.name)){if(!window.JSZip){toast("کتابخانهٔ ZIP بارگذاری نشد");continue}if(f.size>100*1024*1024){toast("ZIP بزرگ‌تر از حد مجاز ۱۰۰ مگابایت است");continue}
+  const z=await JSZip.loadAsync(f,{checkCRC32:true});const ws=z.file("workspace.json");if(ws){try{const w=JSON.parse(await ws.async("string"));if(w&&Array.isArray(w.apps)){S.apps=[...S.apps.filter(a=>!w.apps.some(b=>b.id===a.id)),...w.apps.filter(a=>a&&a.id&&a.name&&a.src)];S.rules=[...S.rules,...(w.rules||[]).filter(r=>r&&r.a&&r.b&&!S.rules.some(q=>q.a===r.a&&q.b===r.b))];S.cfg=w.cfg?{...S.cfg,...w.cfg}:S.cfg;Object.assign(S.sh,w.sh||{})}}catch(x){LOG.unshift("Import workspace metadata error: "+x.message)}}
+  for(const[path,en]of Object.entries(z.files)){if(en.dir||path==="workspace.json")continue;let dest=path.replace(/^files\//,"");dest=safePath(dest);if(!dest){skipped++;continue}const blob=await en.async("blob");if(blob.size>50*1024*1024){skipped++;continue}await putFile(dest,blob);n++}}
+ else{const dest=uniqueName(f.name);await putFile(dest,f);n++}}catch(err){skipped++;LOG.unshift("Import error: "+String(err.message||err))}}
+ await save();renderAll();toast(fa(n)+" فایل وارد شد"+(skipped?" · رد شد: "+fa(skipped):""))}
+async function exportAll(){if(!window.JSZip)return toast("کتابخانهٔ ZIP بارگذاری نشد");const z=new JSZip();z.file("workspace.json",JSON.stringify(S,null,2));z.file("INTEGRATION-GUIDE.md",`# NONONICK Bridge Integration
+
+This standalone edition connects local apps opened inside NONONICK. Transfer between devices is manual using the portable workspace JSON package; automatic cloud sync requires a server.
+
+## Local app API
+- Send to an explicitly configured project: \`NONO.send("project-id", {type:"example", payload:{hello:"world"}})\`
+- Receive messages: \`NONO.on((data, from) => console.log(from, data))\`
+- Shared key/value: \`await NONO.get("key")\`, \`await NONO.set("key", value)\`
+- List/read/write workspace files: \`await NONO.list()\`, \`await NONO.read("path.txt")\`, \`await NONO.write("path.txt", "content")\`
+
+Only add trusted apps. This bridge is not a cloud service. External websites need their own integration and explicit cross-origin messaging; arbitrary websites cannot be injected with this API. Never send passwords, API keys, or sensitive data through broadcast messages.
+`);for(const f of await files())z.file("files/"+f.n,f.blob);download(await z.generateAsync({type:"blob"}),"nononick-workspace.zip")}
+function exportSettings(){const d={format:"nononick-settings-v1",exportedAt:new Date().toISOString(),apps:S.apps,rules:S.rules,cfg:S.cfg,sh:S.sh,portfolios:S.portfolios||[]};download(new Blob([JSON.stringify(d,null,2)],{type:"application/json"}),"nononick-settings.json")}
+/* ---------- Portfolio studio: local-first, no fixed item cap ---------- */
+const PORT_FMT="nononick-portfolios-v1";
+function cleanPortfolio(x){return {id:typeof x.id==="string"&&x.id?x.id:uid(),title:String(x.title||"بدون عنوان").slice(0,180),description:String(x.description||"").slice(0,12000),image:String(x.image||"").slice(0,1500000),url:String(x.url||"").slice(0,2000),tags:Array.isArray(x.tags)?x.tags.map(t=>String(t).slice(0,50)).slice(0,40):String(x.tags||"").split(",").map(t=>t.trim()).filter(Boolean).slice(0,40),code:String(x.code||"").slice(0,2000000),createdAt:x.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString(),remixOf:Array.isArray(x.remixOf)?x.remixOf:[]}}
+function safeImage(v){if(!v)return "";try{if(/^data:image\/(png|jpeg|webp|gif);base64,/i.test(v)&&v.length<1500000)return v;const u=new URL(v,location.href);return ["http:","https:"].includes(u.protocol)?u.href:""}catch{return ""}}
+function renderPortfolios(){if(!$("#portfolioGrid"))return;const all=S.portfolios||[],q=($("#portfolioSearch")?.value||"").toLowerCase().trim(),shown=all.filter(p=>[p.title,p.description,(p.tags||[]).join(" "),p.url].join(" ").toLowerCase().includes(q));$("#portfolioCount").textContent=`${fa(all.length)} نمونه‌کار · ${fa(shown.length)} نمایش`;$("#portfolioGrid").innerHTML=shown.map(p=>`<article class="pcard"><img loading="lazy" src="${esc(safeImage(p.image)||'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22400%22 height=%22200%22%3E%3Crect width=%22100%25%22 height=%22100%25%22 fill=%22%2317192e%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 fill=%22%23aab%22 text-anchor=%22middle%22 font-size=%2220%22%3ENONO%3C/text%3E%3C/svg%3E')}" alt="${esc(p.title)}"><div class="pbody"><label><input class="pickp" type="checkbox" data-pick="${esc(p.id)}"> انتخاب</label><h3>${esc(p.title)}</h3><p>${esc(p.description)}</p><p>${esc((p.tags||[]).join(" · "))}</p><div class="pactions"><button data-c="editPortfolio" data-v="${esc(p.id)}">ویرایش</button><button data-c="remixOne" data-v="${esc(p.id)}">ریمیکس</button><button data-c="sharePortfolio" data-v="${esc(p.id)}">لینک/JSON</button><button data-c="deletePortfolio" data-v="${esc(p.id)}">حذف</button></div></div></article>`).join("")||'<p class="mut">هنوز نمونه‌کاری نیست؛ اولین مورد را اضافه کن یا یک فایل JSON وارد کن.</p>'}
+function portfolioEditor(id){const old=(S.portfolios||[]).find(p=>p.id===id)||cleanPortfolio({});sheet(`<h3>${id?'ویرایش نمونه‌کار':'نمونه‌کار جدید'}</h3><label>عنوان</label><input class="in" id="ptitle" maxlength="180" value="${esc(old.title)}"><label>توضیحات</label><textarea class="in" id="pdesc" style="height:100px;direction:rtl;text-align:right">${esc(old.description)}</textarea><label>آدرس تصویر (URL) یا تصویر آپلودشده</label><input class="in" id="pimage" dir="ltr" placeholder="https://…" value="${esc(old.image)}"><input class="in" id="pimageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><label>لینک زنده / دموی پروژه</label><input class="in" id="purl" dir="ltr" value="${esc(old.url)}" placeholder="https://…"><label>تگ‌ها با کاما جدا شوند</label><input class="in" id="ptags" value="${esc((old.tags||[]).join(', '))}"><label>کد یا محتوای پروژه</label><textarea class="in" id="pcode" spellcheck="false" style="height:220px;direction:ltr;text-align:left">${esc(old.code)}</textarea><div class="bt"><button class="pb" data-c="savePortfolio" data-v="${esc(id||old.id)}">ذخیره</button><button class="sb" data-c="copyPortfolioCode" data-v="${esc(id||old.id)}">کپی کد فعلی</button></div><p class="mut">برای تصاویر بزرگ، بهتر است از URL تصویر استفاده کنی تا فضای ذخیره‌سازی مرورگر سریع پر نشود.</p>`);$("#pimageFile").onchange=async e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>1000000){toast('تصویر باید کمتر از ۱ مگابایت باشد؛ برای تصویر بزرگ URL بده');e.target.value='';return}const reader=new FileReader();reader.onload=()=>{$('#pimage').value=reader.result};reader.readAsDataURL(f)}}
+async function savePortfolio(id){let image=$('#pimage').value.trim();if(image.startsWith('data:')&&image.length>1500000)return toast('تصویر بیش از حد بزرگ است');image=safeImage(image);const obj=cleanPortfolio({id,title:$('#ptitle').value,description:$('#pdesc').value,image,url:$('#purl').value.trim(),tags:$('#ptags').value,code:$('#pcode').value});if(obj.url){try{const u=new URL(obj.url);if(!['http:','https:'].includes(u.protocol))throw 0;obj.url=u.href}catch{return toast('لینک باید http یا https باشد')}}const i=(S.portfolios||[]).findIndex(p=>p.id===id);if(i>=0){obj.id=id;obj.createdAt=S.portfolios[i].createdAt;S.portfolios[i]=obj}else S.portfolios.push(obj);await save();closeSheet();renderPortfolios();toast('نمونه‌کار ذخیره شد')}
+function exportPortfolios(){const pkg={format:PORT_FMT,version:1,createdAt:new Date().toISOString(),portfolios:S.portfolios||[]};download(new Blob([JSON.stringify(pkg,null,2)],{type:'application/json'}),'nononick-portfolios.json')}
+function importPortfolios(){const i=$('#portfolioPick');i.value='';i.click()}
+async function ingestPortfolioFile(file){try{if(file.size>20*1024*1024)throw Error('فایل بزرگ‌تر از ۲۰ مگابایت است');const raw=JSON.parse(await file.text()),arr=raw.format===PORT_FMT?raw.portfolios:Array.isArray(raw)?raw:null;if(!Array.isArray(arr))throw Error('ساختار JSON پورتفولیو معتبر نیست');let n=0;for(const x of arr){if(!x||typeof x!=='object')continue;const p=cleanPortfolio(x);if(!p.title)continue;const exists=(S.portfolios||[]).some(v=>v.id===p.id);if(exists)p.id=uid();S.portfolios.push(p);n++}await save();renderPortfolios();toast(`${fa(n)} نمونه‌کار وارد شد`)}catch(e){toast('ورود ناموفق: '+e.message)}}
+function selectedPortfolios(){const ids=[...document.querySelectorAll('[data-pick]:checked')].map(x=>x.dataset.pick);return (S.portfolios||[]).filter(p=>ids.includes(p.id))}
+function remixPortfolios(items){if(!items.length)return toast('ابتدا حداقل یک نمونه‌کار انتخاب کن');const remix=cleanPortfolio({title:'ریمیکس: '+items.map(p=>p.title).slice(0,4).join(' + ')+(items.length>4?` و ${items.length-4} مورد دیگر`:''),description:items.map(p=>`### ${p.title}\n${p.description}`).join('\n\n---\n\n'),image:items.find(p=>p.image)?.image||'',url:'',tags:[...new Set(items.flatMap(p=>p.tags||[]))],code:items.map(p=>`/* ===== ${p.title} ===== */\n${p.code}`).filter(Boolean).join('\n\n/* ===== REMIX ===== */\n\n'),remixOf:items.map(p=>p.id)});S.portfolios.push(remix);save();renderPortfolios();toast('ریمیکس ساخته شد؛ محتوای منابع حفظ شده است')}
+async function sharePortfolio(id){const p=(S.portfolios||[]).find(x=>x.id===id);if(!p)return;const pkg=JSON.stringify({format:PORT_FMT,version:1,portfolios:[p]});const base=(p.title.replace(/[^\p{L}\p{N}_-]+/gu,'-').slice(0,50)||'portfolio')+'.json';download(new Blob([pkg],{type:'application/json'}),base);if(location.protocol==='https:'&&pkg.length<3500){const link=location.origin+location.pathname+'#portfolio='+encodeURIComponent(btoa(unescape(encodeURIComponent(pkg))));try{await navigator.clipboard.writeText(link);toast('فایل JSON ذخیره شد و لینک قابل‌اشتراک کپی شد');return}catch{}}if(navigator.clipboard){try{await navigator.clipboard.writeText(pkg);toast('JSON کپی شد؛ برای اشتراک مطمئن فایل JSON را بفرست')}catch{toast('فایل JSON ساخته شد')}}}
+/* ---------- UI ---------- */
+function sheet(h){$("#shc").innerHTML=h;$("#sh").style.display="flex"}const closeSheet=()=>$("#sh").style.display="none";
+$("#sh").addEventListener("click",e=>{if(e.target.id==="sh")closeSheet()});
+function renderHome(){const c=S.cfg,h=new Date().getHours(),g=h<5||h>=19?"شب بخیر":h<12?"صبح بخیر":"عصر بخیر";
+ $("#hero").innerHTML=`<small>${g}</small><h1>${esc(c.t)}</h1><p>${esc(c.s)}</p><div class="bt"><button class="pb" data-c="go" data-v="files">فایل‌ها</button><button class="sb" data-c="go" data-v="links">اتصال‌ها</button></div>`;
+ $("#grid").className="grid"+(ed?" ed":"");$("#grid").innerHTML=S.apps.map(a=>`<button class="ap${run[a.id]?" on":""}" data-c="app" data-v="${esc(a.id)}"><i style="background:${esc(a.color)}">${esc(a.icon)}</i><span>${esc(a.name)}</span></button>`).join("")+`<button class="ap" data-c="new"><i class="pl">＋</i><span>افزودن</span></button>`;$("#edb").textContent=ed?"تمام":"ویرایش"}
+const ic=f=>/html?$/i.test(f.n)?"🧩":/json$/i.test(f.n)?"🧾":/zip$/i.test(f.n)?"🗜️":/^image/.test(f.type)?"🖼️":"📄";
+async function renderFiles(){const fs=await files();$("#fl").innerHTML=fs.map(f=>`<option value="${esc(f.n)}">`).join("");const q=($("#fileSearch")?.value||"").trim().toLowerCase(),shown=fs.filter(f=>f.n.toLowerCase().includes(q));$("#statFiles").textContent=fa(fs.length);$("#statApps").textContent=fa(S.apps.length);const bytes=fs.reduce((a,f)=>a+(f.blob?.size||0),0);$("#statSize").textContent=bytes>1024*1024?(bytes/1048576).toFixed(1)+" MB":Math.ceil(bytes/1024)+" KB";$("#flist").innerHTML=shown.length?shown.map(f=>`<button class="fi" data-c="file" data-v="${esc(f.n)}"><i>${ic(f)}</i><b>${esc(f.n)}</b><small>${fa(Math.max(1,Math.ceil(f.blob.size/1024)))} KB</small></button>`).join(""): `<p class="mut">${fs.length?"نتیجه‌ای پیدا نشد.":"هنوز فایلی نیست."}</p>`}
+function renderLinks(){const o=S.apps.map(a=>`<option value="${esc(a.id)}">${esc(a.name)}</option>`).join("");$("#ra").innerHTML=o;$("#rb").innerHTML=o;
+ $("#rules").innerHTML=S.rules.length?S.rules.map((r,i)=>`<div class="rw"><span>${esc(nm(r.a))} ← ${esc(nm(r.b))}</span><button data-c="delrule" data-v="${i}">حذف</button></div>`).join(""):`<p class="mut">اتصالی تعریف نشده.</p>`;
+ $("#runl").innerHTML=Object.values(run).map(r=>`<div class="rw"><span>${esc(r.app.name)}</span><button data-c="stopapp" data-v="${esc(r.app.id)}">توقف</button></div>`).join("")||`<p class="mut">برنامه‌ای در حال اجرا نیست.</p>`;$("#log").textContent=LOG.join("\n")||"—"}
+function renderSet(){$("#k1").value=S.cfg.t;$("#k2").value=S.cfg.s;$("#k3").value=S.cfg.ac}
+function renderAll(){renderHome();renderFiles();renderLinks();renderSet();renderPortfolios();$("#ph").style.setProperty("--ac",S.cfg.ac)}
+function editApp(id){const a=S.apps.find(x=>x.id===id)||{id:uid(),name:"",icon:"✨",color:"#6c7bff",src:"",trust:false,_new:1};
+ sheet(`<h3>${a._new?"برنامهٔ جدید":"ویرایش برنامه"}</h3><label>نام</label><input class="in" id="e1" value="${esc(a.name)}"><label>آیکون (ایموجی)</label><input class="in" id="e2" value="${esc(a.icon)}"><label>رنگ</label><input class="in" type="color" id="e3" value="${esc(a.color)}"><label>آدرس (https://…) یا نام فایل</label><input class="in" id="e4" list="fl" dir="ltr" value="${esc(a.src)}"><label class="ck"><input type="checkbox" id="e5" ${a.trust?"checked":""}> اجازهٔ اجرای اسکریپت‌های برنامه (برنامه‌های ناشناس را اضافه نکن)</label><div class="bt"><button class="pb" data-c="saveapp" data-v="${esc(a.id)}">ذخیره</button>${a._new?"":`<button class="sb" data-c="delapp" data-v="${esc(a.id)}">حذف</button>`}</div>`)}
+const C={
+ go(v){tab=v;if(v==="home")home();document.querySelectorAll(".sc").forEach(s=>s.classList.toggle("on",s.id==="s-"+v));document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));if(v==="links")renderLinks();if(v==="files")renderFiles();if(v==="portfolio")renderPortfolios()},
+ home(){C.go("home")},hero(){if(ed)C.go("set")},tgl(){ed=!ed;renderHome()},
+ app(v){ed?editApp(v):openApp(v)},new(){editApp("")},
+ saveapp(v){const a={id:v,name:$("#e1").value||"بی‌نام",icon:$("#e2").value||"✨",color:$("#e3").value,src:$("#e4").value.trim(),trust:$("#e5").checked},i=S.apps.findIndex(x=>x.id===v);i<0?S.apps.push(a):S.apps[i]=a;stop(v);save();renderAll();closeSheet()},
+ delapp(v){stop(v);S.apps=S.apps.filter(a=>a.id!==v);S.rules=S.rules.filter(r=>r.a!==v&&r.b!==v);save();renderAll();closeSheet()},
+ async file(v){const f=await db("f","get",v);if(!f)return;sheet(`<h3>${esc(v)}</h3><div class="ac">${/\.html?$/i.test(v)?`<button data-c="runf" data-v="${esc(v)}">▶︎ اجرا به‌عنوان برنامه</button>`:""}${isText(f)?`<button data-c="edf" data-v="${esc(v)}">✎ ویرایش متن</button>`:""}<button data-c="sendf" data-v="${esc(v)}">⇄ ارسال به برنامه…</button><button data-c="dlf" data-v="${esc(v)}">⬇︎ خروجی گرفتن</button><button data-c="delf" data-v="${esc(v)}">🗑 حذف</button></div>`)},
+ runf(v){let a=S.apps.find(x=>x.src===v);if(!a){a={id:uid(),name:v.split("/").pop().replace(/\.\w+$/,""),icon:"🧩",color:"#"+Math.floor(Math.random()*0x777777+0x333333).toString(16),src:v};S.apps.push(a);save();renderHome()}closeSheet();C.go("home");openApp(a.id)},
+ async edf(v){const t=await(await db("f","get",v)).blob.text();sheet(`<h3>${esc(v)}</h3><textarea class="in" id="tx" spellcheck="false">${esc(t)}</textarea><button class="pb" data-c="savef" data-v="${esc(v)}">ذخیره</button>`)},
+ async savef(v){await putFile(v,$("#tx").value);S.apps.filter(a=>a.src===v).forEach(a=>stop(a.id));renderFiles();closeSheet();toast("ذخیره شد")},
+ sendf(v){sheet(`<h3>ارسال «${esc(v)}» به…</h3><div class="ac">${S.apps.map(a=>`<button data-c="sendto" data-v="${esc(a.id)}" data-x="${esc(v)}">${esc(a.icon)} ${esc(a.name)}</button>`).join("")}</div>`)},
+ async sendto(v,el){const p=await readFile(el.dataset.x);closeSheet();if(p){deliver(v,"فایل‌ها",{file:p});toast("ارسال شد")}},
+ async dlf(v){const f=await db("f","get",v);closeSheet();download(f.blob,v)},
+ async delf(v){await db("f","del",v);closeSheet();renderFiles()},
+ newPortfolio(){portfolioEditor()},editPortfolio(v){portfolioEditor(v)},savePortfolio(v){savePortfolio(v)},exportPortfolios(){exportPortfolios()},importPortfolio(){importPortfolios()},remixSelected(){remixPortfolios(selectedPortfolios())},remixOne(v){const p=(S.portfolios||[]).find(x=>x.id===v);if(p)remixPortfolios([p])},sharePortfolio(v){sharePortfolio(v)},deletePortfolio(v){if(!confirm("این نمونه‌کار حذف شود؟"))return;S.portfolios=S.portfolios.filter(p=>p.id!==v);save();renderPortfolios()},copyPortfolioCode(v){const p=(S.portfolios||[]).find(x=>x.id===v);if(p&&navigator.clipboard)navigator.clipboard.writeText(p.code).then(()=>toast("کد کپی شد"),()=>toast("کپی خودکار در این مرورگر مجاز نیست"))},export(){exportAll()},exportjson(){exportSettings()},import(){$("#pick").click()},portableExport(){portableExport()},snapshot(){makeSnapshot()},snapshots(){showSnapshots()},restoreSnapshot(v){restoreSnapshot(v)},
+ addrule(){const a=$("#ra").value,b=$("#rb").value;if(a&&b&&a!==b&&!S.rules.some(r=>r.a===a&&r.b===b)){S.rules.push({a,b});save();renderLinks()}},
+ delrule(v){S.rules.splice(+v,1);save();renderLinks()},stopapp(v){stop(v);renderLinks()},stopcur(){if(cur)stop(cur)},
+ reload(){const id=cur;if(id){stop(id);openApp(id)}},
+ async reset(el){if(!C._r){C._r=1;$("#rst").textContent="برای تأیید دوباره بزن";setTimeout(()=>{C._r=0;$("#rst").textContent="بازنشانی"},3500);return}for(const k of await db("f","keys")||[])await db("f","del",k);Object.keys(run).forEach(stop);await init(true);toast("بازنشانی شد")}};
+document.addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(b&&C[b.dataset.c])C[b.dataset.c](b.dataset.v,b)});
+document.addEventListener("input",e=>{const k=e.target.dataset.k;if(k){S.cfg[k]=e.target.value;save();renderHome();$("#ph").style.setProperty("--ac",S.cfg.ac)}});
+$("#pick").onchange=e=>{ingest([...e.target.files]);e.target.value=""};
+$("#fileSearch").addEventListener("input",renderFiles);
+const dz=$("#ph");["dragover","dragenter"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();$("#drop").classList.add("hot")}));["dragleave","drop"].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();$("#drop").classList.remove("hot")}));
+dz.addEventListener("drop",e=>{if(e.dataTransfer?.files?.length){C.go("files");ingest([...e.dataTransfer.files])}});
+function clock(){const d=new Date();$("#tm").innerHTML=d.toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"})+`<small>${d.toLocaleDateString("fa-IR",{weekday:"long",day:"numeric",month:"long"})}</small>`}
+function fit(){const p=$("#ph");if(innerWidth<=560){p.style.transform=p.style.margin="";return}const s=Math.min(1,(innerHeight-24)/956,(innerWidth-24)/440);p.style.transform=`scale(${s})`;p.style.margin=`${-(956*(1-s))/2}px ${-(440*(1-s))/2}px`}
+async function init(force){S=force?null:await db("k","get","S");if(!S){S=seed();await putFile("demo-sender.html",DS);await putFile("demo-receiver.html",DR);await save()}S.apps=Array.isArray(S.apps)?S.apps:[];S.rules=Array.isArray(S.rules)?S.rules:[];S.cfg={t:"NONONICK",s:"مرکز یکپارچهٔ پروژه‌ها",ac:"#6c7bff",...(S.cfg||{})};S.sh=S.sh&&typeof S.sh==="object"?S.sh:{};S.portfolios=Array.isArray(S.portfolios)?S.portfolios:[];renderAll();if(location.hash.startsWith("#portfolio=")){try{const raw=JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(location.hash.slice(11))))));if(raw&&raw.format===PORT_FMT&&Array.isArray(raw.portfolios)){for(const x of raw.portfolios){const p=cleanPortfolio(x);if(!S.portfolios.some(y=>y.id===p.id))S.portfolios.push(p)}save();history.replaceState(null,"",location.pathname+location.search);renderPortfolios();toast("نمونه‌کار اشتراکی وارد شد")}}catch(e){logEvent("Invalid portfolio share link")}}const persistent=!!window.indexedDB;$("#storageNotice").textContent=persistent?"ذخیره‌سازی محلی فعال است · خروجی ZIP برای پشتیبان و انتقال به دستگاه دیگر بگیر.":"هشدار: ذخیره‌سازی پایدار در دسترس نیست؛ اطلاعات ممکن است با تازه‌سازی از بین بروند.";if(!persistent)$("#storageNotice").style.borderColor="#ff7a7a66"}
+addEventListener("error",e=>{LOG.unshift("Runtime error: "+(e.message||"unknown"));LOG.length=Math.min(LOG.length,50)});addEventListener("unhandledrejection",e=>{LOG.unshift("Async error: "+String(e.reason?.message||e.reason||"unknown"));LOG.length=Math.min(LOG.length,50)});addEventListener("resize",fit);fit();clock();setInterval(clock,20000);init();
+</script>
+</body>
+</html>

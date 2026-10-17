@@ -1,0 +1,512 @@
+
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#10141d">
+<title>NavaMind — Podcast Intelligence Studio</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#0b0e14; --panel:#131925; --line:#293548;
+  --text:#eef4ff; --muted:#9caec4; --cyan:#55d9ee;
+  font-family:system-ui,-apple-system,sans-serif;
+}
+* { box-sizing:border-box }
+body { margin:0;background:var(--bg);color:var(--text);min-height:100vh }
+button,input,textarea,select { font:inherit }
+button {
+  cursor:pointer;padding:12px 16px;border:1px solid var(--line);
+  border-radius:12px;background:#202b3b;color:var(--text);
+  min-height:44px;
+}
+button:focus-visible,input:focus-visible,textarea:focus-visible {
+  outline:2px solid var(--cyan);outline-offset:2px;
+}
+.primary { background:#126b88;border-color:var(--cyan) }
+.wrap { max-width:1000px;margin:auto;padding:20px 14px 90px }
+header { display:flex;justify-content:space-between;align-items:center;gap:12px }
+h1 { font-size:24px;margin:0 }
+h2 { font-size:22px }
+p { line-height:1.8 }
+.muted { color:var(--muted) }
+nav { display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 }
+.panel {
+  background:var(--panel);border:1px solid var(--line);
+  border-radius:18px;padding:18px;margin-bottom:14px;
+}
+.page[hidden] { display:none }
+label { display:block;margin:12px 0 6px }
+input,textarea,select {
+  width:100%;padding:12px;border:1px solid var(--line);
+  border-radius:10px;background:#0c121c;color:var(--text);
+}
+textarea { min-height:180px;line-height:1.9;resize:vertical }
+.row { display:flex;gap:8px;flex-wrap:wrap;margin-top:12px }
+.row button { flex:1 }
+.item { padding:12px 0;border-bottom:1px solid var(--line) }
+.item:last-child { border-bottom:0 }
+.status { white-space:pre-wrap;overflow-wrap:anywhere }
+@media(max-width:600px) {
+  .wrap { padding:14px 10px 30px }
+  header { align-items:flex-start }
+  nav button { flex:1 }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <h1>◈ NavaMind</h1>
+    <p class="muted">استودیوی شخصی دانش پادکست</p>
+  </div>
+  <button id="theme">◐ پوسته</button>
+</header>
+
+<nav aria-label="ناوبری اصلی">
+  <button data-page="home">خانه</button>
+  <button data-page="import">افزودن</button>
+  <button data-page="library">کتابخانه</button>
+  <button data-page="summary">خلاصه</button>
+  <button data-page="ask">جست‌وجو</button>
+</nav>
+
+<main>
+<section class="page" id="home">
+  <div class="panel">
+    <h2>از شنیدن تا فهمیدن</h2>
+    <p class="muted">متن اپیزودها را ذخیره کنید، مرور کنید و در کتابخانه شخصی خود جست‌وجو کنید.</p>
+    <div class="row">
+      <button class="primary" data-go="import">افزودن اپیزود</button>
+      <button data-go="library">مشاهده کتابخانه</button>
+    </div>
+  </div>
+  <div class="panel">
+    <h2>کتابخانه شما</h2>
+    <p id="stats" class="muted">در حال بارگذاری…</p>
+    <div id="recent"></div>
+  </div>
+  <p class="muted">اطلاعات در مرورگر ذخیره می‌شود. این نسخه بدون اتصال به سرویس رونویسی یا مدل هوش مصنوعی است.</p>
+</section>
+
+<section class="page" id="import" hidden>
+  <div class="panel">
+    <h2>افزودن اپیزود</h2>
+    <label for="title">عنوان</label>
+    <input id="title" placeholder="عنوان اپیزود">
+    <label for="author">سازنده یا پادکست</label>
+    <input id="author" placeholder="نام پادکست">
+    <label for="url">نشانی منبع (اختیاری)</label>
+    <input id="url" type="url" placeholder="https://example.com/episode">
+    <label for="transcript">متن یا رونوشت واقعی</label>
+    <textarea id="transcript" placeholder="متن اپیزود را اینجا وارد کنید…"></textarea>
+    <label for="file">واردکردن فایل متنی</label>
+    <input id="file" type="file" accept=".txt,.md,.srt,.vtt,text/plain,text/vtt">
+    <div class="row">
+      <button id="save" class="primary">ذخیره اپیزود</button>
+      <button id="clear">پاک‌کردن فرم</button>
+    </div>
+    <p id="importStatus" class="status muted" role="status"></p>
+  </div>
+</section>
+
+<section class="page" id="library" hidden>
+  <div class="panel">
+    <h2>کتابخانه</h2>
+    <input id="search" type="search" placeholder="جست‌وجو در عنوان، سازنده و متن…">
+    <div id="libraryList"></div>
+    <div class="row">
+      <button id="backup">خروجی پشتیبان JSON</button>
+      <button id="restoreButton">بازیابی پشتیبان</button>
+      <input id="restore" type="file" accept=".json,application/json" hidden>
+    </div>
+  </div>
+</section>
+
+<section class="page" id="summary" hidden>
+  <div class="panel">
+    <h2>خلاصه‌ساز محلی</h2>
+    <p class="muted">جمله‌هایی از متن واقعی انتخاب می‌شوند؛ این قابلیت خلاصه‌سازی مولد هوش مصنوعی نیست.</p>
+    <label for="summaryEpisode">اپیزود</label>
+    <select id="summaryEpisode"></select>
+    <label for="summaryLength">تعداد جمله‌ها</label>
+    <select id="summaryLength">
+      <option value="3">خلاصه کوتاه</option>
+      <option value="6">خلاصه متوسط</option>
+      <option value="12">مرور تفصیلی</option>
+    </select>
+    <button id="makeSummary" class="primary">استخراج جمله‌ها</button>
+    <div id="summaryOutput" class="status"></div>
+  </div>
+</section>
+
+<section class="page" id="ask" hidden>
+  <div class="panel">
+    <h2>جست‌وجو در متن اپیزودها</h2>
+    <label for="question">واژه یا عبارت</label>
+    <input id="question" placeholder="مثلاً تمرکز، یادگیری، attention">
+    <button id="askButton" class="primary">جست‌وجو</button>
+    <div id="answers" class="status"></div>
+  </div>
+</section>
+</main>
+</div>
+
+<script>
+'use strict';
+
+const DB_NAME = 'navamind-canvas-v1';
+let db;
+
+const $ = id => document.getElementById(id);
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(page => {
+    page.hidden = page.id !== id;
+  });
+  if (id === 'library') renderLibrary();
+  if (id === 'summary') fillSummarySelect();
+}
+
+document.querySelectorAll('[data-page]').forEach(button =>
+  button.addEventListener('click', () => showPage(button.dataset.page))
+);
+document.querySelectorAll('[data-go]').forEach(button =>
+  button.addEventListener('click', () => showPage(button.dataset.go))
+);
+
+function openDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, 1);
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore('episodes', { keyPath: 'id' });
+    };
+    request.onsuccess = () => {
+      db = request.result;
+      resolve();
+    };
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function store(mode = 'readonly') {
+  return db.transaction('episodes', mode).objectStore('episodes');
+}
+
+function getAll() {
+  return new Promise((resolve, reject) => {
+    const request = store().getAll();
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function saveEpisode(episode) {
+  return new Promise((resolve, reject) => {
+    const request = store('readwrite').put(episode);
+    request.onsuccess = () => resolve();
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;',
+    '"':'&quot;', "'":'&#39;'
+  })[char]);
+}
+
+function makeId() {
+  return crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function sentences(text) {
+  return text.replace(/\r/g, '').split(/(?<=[.!?؟۔])\s+|\n+/u)
+    .map(sentence => sentence.trim())
+    .filter(Boolean);
+}
+
+function download(filename, content, type) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.append(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function renderCard(episode) {
+  const element = document.createElement('article');
+  element.className = 'item';
+
+  const heading = document.createElement('h3');
+  heading.textContent = episode.title || 'بدون عنوان';
+
+  const detail = document.createElement('p');
+  detail.className = 'muted';
+  detail.textContent = `${episode.author || 'سازنده نامشخص'} · ${new Date(episode.updatedAt).toLocaleDateString()}`;
+
+  const excerpt = document.createElement('p');
+  excerpt.textContent = (episode.transcript || '').slice(0, 180);
+
+  const actions = document.createElement('div');
+  actions.className = 'row';
+
+  const open = document.createElement('button');
+  open.textContent = 'ویرایش';
+  open.onclick = () => {
+    $('title').value = episode.title;
+    $('author').value = episode.author;
+    $('url').value = episode.url || '';
+    $('transcript').value = episode.transcript || '';
+    $('save').dataset.editing = episode.id;
+    showPage('import');
+  };
+
+  const remove = document.createElement('button');
+  remove.textContent = 'حذف';
+  remove.onclick = async () => {
+    if (!confirm(`اپیزود «${episode.title}» حذف شود؟`)) return;
+    await new Promise((resolve, reject) => {
+      const request = store('readwrite').delete(episode.id);
+      request.onsuccess = resolve;
+      request.onerror = () => reject(request.error);
+    });
+    await refresh();
+  };
+
+  actions.append(open, remove);
+  element.append(heading, detail, excerpt, actions);
+  return element;
+}
+
+async function renderLibrary() {
+  const episodes = await getAll();
+  const query = $('search').value.trim().toLocaleLowerCase();
+  const filtered = episodes.filter(episode =>
+    [episode.title, episode.author, episode.transcript]
+      .join(' ').toLocaleLowerCase().includes(query)
+  );
+
+  $('libraryList').replaceChildren(
+    ...filtered.map(renderCard)
+  );
+  if (!filtered.length) {
+    $('libraryList').textContent = 'اپیزودی پیدا نشد.';
+  }
+}
+
+async function refresh() {
+  const episodes = await getAll();
+  $('stats').textContent =
+    `${episodes.length} اپیزود · ${episodes.reduce((sum, e) => sum + (e.transcript || '').trim().split(/\s+/).filter(Boolean).length, 0)} واژه`;
+
+  $('recent').replaceChildren(
+    ...episodes.sort((a, b) => b.updatedAt - a.updatedAt)
+      .slice(0, 4).map(renderCard)
+  );
+
+  await renderLibrary();
+  fillSummarySelect();
+}
+
+$('file').addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (file.size > 20 * 1024 * 1024) {
+    $('importStatus').textContent = 'فایل متنی باید کمتر از ۲۰ مگابایت باشد.';
+    event.target.value = '';
+    return;
+  }
+
+  try {
+    $('transcript').value = await file.text();
+    if (!$('title').value) {
+      $('title').value = file.name.replace(/\.[^.]+$/, '');
+    }
+    $('importStatus').textContent = 'فایل خوانده شد؛ برای ذخیره دکمه را بزنید.';
+  } catch (error) {
+    $('importStatus').textContent = `خطا در خواندن فایل: ${error.message}`;
+  }
+});
+
+$('save').addEventListener('click', async () => {
+  try {
+    const title = $('title').value.trim();
+    const url = $('url').value.trim();
+
+    if (url) {
+      let parsed;
+      try { parsed = new URL(url); }
+      catch {
+        $('importStatus').textContent = 'نشانی واردشده معتبر نیست.';
+        return;
+      }
+      if (!['https:', 'http:'].includes(parsed.protocol)) {
+        $('importStatus').textContent = 'فقط HTTP و HTTPS پشتیبانی می‌شوند.';
+        return;
+      }
+    }
+
+    if (!title && !$('transcript').value.trim() && !url) {
+      $('importStatus').textContent = 'عنوان، متن یا نشانی وارد کنید.';
+      return;
+    }
+
+    const editing = $('save').dataset.editing;
+    const existing = editing
+      ? (await getAll()).find(e => e.id === editing)
+      : null;
+
+    const episode = {
+      id: existing?.id || makeId(),
+      title: title || 'اپیزود بدون عنوان',
+      author: $('author').value.trim(),
+      url,
+      transcript: $('transcript').value,
+      createdAt: existing?.createdAt || Date.now(),
+      updatedAt: Date.now()
+    };
+
+    await saveEpisode(episode);
+    delete $('save').dataset.editing;
+    $('title').value = '';
+    $('author').value = '';
+    $('url').value = '';
+    $('transcript').value = '';
+    $('file').value = '';
+    $('importStatus').textContent = 'اپیزود در حافظه محلی ذخیره شد.';
+    await refresh();
+    showPage('library');
+  } catch (error) {
+    $('importStatus').textContent = `ذخیره ناموفق بود: ${error.message}`;
+  }
+});
+
+$('clear').onclick = () => {
+  $('title').value = '';
+  $('author').value = '';
+  $('url').value = '';
+  $('transcript').value = '';
+  $('file').value = '';
+  delete $('save').dataset.editing;
+  $('importStatus').textContent = '';
+};
+
+$('search').addEventListener('input', renderLibrary);
+
+function fillSummarySelect() {
+  if (!db) return;
+  getAll().then(episodes => {
+    const select = $('summaryEpisode');
+    const previous = select.value;
+    select.replaceChildren(...episodes.map(episode => {
+      const option = document.createElement('option');
+      option.value = episode.id;
+      option.textContent = episode.title;
+      return option;
+    }));
+    if (episodes.some(e => e.id === previous)) select.value = previous;
+  });
+}
+
+$('makeSummary').onclick = async () => {
+  const episodes = await getAll();
+  const episode = episodes.find(e => e.id === $('summaryEpisode').value);
+
+  if (!episode?.transcript.trim()) {
+    $('summaryOutput').textContent = 'این اپیزود متن ندارد.';
+    return;
+  }
+
+  const count = Number($('summaryLength').value);
+  $('summaryOutput').textContent = sentences(episode.transcript)
+    .slice(0, count).join('\n\n');
+};
+
+$('askButton').onclick = async () => {
+  const query = $('question').value.trim().toLocaleLowerCase();
+  if (!query) {
+    $('answers').textContent = 'واژه‌ای برای جست‌وجو وارد کنید.';
+    return;
+  }
+
+  const episodes = await getAll();
+  const results = [];
+
+  for (const episode of episodes) {
+    for (const sentence of sentences(episode.transcript || '')) {
+      if (sentence.toLocaleLowerCase().includes(query)) {
+        results.push({ title: episode.title, sentence });
+      }
+    }
+  }
+
+  $('answers').textContent = results.length
+    ? results.slice(0, 30).map(result =>
+        `${result.title}\n${result.sentence}`
+      ).join('\n\n')
+    : 'عبارت دقیقی پیدا نشد؛ این به معنی نبودن پاسخ نیست.';
+};
+
+$('backup').onclick = async () => {
+  const episodes = await getAll();
+  download(
+    'navamind-backup.json',
+    JSON.stringify({
+      app: 'NavaMind',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      episodes
+    }, null, 2),
+    'application/json'
+  );
+};
+
+$('restoreButton').onclick = () => $('restore').click();
+
+$('restore').addEventListener('change', async event => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const backup = JSON.parse(await file.text());
+    if (backup.app !== 'NavaMind' || !Array.isArray(backup.episodes)) {
+      throw new Error('ساختار فایل پشتیبان معتبر نیست.');
+    }
+    if (!confirm(`بازیابی ${backup.episodes.length} اپیزود؟`)) return;
+
+    for (const episode of backup.episodes) {
+      if (!episode.id || typeof episode.title !== 'string') continue;
+      await saveEpisode(episode);
+    }
+
+    await refresh();
+    alert('بازیابی انجام شد.');
+  } catch (error) {
+    alert(`بازیابی ناموفق بود: ${error.message}`);
+  } finally {
+    event.target.value = '';
+  }
+});
+
+$('theme').onclick = () => {
+  const light = document.body.dataset.theme !== 'light';
+  document.body.dataset.theme = light ? 'light' : 'dark';
+  document.body.style.background = light ? '#f1f5fa' : '';
+  document.body.style.color = light ? '#162033' : '';
+};
+
+openDB().then(refresh).catch(error => {
+  $('stats').textContent = `پایگاه داده در دسترس نیست: ${error.message}`;
+});
+</script>
+</body>
+</html>

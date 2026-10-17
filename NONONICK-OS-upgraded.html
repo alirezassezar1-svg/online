@@ -1,0 +1,982 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#08090d">
+<meta name="description" content="NONONICK — a personal digital universe of projects, creative experiments and web services.">
+<title>NONONICK OS — Digital Universe</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#08090d; --panel:rgba(255,255,255,.065);
+  --panel2:rgba(255,255,255,.095); --line:rgba(255,255,255,.105);
+  --text:#f6f7fb; --muted:#9295a7; --blue:#6b9dff;
+  --cyan:#7ce9f6; --purple:#a99aff; --green:#85e5bb;
+  --radius:25px; --shadow:0 22px 70px #0007;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scrollbar-color:#353746 transparent}
+body{
+  margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",
+  Tahoma,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body.light{
+  color-scheme:light;--bg:#edf0f7;--panel:#ffffffa8;
+  --panel2:#ffffffdc;--line:#18203b18;--text:#151725;
+  --muted:#707487;--shadow:0 22px 65px #343a5420;
+}
+button,input,textarea,select{font:inherit}
+button{color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible,
+textarea:focus-visible,select:focus-visible{
+  outline:2px solid var(--cyan);outline-offset:4px
+}
+button:disabled{opacity:.45;cursor:not-allowed}
+a{color:inherit}
+button:active{transform:scale(.97)}
+button,.app-icon,.widget,.glass{ -webkit-tap-highlight-color:transparent}
+button:focus:not(:focus-visible){outline:none}
+::selection{background:#709dff65}
+.ambient{
+  position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;
+  background:
+   radial-gradient(ellipse at 15% 15%,#163e7940,transparent 38%),
+   radial-gradient(ellipse at 85% 35%,#59319b2c,transparent 35%),
+   radial-gradient(ellipse at 50% 100%,#0c627024,transparent 40%),
+   var(--bg);
+}
+.ambient:after{
+ content:"";position:absolute;inset:0;opacity:.15;
+ background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.2'/%3E%3C/svg%3E")
+}
+button{border:0}
+button:focus-visible{outline-offset:3px}
+.shell{width:min(1120px,100%);margin:auto;padding:0 25px 130px}
+.statusbar{
+ display:flex;justify-content:space-between;align-items:center;
+ padding:20px 5px 16px;font-size:13px;font-weight:650;letter-spacing:.2px
+}
+.status-right{display:flex;align-items:center;gap:10px}
+.status-symbol{font-size:12px;color:var(--muted)}
+.battery{width:24px;height:12px;border:1px solid var(--muted);border-radius:4px;padding:2px;position:relative}
+.battery:after{content:"";position:absolute;right:-4px;top:3px;width:2px;height:4px;background:var(--muted);border-radius:0 2px 2px 0}
+.battery i{display:block;width:72%;height:100%;background:var(--green);border-radius:1px}
+.island-wrap{display:flex;justify-content:center;height:23px;margin-bottom:14px}
+.island{
+ display:flex;align-items:center;justify-content:center;gap:9px;
+ min-width:104px;height:29px;margin-top:-6px;padding:0 13px;
+ background:#030305;border:1px solid #292a33;border-radius:30px;
+ box-shadow:0 4px 18px #0005;transition:width .3s
+}
+.island-dot{width:6px;height:6px;background:#76e7b3;border-radius:50%;box-shadow:0 0 9px #76e7b3}
+.island-label{font-size:10px;color:#d7d9e6;letter-spacing:1.1px}
+.brandline{display:flex;justify-content:space-between;align-items:center;margin:4px 0 24px}
+.wordmark{font-size:14px;letter-spacing:4px;font-weight:850}
+.edition{font-size:10px;color:var(--muted);letter-spacing:1.8px}
+.glass{
+ background:var(--panel);border:1px solid var(--line);
+ box-shadow:var(--shadow);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
+}
+.hero{
+ position:relative;isolation:isolate;overflow:hidden;border-radius:30px;
+ padding:clamp(22px,4vw,39px);min-height:235px;margin-bottom:27px;
+ background:linear-gradient(115deg,#151d30e8,#11121cdd 60%,#25203be0);
+}
+body.light .hero{background:linear-gradient(115deg,#e2eaff,#f9f8ff 65%,#eee8ff)}
+.hero:before{
+ content:"";position:absolute;width:250px;height:250px;right:5%;top:-110px;
+ background:#536cff25;filter:blur(48px);border-radius:50%;z-index:-1
+}
+.hero-copy{position:relative;z-index:1;max-width:570px}
+.eyebrow{font-size:10px;letter-spacing:2.5px;color:var(--cyan);font-weight:750;text-transform:uppercase}
+h1{font-size:clamp(35px,6vw,61px);letter-spacing:-2.6px;line-height:.99;margin:18px 0 14px;font-weight:780}
+h1 span{color:#a6b9ff}
+.hero p{max-width:455px;font-size:14px;line-height:1.85;color:#c0c5d7;margin:0}
+body.light .hero p{color:#555c72}
+.hero-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}
+.btn{
+ padding:11px 15px;border-radius:12px;font-size:12px;font-weight:700;
+ border:1px solid var(--line);background:var(--panel2);transition:background .2s,border-color .2s
+}
+.btn.primary{background:#dfe8ff;color:#101629;border-color:#dfe8ff}
+.btn:hover{background:#ffffff20}
+.btn.primary:hover{background:white}
+.orb{
+ position:absolute;right:5%;top:50%;transform:translateY(-50%);
+ width:clamp(125px,22vw,220px);aspect-ratio:1;border-radius:50%;
+ background:radial-gradient(circle at 30% 24%,#e3ffff 0,#8cc9ff 7%,#5d6dff 26%,#a13ff5 53%,#191b4a 74%);
+ box-shadow:inset -15px -18px 35px #0008,inset 8px 8px 25px #ffffff70,0 0 75px #7065ff40;
+ animation:float 8s ease-in-out infinite
+}
+.orb:before,.orb:after{content:"";position:absolute;border:1px solid #c8d2ff65;border-radius:50%;inset:-13%;transform:rotate(-28deg) scaleY(.34)}
+.orb:after{inset:-22%;transform:rotate(40deg) scaleY(.27);border-color:#8beaff55}
+@keyframes float{0%,100%{translate:0 0;rotate:-5deg}50%{translate:0 -9px;rotate:5deg}}
+.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:29px 2px 15px}
+.section-heading h2{font-size:17px;margin:0;font-weight:750;letter-spacing:-.4px}
+.subtle{font-size:11px;color:var(--muted)}
+.text-btn{background:none;color:var(--blue);font-size:12px;padding:8px 0}
+.app-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px 12px}
+.app{
+ min-width:0;display:flex;flex-direction:column;align-items:center;gap:9px;
+ padding:3px 0;background:none;text-align:center;border-radius:15px;
+ transition:transform .2s
+}
+.app:hover{transform:translateY(-3px)}
+.app-icon{
+ position:relative;display:grid;place-items:center;width:min(100%,75px);
+ aspect-ratio:1;border-radius:23px;overflow:hidden;
+ border:1px solid #ffffff20;box-shadow:0 9px 20px #0003,inset 0 1px 0 #ffffff2a;
+ font-size:30px;transition:box-shadow .2s,filter .2s
+}
+.app:hover .app-icon{box-shadow:0 10px 35px #6b9dff38,inset 0 1px 0 #ffffff3b}
+.app-icon:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,#ffffff28,transparent 48%);pointer-events:none}
+.app-icon span{position:relative;z-index:1}
+.app-name{font-size:11px;font-weight:650;line-height:1.4;max-width:110px;overflow-wrap:anywhere}
+.app-status{font-size:9px;color:var(--muted)}
+.app.dragging{opacity:.35}
+.app.drag-over .app-icon{outline:2px solid var(--cyan);outline-offset:3px}
+.edit-mode .app{cursor:grab}
+.edit-mode .app-icon{animation:wobble .3s infinite alternate}
+@keyframes wobble{to{rotate:2deg}}
+.dot-row{display:flex;justify-content:center;align-items:center;gap:7px;margin:20px 0}
+.page-dot{width:7px;height:7px;padding:0;border-radius:50%;background:#85899a65;transition:width .22s,background .22s,box-shadow .22s;cursor:pointer}
+.page-dot.active{width:20px;background:var(--blue);border-radius:9px;box-shadow:0 0 12px color-mix(in srgb,var(--blue) 55%,transparent)}
+.widget-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.widget{border-radius:22px;padding:19px;min-width:0;min-height:145px}
+.widget-label{font-size:10px;color:var(--muted);letter-spacing:1.1px;text-transform:uppercase;font-weight:750}
+.widget-title{font-size:16px;font-weight:750;margin:12px 0 6px;letter-spacing:-.3px}
+.widget-copy{font-size:12px;color:var(--muted);line-height:1.8}
+.widget-action{display:inline-flex;align-items:center;gap:6px;background:none;color:var(--blue);font-size:12px;padding:12px 0 0}
+.featured{background:linear-gradient(140deg,#253b6b80,#141827e6);position:relative;overflow:hidden}
+body.light .featured{background:linear-gradient(140deg,#d8e5ff,#f6f4ff)}
+.featured .widget-title{font-size:20px}
+.featured-mark{position:absolute;right:18px;top:35px;font-size:37px;opacity:.8}
+.activity-list{display:grid;gap:12px;margin-top:15px}
+.activity{display:flex;align-items:center;gap:9px;font-size:11px}
+.activity-dot{width:7px;height:7px;border-radius:50%;background:#85899a}
+.activity-name{flex:1;min-width:0;overflow-wrap:anywhere}
+.tag{font-size:9px;color:var(--muted);border:1px solid var(--line);padding:4px 7px;border-radius:8px;white-space:nowrap}
+.quick-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.quick-row .btn{font-size:11px;padding:9px 10px}
+.dock-wrap{position:fixed;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;z-index:10;display:flex;justify-content:center;padding:0 14px;pointer-events:none}
+.dock{pointer-events:auto;display:flex;justify-content:space-around;align-items:center;gap:clamp(4px,2vw,16px);padding:10px 14px;border-radius:25px;background:#22232bd9;border:1px solid #ffffff20;backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);box-shadow:0 14px 50px #0007;max-width:470px;width:100%}
+body.light .dock{background:#fffffff0;border-color:#00000012}
+.dock-item{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:44px;padding:4px 6px;border-radius:13px;background:none;color:#a7aabb;font-size:9px;transition:color .2s}
+.dock-item.active{color:white;background:#ffffff14}
+body.light .dock-item.active{color:#171a2a;background:#00000009}
+.dock-item .dock-ico{font-size:19px;line-height:1.2}
+.screen{animation:appear .25s ease both}
+@keyframes appear{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.view-header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:28px 0 18px}
+.view-header h2{font-size:27px;letter-spacing:-1px;margin:0}
+.back-btn{background:var(--panel);border:1px solid var(--line);padding:9px 13px;border-radius:12px;font-size:12px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.field{width:100%;min-width:0;background:var(--panel);border:1px solid var(--line);border-radius:13px;color:var(--text);padding:12px 13px}
+.toolbar .field{flex:1;min-width:150px}
+select.field{max-width:190px}
+option{background:#171923;color:white}
+.library-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.project-card{border-radius:20px;padding:17px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;min-width:0}
+.project-card .app-icon{width:54px;border-radius:17px;font-size:23px}
+.project-card h3{font-size:14px;margin:0}
+.project-card p{font-size:11px;color:var(--muted);line-height:1.7;margin:0;flex:1}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;margin-top:5px}
+.detail-panel{border-radius:25px;padding:clamp(20px,4vw,35px)}
+.detail-top{display:flex;gap:18px;align-items:center;margin-bottom:25px}
+.detail-top .app-icon{width:75px;flex-shrink:0}
+.detail-top h2{font-size:clamp(23px,5vw,36px);letter-spacing:-1px;margin:0 0 8px}
+.detail-top p{font-size:12px;color:var(--muted);margin:0;line-height:1.7}
+.detail-body{font-size:13px;line-height:1.9;color:var(--muted)}
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:17px 0}
+.chip{border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:10px}
+.service-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.service-card{border-radius:22px;padding:22px}
+.service-symbol{font-size:25px}
+.service-card h3{font-size:15px;margin:14px 0 8px}
+.service-card p{font-size:12px;line-height:1.8;color:var(--muted);margin:0}
+.about-panel{border-radius:25px;padding:clamp(23px,5vw,42px)}
+.about-panel h3{font-size:clamp(25px,5vw,42px);line-height:1.2;letter-spacing:-1.4px;margin:18px 0}
+.about-panel p{font-size:13px;color:var(--muted);line-height:2;max-width:660px}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.form-field{display:grid;gap:7px;font-size:11px;color:var(--muted)}
+.form-field.full{grid-column:1/-1}
+textarea.field{min-height:130px;resize:vertical}
+.form-note{font-size:11px;line-height:1.7;color:var(--muted);margin-top:13px}
+.settings-list{border-radius:22px;padding:5px 20px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:17px 0;border-bottom:1px solid var(--line)}
+.setting-row:last-child{border-bottom:0}
+.setting-row strong{display:block;font-size:13px}
+.setting-row small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.6}
+.switch{width:45px;height:27px;border-radius:20px;background:#555867;padding:3px;flex-shrink:0;transition:background .2s}
+.switch:after{content:"";display:block;width:21px;height:21px;background:white;border-radius:50%;transition:transform .2s}
+.switch[aria-checked="true"]{background:#5388ff}
+.switch[aria-checked="true"]:after{transform:translateX(18px)}
+.empty{padding:35px 18px;text-align:center;border-radius:20px;color:var(--muted);font-size:13px}
+.toast{position:fixed;left:50%;top:20px;transform:translate(-50%,-15px);opacity:0;pointer-events:none;background:#262832f5;border:1px solid #ffffff20;color:#fff;padding:12px 17px;border-radius:13px;font-size:12px;z-index:30;transition:.2s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.footer{text-align:center;color:var(--muted);font-size:10px;letter-spacing:1px;margin:34px 0 8px}
+[hidden]{display:none!important}
+body[dir="rtl"] .statusbar,body[dir="rtl"] .brandline{direction:rtl}
+body[dir="rtl"] .hero-copy{text-align:right}
+body[dir="rtl"] .hero .orb{right:auto;left:5%}
+body[dir="rtl"] .featured-mark{right:auto;left:18px}
+body[dir="rtl"] .switch[aria-checked="true"]:after{transform:translateX(-18px)}
+@media(min-width:760px){
+ .shell{padding-left:36px;padding-right:36px}
+ .hero{min-height:265px}
+ .app-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:27px 18px}
+ .app-icon{width:79px}
+ .widget-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .library-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(min-width:1050px){
+ .app-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
+ .hero-copy{max-width:650px}
+}
+@media(max-width:420px){
+ .shell{padding-left:18px;padding-right:18px}
+ .hero{padding:23px 19px;min-height:250px}
+ .hero p{max-width:78%;font-size:12px}
+ .orb{right:-10px!important;top:27%!important;width:100px!important;opacity:.65}
+ body[dir="rtl"] .orb{left:-10px!important}
+ h1{font-size:38px}
+ .app-grid{gap:20px 7px}
+ .app-icon{width:min(100%,66px);border-radius:19px}
+ .app-name{font-size:10px}
+ .widget{padding:15px;min-height:145px}
+ .library-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .service-grid{grid-template-columns:1fr}
+ .dock{gap:1px;padding:8px 5px}
+ .dock-item{min-width:0;flex:1;padding:5px 2px;font-size:8px}
+ .dock-item .dock-ico{font-size:18px}
+ .form-grid{grid-template-columns:1fr}
+ .form-field.full{grid-column:auto}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .shell{max-width:900px}
+ .hero{min-height:190px;padding:20px}
+ .hero h1{font-size:35px;margin:10px 0}
+ .hero-actions{margin-top:12px}
+ .orb{width:130px}
+ .dock-wrap{bottom:calc(6px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){
+ *,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<main class="shell">
+  <header class="statusbar" aria-label="Decorative device status">
+    <time id="clock">--:--</time>
+    <div class="status-right">
+      <span id="dateText" class="status-symbol"></span>
+      <span class="status-symbol" aria-label="Simulated network indicator">⌁</span>
+      <span class="battery" role="img" aria-label="Simulated battery indicator"><i></i></span>
+    </div>
+  </header>
+
+  <div class="island-wrap">
+    <button class="island" id="island" aria-label="Open quick actions">
+      <span class="island-dot"></span><span class="island-label">NONONICK</span>
+    </button>
+  </div>
+
+  <div class="brandline">
+    <span class="wordmark">NONONICK<span style="color:var(--blue)">.</span></span>
+    <span class="edition" id="edition">PERSONAL DIGITAL OS</span>
+  </div>
+
+  <section id="homeScreen" class="screen">
+    <section class="hero glass" aria-labelledby="heroTitle">
+      <div class="orb" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <div class="eyebrow" id="greeting">YOUR DIGITAL UNIVERSE</div>
+        <h1 id="heroTitle">Ideas into<br><span>interfaces.</span></h1>
+        <p id="heroCopy">A personal space for digital products, thoughtful websites, creative experiments and tools that make the web more useful.</p>
+        <div class="hero-actions">
+          <button class="btn primary" data-nav="projects" id="exploreBtn">Explore projects ↗</button>
+          <button class="btn" data-nav="services" id="servicesBtn">My services</button>
+          <button class="btn" data-nav="contact" id="contactBtn">Contact me</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-heading">
+      <h2 id="appsTitle">Your applications</h2>
+      <button class="text-btn" id="editBtn" aria-pressed="false">Edit layout</button>
+    </div>
+    <div id="editHint" class="subtle" hidden style="margin:-5px 2px 14px">Drag icons to reorder, or use the arrow controls on each app.</div>
+    <div id="appGrid" class="app-grid" aria-label="Application launcher"></div>
+    <div class="dot-row" id="pageDots" aria-label="Home screen pages"></div>
+    <div style="display:flex;justify-content:center;gap:9px">
+      <button class="back-btn" id="prevPage" aria-label="Previous home screen page">←</button>
+      <span class="subtle" id="pageLabel" style="padding:10px 0">Page 1</span>
+      <button class="back-btn" id="nextPage" aria-label="Next home screen page">→</button>
+    </div>
+
+    <div class="section-heading"><h2 id="widgetsTitle">At a glance</h2></div>
+    <div class="widget-grid">
+      <article class="widget featured glass">
+        <div class="widget-label">✦ Featured workspace</div>
+        <div class="featured-mark" aria-hidden="true">◈</div>
+        <div class="widget-title" id="featuredTitle">NavaMind</div>
+        <div class="widget-copy" id="featuredCopy">A project in the NONONICK collection.</div>
+        <button class="widget-action" id="featuredOpen">Explore project ↗</button>
+      </article>
+      <article class="widget glass">
+        <div class="widget-label">✳ What I can build</div>
+        <div class="widget-title" id="serviceWidgetTitle">Digital services</div>
+        <div class="widget-copy" id="serviceWidgetCopy">Websites, custom tools and interactive experiences.</div>
+        <button class="widget-action" data-nav="services" id="serviceWidgetLink">Explore services ↗</button>
+      </article>
+      <article class="widget glass">
+        <div class="widget-label">◉ Project activity</div>
+        <div class="widget-title" id="activityTitle">Workspace status</div>
+        <div class="widget-copy" id="activityCopy">Catalog entries configured locally.</div>
+        <div class="activity-list" id="activityList"></div>
+      </article>
+      <article class="widget glass">
+        <div class="widget-label">◎ A little about me</div>
+        <div class="widget-title" id="aboutWidgetTitle">Curious by design.</div>
+        <div class="widget-copy" id="aboutWidgetCopy">I explore the intersection of design, technology and useful digital products.</div>
+        <button class="widget-action" data-nav="about" id="aboutWidgetLink">More about me ↗</button>
+      </article>
+      <article class="widget glass">
+        <div class="widget-label">✧ Digital experiments</div>
+        <div class="widget-title" id="experimentTitle">Ideas in motion</div>
+        <div class="widget-copy" id="experimentCopy">A home for visual experiments and new interactions.</div>
+        <button class="widget-action" data-project="experiments" id="experimentLink">Open experiments ↗</button>
+      </article>
+      <article class="widget glass">
+        <div class="widget-label">↗ Quick connection</div>
+        <div class="widget-title" id="contactWidgetTitle">Have an idea?</div>
+        <div class="widget-copy" id="contactWidgetCopy">Let's turn a good idea into something useful.</div>
+        <div class="quick-row">
+          <button class="btn" data-nav="contact" id="contactWidgetBtn">Get in touch</button>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="projectsScreen" class="screen" hidden>
+    <div class="view-header">
+      <div><div class="eyebrow">THE COLLECTION</div><h2 id="libraryTitle">Projects library</h2></div>
+      <button class="back-btn" data-nav="home" id="homeBack">⌂ Home</button>
+    </div>
+    <div class="toolbar">
+      <input class="field" id="searchInput" type="search" placeholder="Search projects, categories, technologies…" aria-label="Search projects">
+      <select class="field" id="categoryFilter" aria-label="Filter by category"><option value="">All categories</option></select>
+      <select class="field" id="statusFilter" aria-label="Filter by status">
+        <option value="">All statuses</option><option value="Live">Live</option><option value="In Development">In Development</option><option value="Experimental">Experimental</option>
+      </select>
+    </div>
+    <div id="libraryGrid" class="library-grid"></div>
+    <div id="libraryEmpty" class="empty glass" hidden>No projects match your search. Try a different keyword or filter.</div>
+  </section>
+
+  <section id="detailScreen" class="screen" hidden>
+    <div class="view-header">
+      <div><div class="eyebrow">APPLICATION DETAILS</div><h2 id="detailHeading">Project</h2></div>
+      <button class="back-btn" data-back id="detailBack">← Back</button>
+    </div>
+    <article id="detailPanel" class="detail-panel glass"></article>
+  </section>
+
+  <section id="servicesScreen" class="screen" hidden>
+    <div class="view-header"><div><div class="eyebrow">WHAT I OFFER</div><h2 id="servicesHeading">Services</h2></div><button class="back-btn" data-nav="home">⌂ Home</button></div>
+    <div id="serviceCards" class="service-grid"></div>
+    <div class="widget glass" style="margin-top:15px">
+      <div class="widget-title" id="serviceEndTitle">Have a specific project in mind?</div>
+      <div class="widget-copy" id="serviceEndCopy">Tell me what you want to build, and we can discuss the requirements.</div>
+      <button class="widget-action" data-nav="contact" id="serviceEndBtn">Discuss a project ↗</button>
+    </div>
+  </section>
+
+  <section id="aboutScreen" class="screen" hidden>
+    <div class="view-header"><div><div class="eyebrow">THE PERSON BEHIND THE PIXELS</div><h2 id="aboutHeading">About me</h2></div><button class="back-btn" data-nav="home">⌂ Home</button></div>
+    <article class="about-panel glass">
+      <div class="eyebrow">NONONICK / INDEPENDENT DIGITAL WORK</div>
+      <h3 id="aboutHeadline">Building useful things.<br>Exploring what's next.</h3>
+      <p id="aboutParagraph">I'm interested in digital products that combine clear thinking, expressive design and practical engineering. This space brings together projects, tools and experiments as they take shape.</p>
+      <p id="aboutHonesty">The catalog reflects configured project information, not automatically verified deployment activity. Where a public URL or finished implementation is unavailable, the project is identified accordingly.</p>
+      <button class="btn primary" data-nav="contact" id="aboutContact">Let's connect ↗</button>
+    </article>
+  </section>
+
+  <section id="contactScreen" class="screen" hidden>
+    <div class="view-header"><div><div class="eyebrow">START A CONVERSATION</div><h2 id="contactHeading">Contact</h2></div><button class="back-btn" data-nav="home">⌂ Home</button></div>
+    <article class="widget glass" style="margin-bottom:15px">
+      <div class="widget-title" id="contactIntroTitle">Tell me what you're imagining.</div>
+      <div class="widget-copy" id="contactIntroCopy">Complete this form to prepare an email in your email application. Nothing is sent or stored by this page.</div>
+    </article>
+    <form id="contactForm" class="detail-panel glass">
+      <div class="form-grid">
+        <label class="form-field"><span id="nameLabel">Your name</span><input class="field" name="name" required maxlength="100" autocomplete="name" placeholder="Name"></label>
+        <label class="form-field"><span id="emailLabel">Your email</span><input class="field" name="email" required type="email" maxlength="254" autocomplete="email" placeholder="you@example.com"></label>
+        <label class="form-field full"><span id="subjectLabel">Subject</span><input class="field" name="subject" required maxlength="150" placeholder="A new project"></label>
+        <label class="form-field full"><span id="messageLabel">Message</span><textarea class="field" name="message" required minlength="10" maxlength="5000" placeholder="Tell me a little about your idea…"></textarea></label>
+      </div>
+      <button type="submit" class="btn primary" style="margin-top:20px" id="sendBtn">Prepare email ↗</button>
+      <p class="form-note" id="formNote">Email delivery requires an email application. Configure your real contact email in the project settings below before using this form.</p>
+    </form>
+  </section>
+
+  <section id="settingsScreen" class="screen" hidden>
+    <div class="view-header"><div><div class="eyebrow">PERSONALIZE YOUR SPACE</div><h2 id="settingsHeading">Settings</h2></div><button class="back-btn" data-nav="home">⌂ Home</button></div>
+    <div class="settings-list glass">
+      <div class="setting-row"><div><strong id="themeLabel">Light appearance</strong><small id="themeDescription">Switch between dark and light themes.</small></div><button class="switch" id="themeSwitch" role="switch" aria-checked="false" aria-label="Toggle light theme"></button></div>
+      <div class="setting-row"><div><strong id="languageLabel">Interface language</strong><small id="languageDescription">Choose English or Persian (فارسی).</small></div><button class="btn" id="languageSwitch">فارسی</button></div>
+      <div class="setting-row"><div><strong id="motionLabel">Animations</strong><small id="motionDescription">The system also respects your device motion preference.</small></div><span class="tag" id="motionValue">System preference</span></div>
+      <div class="setting-row"><div><strong id="emailSettingLabel">Contact email</strong><small id="emailSettingDescription">Configure a real address for the contact form.</small></div><button class="btn" id="emailEdit">Configure</button></div>
+      <div class="setting-row"><div><strong id="exportLabel">Export project catalog</strong><small id="exportDescription">Download your current catalog in JSON, HTML, TXT, PDF or ZIP format.</small></div><div class="quick-row" style="margin:0"><button class="btn" id="exportBtn">JSON</button><button class="btn" id="exportHtmlBtn">HTML</button><button class="btn" id="exportTxtBtn">TXT</button><button class="btn" id="exportPdfBtn">PDF / Print</button><button class="btn" id="exportZipBtn">ZIP bundle</button></div></div>
+      <div class="setting-row"><div><strong id="importLabel">Import project catalog</strong><small id="importDescription">Load a JSON catalog from a trusted source.</small></div><button class="btn" id="importBtn">Import JSON</button><input id="importFile" type="file" accept=".json,application/json" hidden></div>
+      <div class="setting-row"><div><strong id="resetLabel">Reset preferences</strong><small id="resetDescription">Restore the default layout and appearance.</small></div><button class="btn" id="resetBtn">Reset</button></div>
+    </div>
+    <p class="form-note" id="settingsNote">Your preferences are saved in this browser. Do not enter confidential information here.</p>
+  </section>
+
+  <footer class="footer">NONONICK · A PERSONAL DIGITAL UNIVERSE · <span id="footerYear"></span></footer>
+</main>
+
+<nav class="dock-wrap" aria-label="Main navigation">
+  <div class="dock glass">
+    <button class="dock-item active" data-nav="home" aria-current="page"><span class="dock-ico">⌂</span><span id="dockHome">Home</span></button>
+    <button class="dock-item" data-nav="projects"><span class="dock-ico">▦</span><span id="dockProjects">Projects</span></button>
+    <button class="dock-item" data-nav="services"><span class="dock-ico">✳</span><span id="dockServices">Services</span></button>
+    <button class="dock-item" data-nav="about"><span class="dock-ico">◉</span><span id="dockAbout">About</span></button>
+    <button class="dock-item" data-nav="contact"><span class="dock-ico">↗</span><span id="dockContact">Contact</span></button>
+    <button class="dock-item" data-nav="settings" aria-label="Settings"><span class="dock-ico">⚙</span><span id="dockSettings">Settings</span></button>
+  </div>
+</nav>
+
+<script>
+"use strict";
+
+/*
+ * NONONICK OS
+ * Single-file, dependency-free portfolio interface.
+ *
+ * IMPORTANT:
+ * - No project URL is assumed to exist.
+ * - The starter catalog describes intended project entries, not verified deployments.
+ * - Configure contactEmail in SETTINGS below to enable mailto delivery.
+ * - Preferences are stored locally; this is not a backend database.
+ */
+
+const CONFIG = {
+  storageKey: "nononick-os-v1",
+  contactEmail: "", // Add your real contact email here.
+  projectsPerPage: 8,
+  starterProjects: [
+    {id:"website",name:"NONONICK Website",fa:"وب‌سایت NONONICK",description:"The central home for the NONONICK digital identity.",faDescription:"مرکز هویت دیجیتال NONONICK.",category:"Websites",technologies:["HTML","CSS","JavaScript"],icon:"✳",color:"linear-gradient(145deg,#2678ff,#5b42c8)",status:"In Development",url:"",repo:"",featured:false,order:0,screenshots:[]},
+    {id:"ai-studio",name:"NONONICK AI Studio",fa:"استودیوی هوش مصنوعی",description:"A planned workspace for AI-assisted digital experiments.",faDescription:"فضایی برای آزمایش‌های دیجیتال با کمک هوش مصنوعی.",category:"AI & Tools",technologies:["AI","Web"],icon:"✧",color:"linear-gradient(145deg,#6047db,#bc65f7)",status:"Experimental",url:"",repo:"",featured:false,order:1,screenshots:[]},
+    {id:"backend-forge",name:"Local Backend Forge",fa:"کارگاه بک‌اند محلی",description:"An exploration of local development workflows and backend tooling.",faDescription:"کاوشی در جریان‌های توسعه محلی و ابزارهای بک‌اند.",category:"Developer Tools",technologies:["Backend","Developer Tools"],icon:"⌘",color:"linear-gradient(145deg,#167b8b,#253e75)",status:"Experimental",url:"",repo:"",featured:false,order:2,screenshots:[]},
+    {id:"navamind",name:"NavaMind",fa:"ناوامایند",description:"A digital product concept in the NONONICK collection.",faDescription:"مفهوم یک محصول دیجیتال در مجموعه NONONICK.",category:"Digital Products",technologies:["Web","Product Design"],icon:"◈",color:"linear-gradient(145deg,#2e65a7,#7658db)",status:"In Development",url:"",repo:"",featured:true,order:3,screenshots:[]},
+    {id:"experiments",name:"Interactive Visual Experiments",fa:"آزمایش‌های بصری تعاملی",description:"A place for motion studies, interaction concepts and visual exploration.",faDescription:"فضایی برای آزمایش حرکت، تعامل و ایده‌های بصری.",category:"Experiments",technologies:["CSS","Animation","JavaScript"],icon:"◎",color:"linear-gradient(145deg,#087d89,#33b5be)",status:"Experimental",url:"",repo:"",featured:false,order:4,screenshots:[]},
+    {id:"web-tools",name:"Web Development Tools",fa:"ابزارهای توسعه وب",description:"A collection entry for useful browser-based developer utilities.",faDescription:"مجموعه‌ای از ابزارهای کاربردی توسعه وب.",category:"Developer Tools",technologies:["JavaScript","HTML","CSS"],icon:"⌘",color:"linear-gradient(145deg,#2854a4,#1b9da6)",status:"Experimental",url:"",repo:"",featured:false,order:5,screenshots:[]},
+    {id:"portfolio",name:"Personal Portfolio",fa:"نمونه‌کار شخصی",description:"A portfolio concept for presenting work, capabilities and ideas.",faDescription:"مفهومی برای نمایش کارها، مهارت‌ها و ایده‌ها.",category:"Websites",technologies:["Design","Frontend"],icon:"▧",color:"linear-gradient(145deg,#a14e8a,#5547a8)",status:"In Development",url:"",repo:"",featured:false,order:6,screenshots:[]},
+    {id:"lab",name:"Experimental Projects",fa:"پروژه‌های آزمایشی",description:"An evolving collection of prototypes and explorations.",faDescription:"مجموعه‌ای در حال تکامل از نمونه‌های اولیه و اکتشافات.",category:"Experiments",technologies:["Prototypes","Web"],icon:"✺",color:"linear-gradient(145deg,#b36b32,#7048b8)",status:"Experimental",url:"",repo:"",featured:false,order:7,screenshots:[]}
+  ]
+};
+
+const translations = {
+en:{
+ greeting:"YOUR DIGITAL UNIVERSE",heroCopy:"A personal space for digital products, thoughtful websites, creative experiments and tools that make the web more useful.",
+ explore:"Explore projects ↗",services:"My services",contact:"Contact me",apps:"Your applications",edit:"Edit layout",done:"Done",widgets:"At a glance",
+ library:"Projects library",allCategories:"All categories",allStatuses:"All statuses",home:"Home",projects:"Projects",about:"About",settings:"Settings",
+ serviceHeading:"Services",aboutHeading:"About me",contactHeading:"Contact",back:"← Back",
+ noResults:"No projects match your search. Try a different keyword or filter.",
+ noUrl:"No verified public URL is configured for this project yet.",openProject:"Open project ↗",configureUrl:"Configure a URL in the project catalog to enable this link.",
+ featured:"A project in the NONONICK collection.",workspace:"Workspace status",catalog:"Catalog entries configured locally.",
+ contactTitle:"Tell me what you're imagining.",contactCopy:"Complete this form to prepare an email in your email application. Nothing is sent or stored by this page.",
+ prepare:"Prepare email ↗",emailRequired:"Add a real contact email in CONFIG before using email delivery.",
+ name:"Your name",email:"Your email",subject:"Subject",message:"Message",
+ theme:"Light appearance",themeDesc:"Switch between dark and light themes.",language:"Interface language",
+ languageDesc:"Choose English or Persian (فارسی).",animations:"Animations",motionDesc:"The system also respects your device motion preference.",
+ contactEmail:"Contact email",contactEmailDesc:"Configure a real address for the contact form.",
+ export:"Export project catalog",exportDesc:"Download your current catalog as JSON.",
+ import:"Import project catalog",importDesc:"Load a JSON catalog from a trusted source.",
+ reset:"Reset preferences",resetDesc:"Restore the default layout and appearance.",
+ emailConfigure:"Configure",saved:"Preferences saved.",invalidImport:"Invalid project catalog. No changes were made.",
+ importSuccess:"Project catalog imported.",resetConfirm:"Reset your preferences and layout? Your custom project catalog will remain in the browser.",
+ emailPrompt:"Enter your real contact email address:",invalidEmail:"That email address does not look valid.",
+ contactError:"Please complete all fields and enter a valid email address.",
+ contactReady:"Your email draft is ready to open in your email application.",noEmail:"Contact email is not configured. Add it in Settings first.",
+ reorder:"Drag icons to reorder, or use the arrow controls on each app.",
+ live:"Live",dev:"In Development",experimental:"Experimental",status:"Status",
+ technologies:"Technologies",category:"Category",description:"Description",repository:"Source repository",
+ contactMe:"Discuss a project ↗",open:"Open",details:"Details ↗",noTech:"No technologies listed.",
+ emailSubject:"NONONICK project enquiry",editSaved:"Layout updated.",page:"Page",
+ editHint:"Drag icons to reorder, or use the arrow controls on each app.",
+},
+fa:{
+ greeting:"جهان دیجیتال شما",heroCopy:"فضایی شخصی برای محصولات دیجیتال، وب‌سایت‌های دقیق، آزمایش‌های خلاقانه و ابزارهای کاربردی وب.",
+ explore:"مشاهده پروژه‌ها ↗",services:"خدمات من",contact:"تماس با من",apps:"اپلیکیشن‌های شما",edit:"ویرایش چیدمان",done:"پایان",widgets:"نگاهی سریع",
+ library:"کتابخانه پروژه‌ها",allCategories:"همه دسته‌ها",allStatuses:"همه وضعیت‌ها",home:"خانه",projects:"پروژه‌ها",about:"درباره",settings:"تنظیمات",
+ serviceHeading:"خدمات",aboutHeading:"درباره من",contactHeading:"تماس",back:"بازگشت ←",
+ noResults:"پروژه‌ای مطابق جست‌وجوی شما پیدا نشد.",
+ featured:"پروژه‌ای در مجموعه NONONICK.",workspace:"وضعیت فضای کاری",catalog:"اطلاعات پروژه‌ها به‌صورت محلی تنظیم شده‌اند.",
+ contactTitle:"ایده‌تان را تعریف کنید.",contactCopy:"این فرم پیش‌نویس ایمیلی را در برنامه ایمیل شما آماده می‌کند. این صفحه چیزی ارسال یا ذخیره نمی‌کند.",
+ prepare:"آماده‌سازی ایمیل ↗",emailRequired:"برای ارسال ایمیل، آدرس واقعی را در تنظیمات وارد کنید.",
+ name:"نام شما",email:"ایمیل شما",subject:"موضوع",message:"پیام",
+ theme:"حالت روشن",themeDesc:"تغییر بین پوسته روشن و تیره.",language:"زبان رابط",
+ languageDesc:"انتخاب فارسی یا انگلیسی.",animations:"انیمیشن‌ها",motionDesc:"ترجیحات حرکتی دستگاه نیز رعایت می‌شود.",
+ contactEmail:"ایمیل تماس",contactEmailDesc:"آدرس واقعی ایمیل را تنظیم کنید.",
+ export:"خروجی فهرست پروژه‌ها",exportDesc:"دریافت فهرست فعلی به‌صورت JSON.",
+ import:"ورود فهرست پروژه‌ها",importDesc:"بارگذاری فایل JSON معتبر.",
+ reset:"بازنشانی تنظیمات",resetDesc:"بازگرداندن ظاهر و چیدمان پیش‌فرض.",
+ emailConfigure:"تنظیم",saved:"تنظیمات ذخیره شد.",invalidImport:"فهرست پروژه‌ها معتبر نیست؛ تغییری اعمال نشد.",
+ importSuccess:"فهرست پروژه‌ها وارد شد.",resetConfirm:"تنظیمات و چیدمان بازنشانی شوند؟ فهرست سفارشی پروژه‌ها حفظ می‌شود.",
+ emailPrompt:"آدرس واقعی ایمیل تماس را وارد کنید:",invalidEmail:"آدرس ایمیل معتبر نیست.",
+ contactError:"همه فیلدها را تکمیل کنید و ایمیل معتبر وارد کنید.",
+ contactReady:"پیش‌نویس ایمیل آماده باز شدن در برنامه ایمیل است.",noEmail:"ایمیل تماس تنظیم نشده است. ابتدا آن را در تنظیمات وارد کنید.",
+ reorder:"برای جابه‌جایی، آیکون‌ها را بکشید یا از کلیدهای جهت‌دار استفاده کنید.",
+ live:"فعال",dev:"در حال توسعه",experimental:"آزمایشی",status:"وضعیت",
+ technologies:"فناوری‌ها",category:"دسته‌بندی",description:"توضیحات",repository:"مخزن کد",
+ contactMe:"گفت‌وگو درباره پروژه ↗",open:"باز کردن",details:"جزئیات ↗",noTech:"فناوری‌ای ثبت نشده است.",
+ emailSubject:"درخواست همکاری با NONONICK",editSaved:"چیدمان به‌روزرسانی شد.",page:"صفحه",
+ editHint:"برای جابه‌جایی، آیکون‌ها را بکشید یا از کلیدهای جهت‌دار استفاده کنید."
+}
+};
+
+const $ = id => document.getElementById(id);
+const safeText = value => String(value ?? "");
+const allowedStatuses = ["Live","In Development","Experimental"];
+const allowedCategories = ["Websites","AI & Tools","Developer Tools","Digital Products","Experiments"];
+let state = {
+  lang:"en",theme:"dark",order:CONFIG.starterProjects.map(p=>p.id),
+  projects:CONFIG.starterProjects.map(p=>({...p})),page:0,editing:false,
+  view:"home",previousView:"home",selectedId:null,search:"",category:"",status:"",
+  contactEmail:CONFIG.contactEmail
+};
+let toastTimer;
+let dragId=null;
+let touchStart=null;
+
+function t(key){return (translations[state.lang]||translations.en)[key]||translations.en[key]||key}
+function projectName(p){return state.lang==="fa"&&p.fa?p.fa:p.name}
+function projectDescription(p){return state.lang==="fa"&&p.faDescription?p.faDescription:p.description}
+function statusLabel(s){return s==="Live"?t("live"):s==="In Development"?t("dev"):t("experimental")}
+function escapeHTML(v){
+ return safeText(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function validUrl(value){
+ try{
+  const u=new URL(value);
+  return ["https:","http:"].includes(u.protocol) && !u.username && !u.password ? u.href : "";
+ }catch{return ""}
+}
+function validEmail(value){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)&&value.length<=254}
+function orderedProjects(){
+ const map=new Map(state.projects.map(p=>[p.id,p]));
+ return [...state.order.map(id=>map.get(id)).filter(Boolean),
+ ...state.projects.filter(p=>!state.order.includes(p.id))];
+}
+function save(){
+ try{
+  localStorage.setItem(CONFIG.storageKey,JSON.stringify({
+   lang:state.lang,theme:state.theme,order:state.order,
+   projects:state.projects,contactEmail:state.contactEmail
+  }));
+ }catch{showToast("Local storage unavailable. Changes may not persist.");}
+}
+function load(){
+ try{
+  const raw=localStorage.getItem(CONFIG.storageKey);
+  if(!raw)return;
+  const saved=JSON.parse(raw);
+  if(saved.lang==="en"||saved.lang==="fa")state.lang=saved.lang;
+  if(saved.theme==="light"||saved.theme==="dark")state.theme=saved.theme;
+  if(Array.isArray(saved.projects)&&saved.projects.every(validProject))state.projects=saved.projects;
+  if(Array.isArray(saved.order))state.order=saved.order.filter(id=>state.projects.some(p=>p.id===id));
+  state.projects.forEach(p=>{if(!state.order.includes(p.id))state.order.push(p.id)});
+  if(typeof saved.contactEmail==="string"&&validEmail(saved.contactEmail))state.contactEmail=saved.contactEmail;
+ }catch{ /* Ignore corrupted preferences; use defaults. */ }
+}
+function validProject(p){
+ return !!p&&typeof p.id==="string"&&/^[a-zA-Z0-9_-]{1,80}$/.test(p.id)
+ &&typeof p.name==="string"&&p.name.length<=120
+ &&typeof p.description==="string"&&p.description.length<=2000
+ &&typeof p.category==="string"&&p.category.length<=80
+ &&typeof p.icon==="string"&&p.icon.length<=12
+ &&typeof p.color==="string"&&p.color.length<=180
+ &&allowedStatuses.includes(p.status)
+ &&(p.url===""||validUrl(p.url)!=="")
+ &&(p.repo===""||validUrl(p.repo)!=="")
+ &&Array.isArray(p.technologies)&&p.technologies.length<=30
+ &&p.technologies.every(x=>typeof x==="string"&&x.length<=80)
+ &&Array.isArray(p.screenshots)&&p.screenshots.length<=10
+ &&p.screenshots.every(x=>typeof x==="string"&&validUrl(x)!=="");
+}
+function showToast(message){
+ const el=$("toast");el.textContent=message;el.classList.add("show");
+ clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove("show"),2800);
+}
+function setTheme(){
+ document.body.classList.toggle("light",state.theme==="light");
+ $("themeSwitch").setAttribute("aria-checked",String(state.theme==="light"));
+ $("themeSwitch").setAttribute("aria-label",t("theme"));
+ document.documentElement.style.colorScheme=state.theme;
+}
+function setLanguage(){
+ document.documentElement.lang=state.lang;
+ document.documentElement.dir=state.lang==="fa"?"rtl":"ltr";
+ document.querySelectorAll("[data-nav]").forEach(btn=>{
+  const key=btn.dataset.nav;
+  if(key&&["home","projects","services","about","contact","settings"].includes(key)){
+   const label=btn.querySelector("span:last-child");
+   if(label)label.textContent=t(key);
+  }
+ });
+ const map={
+  greeting:"greeting",heroCopy:"heroCopy",exploreBtn:"explore",servicesBtn:"services",
+  contactBtn:"contact",appsTitle:"apps",widgetsTitle:"widgets",libraryTitle:"library",
+  homeBack:"home",servicesHeading:"serviceHeading",aboutHeading:"aboutHeading",
+  contactHeading:"contactHeading",detailBack:"back",dockHome:"home",dockProjects:"projects",
+  dockServices:"services",dockAbout:"about",dockContact:"contact",dockSettings:"settings",
+  themeLabel:"theme",themeDescription:"themeDesc",languageLabel:"language",
+  languageDescription:"languageDesc",motionLabel:"animations",motionDescription:"motionDesc",
+  emailSettingLabel:"contactEmail",emailSettingDescription:"contactEmailDesc",
+  exportLabel:"export",exportDescription:"exportDesc",importLabel:"import",
+  importDescription:"importDesc",resetLabel:"reset",resetDescription:"resetDesc",
+  emailEdit:"emailConfigure",contactIntroTitle:"contactTitle",contactIntroCopy:"contactCopy",
+  sendBtn:"prepare",nameLabel:"name",emailLabel:"email",subjectLabel:"subject",
+  messageLabel:"message",contactWidgetTitle:"contactTitle",aboutContact:"contact",
+  serviceEndBtn:"contactMe",editHint:"editHint"
+ };
+ for(const [id,key] of Object.entries(map))if($(id))$(id).textContent=t(key);
+ $("editBtn").textContent=state.editing?t("done"):t("edit");
+ $("languageSwitch").textContent=state.lang==="en"?"فارسی":"English";
+ $("libraryEmpty").textContent=t("noResults");
+ $("pageLabel").textContent=`${t("page")} ${state.page+1}`;
+ $("statusFilter").options[0].textContent=t("allStatuses");
+ $("statusFilter").options[1].textContent=t("live");
+ $("statusFilter").options[2].textContent=t("dev");
+ $("statusFilter").options[3].textContent=t("experimental");
+ renderAll();
+}
+function tick(){
+ const now=new Date();
+ $("clock").textContent=new Intl.DateTimeFormat(state.lang==="fa"?"fa-IR":"en-US",{hour:"2-digit",minute:"2-digit",hour12:state.lang!=="fa"}).format(now);
+ $("dateText").textContent=new Intl.DateTimeFormat(state.lang==="fa"?"fa-IR":"en-US",{weekday:"short",month:"short",day:"numeric"}).format(now);
+ $("footerYear").textContent=now.getFullYear();
+ const hour=now.getHours();
+ $("greeting").textContent=state.lang==="fa"
+ ?(hour<12?"صبح بخیر · جهان دیجیتال شما":hour<18?"روز بخیر · جهان دیجیتال شما":"شب بخیر · جهان دیجیتال شما")
+ :(hour<12?"GOOD MORNING · YOUR DIGITAL UNIVERSE":hour<18?"GOOD AFTERNOON · YOUR DIGITAL UNIVERSE":"GOOD EVENING · YOUR DIGITAL UNIVERSE");
+}
+function projectIcon(p){
+ return `<span class="app-icon" aria-hidden="true" style="background:${escapeHTML(p.color)}"><span>${escapeHTML(p.icon)}</span></span>`;
+}
+function renderApps(){
+ const list=orderedProjects(),pages=Math.max(1,Math.ceil(list.length/CONFIG.projectsPerPage));
+ state.page=Math.min(state.page,pages-1);
+ const visible=list.slice(state.page*CONFIG.projectsPerPage,(state.page+1)*CONFIG.projectsPerPage);
+ $("appGrid").classList.toggle("edit-mode",state.editing);
+ $("appGrid").innerHTML=visible.map((p,i)=>`
+  <div class="app" data-id="${escapeHTML(p.id)}" draggable="${state.editing}" tabindex="-1">
+   <button class="app-launch" data-open="${escapeHTML(p.id)}" aria-label="${escapeHTML(projectName(p))}" style="display:flex;flex-direction:column;align-items:center;gap:9px;background:none;width:100%;padding:0">
+    ${projectIcon(p)}
+    <span class="app-name">${escapeHTML(projectName(p))}</span>
+    <span class="app-status">${escapeHTML(statusLabel(p.status))}</span>
+   </button>
+   ${state.editing?`<div style="display:flex;gap:5px;margin-top:4px">
+    <button class="tag" data-move="${escapeHTML(p.id)}" data-dir="-1" aria-label="Move ${escapeHTML(p.name)} earlier">←</button>
+    <button class="tag" data-move="${escapeHTML(p.id)}" data-dir="1" aria-label="Move ${escapeHTML(p.name)} later">→</button>
+   </div>`:""}
+  </div>`).join("");
+ $("pageDots").innerHTML=Array.from({length:pages},(_,i)=>`<button class="page-dot ${i===state.page?"active":""}" data-page="${i}" aria-label="${t("page")} ${i+1}" title="${t("page")} ${i+1}" ${i===state.page?'aria-current="page"':""}></button>`).join("");
+ $("pageLabel").textContent=`${t("page")} ${state.page+1} / ${pages}`;
+ $("prevPage").disabled=state.page===0;
+ $("nextPage").disabled=state.page===pages-1;
+ $("editHint").hidden=!state.editing;
+}
+function renderWidgets(){
+ const featured=state.projects.find(p=>p.featured)||orderedProjects()[0];
+ if(featured){
+  $("featuredTitle").textContent=projectName(featured);
+  $("featuredCopy").textContent=projectDescription(featured);
+  $("featuredOpen").dataset.project=featured.id;
+ }
+ const counts=Object.fromEntries(allowedStatuses.map(s=>[s,state.projects.filter(p=>p.status===s).length]));
+ $("activityList").innerHTML=allowedStatuses.map(s=>`
+  <div class="activity"><span class="activity-dot" style="background:${s==="Live"?"var(--green)":s==="In Development"?"var(--blue)":"var(--purple)"}"></span><span class="activity-name">${statusLabel(s)}</span><span class="tag">${counts[s]}</span></div>`).join("");
+}
+function renderLibrary(){
+ const q=$("searchInput").value.trim().toLowerCase();
+ const cat=$("categoryFilter").value,st=$("statusFilter").value;
+ const items=orderedProjects().filter(p=>{
+  const hay=[p.name,p.fa,p.description,p.faDescription,p.category,...p.technologies].join(" ").toLowerCase();
+  return (!q||hay.includes(q))&&(!cat||p.category===cat)&&(!st||p.status===st);
+ });
+ $("libraryGrid").innerHTML=items.map(p=>`
+ <article class="project-card glass">
+  ${projectIcon(p)}
+  <h3>${escapeHTML(projectName(p))}</h3>
+  <span class="tag">${escapeHTML(statusLabel(p.status))}</span>
+  <p>${escapeHTML(projectDescription(p))}</p>
+  <div class="card-bottom"><span class="subtle">${escapeHTML(p.category)}</span><button class="text-btn" data-open="${escapeHTML(p.id)}">${t("details")}</button></div>
+ </article>`).join("");
+ $("libraryEmpty").hidden=items.length>0;
+ const cats=[...new Set(state.projects.map(p=>p.category))].sort();
+ const current=$("categoryFilter").value;
+ $("categoryFilter").innerHTML=`<option value="">${t("allCategories")}</option>`+cats.map(c=>`<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join("");
+ if(cats.includes(current))$("categoryFilter").value=current;
+}
+function renderDetail(id){
+ const p=state.projects.find(x=>x.id===id);if(!p)return;
+ state.selectedId=id;
+ $("detailHeading").textContent=projectName(p);
+ const url=validUrl(p.url),repo=validUrl(p.repo);
+ $("detailPanel").innerHTML=`
+  <div class="detail-top">${projectIcon(p)}<div><h2>${escapeHTML(projectName(p))}</h2><p>${escapeHTML(p.category)} · ${escapeHTML(statusLabel(p.status))}</p></div></div>
+  <div class="detail-body">${escapeHTML(projectDescription(p))}</div>
+  <div class="chips">${(p.technologies.length?p.technologies:[t("noTech")]).map(x=>`<span class="chip">${escapeHTML(x)}</span>`).join("")}</div>
+  <div class="widget-label">${t("status")}</div><p class="detail-body">${escapeHTML(statusLabel(p.status))}</p>
+  ${p.screenshots.length?`<div class="widget-label">Screenshots</div><div class="widget-grid" style="margin-top:12px">${p.screenshots.map((src,i)=>`<a href="${escapeHTML(validUrl(src))}" target="_blank" rel="noopener noreferrer" class="widget glass" style="display:block;overflow-wrap:anywhere">Screenshot ${i+1} ↗</a>`).join("")}</div>`:""}
+  <div class="hero-actions">
+   ${url?`<a class="btn primary" href="${escapeHTML(url)}" target="_blank" rel="noopener noreferrer">${t("openProject")}</a>`:`<span class="tag">${t("noUrl")}</span>`}
+   ${repo?`<a class="btn" href="${escapeHTML(repo)}" target="_blank" rel="noopener noreferrer">${t("repository")} ↗</a>`:""}
+   <button class="btn" data-nav="contact">${t("contactMe")}</button>
+  </div>`;
+}
+const viewIds={home:"homeScreen",projects:"projectsScreen",detail:"detailScreen",services:"servicesScreen",about:"aboutScreen",contact:"contactScreen",settings:"settingsScreen"};
+function navigate(view){
+ if(!viewIds[view])return;
+ if(state.view==="detail"&&view!=="detail")state.previousView="projects";
+ state.view=view;
+ Object.entries(viewIds).forEach(([key,id])=>$(id).hidden=key!==view);
+ document.querySelectorAll(".dock-item").forEach(b=>{
+  const active=b.dataset.nav===view||(view==="detail"&&b.dataset.nav==="projects");
+  b.classList.toggle("active",active);
+  if(active)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current");
+ });
+ if(view==="projects")renderLibrary();
+ if(view==="home")renderApps();
+ window.scrollTo({top:0,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+}
+function openProject(id){
+ const p=state.projects.find(x=>x.id===id);if(!p)return;
+ state.previousView=state.view==="home"?"home":"projects";
+ renderDetail(id);navigate("detail");
+}
+function moveProject(id,dir){
+ const list=orderedProjects(),i=list.findIndex(p=>p.id===id),j=i+dir;
+ if(i<0||j<0||j>=list.length)return;
+ [list[i],list[j]]=[list[j],list[i]];
+ state.order=list.map(p=>p.id);save();renderApps();
+ showToast(t("editSaved"));
+}
+function renderServices(){
+ const services=[
+  ["◈","Website Development","Design and build responsive websites with clear navigation and thoughtful visual details.","طراحی و توسعه وب‌سایت‌های واکنش‌گرا با ساختاری دقیق."],
+  ["⌘","Custom Web Tools","Purpose-built browser tools designed around a real workflow or problem.","ساخت ابزارهای وب متناسب با نیازهای واقعی."],
+  ["✎","Live Editing","Iterative interface improvements and content updates when access is provided.","بهبود تدریجی رابط کاربری و به‌روزرسانی محتوا."],
+  ["↗","Site Management","Technical improvements and maintenance planning, subject to access and agreed scope.","بهبودهای فنی و برنامه‌ریزی نگهداری با توافق قبلی."]
+ ];
+ $("serviceCards").innerHTML=services.map(s=>`<article class="service-card glass"><div class="service-symbol">${s[0]}</div><h3>${state.lang==="fa"?s[1]:s[1]}</h3><p>${state.lang==="fa"?s[3]:s[2]}</p></article>`).join("");
+}
+function renderAll(){
+ setTheme();renderApps();renderWidgets();renderLibrary();renderServices();
+ if(state.selectedId&&state.view==="detail")renderDetail(state.selectedId);
+}
+function goBack(){
+ if(state.view==="detail")navigate(state.previousView==="home"?"home":"projects");
+ else navigate("home");
+}
+
+function downloadBlob(blob,filename){
+ const url=URL.createObjectURL(blob),a=document.createElement("a");
+ a.href=url;a.download=filename;document.body.appendChild(a);a.click();a.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1500);
+}
+function exportCatalog(){
+ return {app:"NONONICK OS",version:2,exportedAt:new Date().toISOString(),lang:state.lang,theme:state.theme,projects:state.projects,order:state.order};
+}
+function exportJsonFile(){downloadBlob(new Blob([JSON.stringify(exportCatalog(),null,2)],{type:"application/json;charset=utf-8"}),"nononick-projects.json");showToast("JSON exported.");}
+function exportTxtFile(){
+ const lines=["NONONICK OS — PROJECT CATALOG","Exported: "+new Date().toISOString(),"",...orderedProjects().flatMap((p,i)=>[
+ `${i+1}. ${projectName(p)}`,`Status: ${p.status}`,`Category: ${p.category}`,`Description: ${projectDescription(p)}`,
+ `Technologies: ${(p.technologies||[]).join(", ")||"—"}`,`Project URL: ${p.url||"—"}`,`Repository: ${p.repo||"—"}`,""
+ ])];
+ downloadBlob(new Blob([lines.join("\r\n")],{type:"text/plain;charset=utf-8"}),"nononick-projects.txt");showToast("TXT exported.");
+}
+function exportHtmlFile(){
+ const html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+ downloadBlob(new Blob([html],{type:"text/html;charset=utf-8"}),"nononick-os.html");showToast("HTML exported.");
+}
+function exportPdfFile(){
+ const oldTitle=document.title;document.title="NONONICK-project-catalog";
+ const w=window.open("","_blank");
+ if(!w){showToast("Allow pop-ups to print or save as PDF.");return;}
+ const esc=escapeHTML;
+ w.document.write(`<!doctype html><html lang="${state.lang}" dir="${state.lang==="fa"?"rtl":"ltr"}"><meta charset="utf-8"><title>NONONICK project catalog</title><style>body{font:14px Arial,sans-serif;padding:28px;color:#171923}h1{font-size:24px}article{border-bottom:1px solid #ddd;padding:12px 0;break-inside:avoid}small{color:#555}p{line-height:1.6}@media print{button{display:none}}</style><h1>NONONICK OS — Project Catalog</h1><p>Exported ${new Date().toLocaleString()}</p>${orderedProjects().map(p=>`<article><h2>${esc(projectName(p))}</h2><small>${esc(p.category)} · ${esc(p.status)}</small><p>${esc(projectDescription(p))}</p><p>Technologies: ${esc((p.technologies||[]).join(", "))}</p><p>URL: ${esc(p.url||"—")} · Repository: ${esc(p.repo||"—")}</p></article>`).join("")}<script>setTimeout(()=>window.print(),350)<\/script></html>`);
+ w.document.close();showToast("Use the print dialog to save as PDF.");
+}
+// Minimal ZIP writer (STORE method, no external dependency).
+function makeZip(files){
+ const enc=new TextEncoder(),chunks=[],central=[];let offset=0;
+ const crcTable=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xedb88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+ const crc32=b=>{let c=0xffffffff;for(const x of b)c=crcTable[(c^x)&255]^(c>>>8);return (c^0xffffffff)>>>0};
+ const u16=n=>[n&255,(n>>>8)&255],u32=n=>[n&255,(n>>>8)&255,(n>>>16)&255,(n>>>24)&255];
+ const cat=(...arrays)=>{const out=new Uint8Array(arrays.reduce((n,a)=>n+a.length,0));let p=0;for(const a of arrays){out.set(a,p);p+=a.length}return out};
+ for(const file of files){
+  const name=enc.encode(file.name),data=typeof file.data==="string"?enc.encode(file.data):file.data,crc=crc32(data);
+  const local=cat(new Uint8Array([0x50,0x4b,0x03,0x04]),new Uint8Array([...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0)]),name,data);
+  chunks.push(local);
+  const cent=cat(new Uint8Array([0x50,0x4b,0x01,0x02]),new Uint8Array([...u16(20),...u16(20),...u16(0),...u16(0),...u16(0),...u16(0),...u32(crc),...u32(data.length),...u32(data.length),...u16(name.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(offset)]),name);
+  central.push(cent);offset+=local.length;
+ }
+ const centralBytes=cat(...central),end=cat(new Uint8Array([0x50,0x4b,0x05,0x06]),new Uint8Array([...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(centralBytes.length),...u32(offset),...u16(0)]));
+ return new Blob([...chunks,centralBytes,end],{type:"application/zip"});
+}
+async function exportZipFile(){
+ const html="<!DOCTYPE html>\n"+document.documentElement.outerHTML;
+ const json=JSON.stringify(exportCatalog(),null,2);
+ const txt=["NONONICK OS — PROJECT CATALOG","Exported: "+new Date().toISOString(),"",...orderedProjects().flatMap((p,i)=>[`${i+1}. ${projectName(p)}`,`Status: ${p.status}`,`Category: ${p.category}`,`Description: ${projectDescription(p)}`,`Technologies: ${(p.technologies||[]).join(", ")}`,`URL: ${p.url||"—"}`,`Repository: ${p.repo||"—"}`,""])].join("\r\n");
+ const blob=makeZip([{name:"nononick-os.html",data:html},{name:"projects.json",data:json},{name:"projects.txt",data:txt},{name:"README.txt",data:"NONONICK OS export bundle. Open nononick-os.html in a modern browser. Data is stored locally in that browser."}]);
+ downloadBlob(blob,"nononick-export.zip");showToast("ZIP bundle exported.");
+}
+function setupEvents(){
+ document.addEventListener("click",e=>{
+  const target=e.target.closest("button,a");
+  if(!target)return;
+  if(target.dataset.nav){navigate(target.dataset.nav);return}
+  if(target.dataset.open){openProject(target.dataset.open);return}
+  if(target.dataset.project){openProject(target.dataset.project);return}
+  if(target.hasAttribute("data-back")){goBack();return}
+  if(target.dataset.page!==undefined){state.page=Number(target.dataset.page)||0;renderApps();return}
+  if(target.dataset.move){moveProject(target.dataset.move,Number(target.dataset.dir));return}
+ });
+ $("editBtn").addEventListener("click",()=>{
+  state.editing=!state.editing;$("editBtn").setAttribute("aria-pressed",String(state.editing));
+  $("editBtn").textContent=state.editing?t("done"):t("edit");renderApps();
+ });
+ $("prevPage").addEventListener("click",()=>{state.page=Math.max(0,state.page-1);renderApps()});
+ $("nextPage").addEventListener("click",()=>{state.page=Math.min(Math.ceil(state.projects.length/CONFIG.projectsPerPage)-1,state.page+1);renderApps()});
+ $("searchInput").addEventListener("input",renderLibrary);
+ $("categoryFilter").addEventListener("change",renderLibrary);
+ $("statusFilter").addEventListener("change",renderLibrary);
+ $("themeSwitch").addEventListener("click",()=>{state.theme=state.theme==="dark"?"light":"dark";save();setTheme()});
+ $("languageSwitch").addEventListener("click",()=>{state.lang=state.lang==="en"?"fa":"en";save();setLanguage();tick()});
+ $("island").addEventListener("click",()=>navigate("settings"));
+ $("featuredOpen").addEventListener("click",()=>openProject($("featuredOpen").dataset.project));
+ $("contactForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const form=e.currentTarget;
+  if(!form.reportValidity())return;
+  const data=new FormData(form);
+  const name=safeText(data.get("name")).trim();
+  const email=safeText(data.get("email")).trim();
+  const subject=safeText(data.get("subject")).trim();
+  const message=safeText(data.get("message")).trim();
+  if(!name||!validEmail(email)||!subject||message.length<10){showToast(t("contactError"));return}
+  if(!validEmail(state.contactEmail)){showToast(t("noEmail"));return}
+  const body=`Name: ${name}\nReply email: ${email}\n\n${message}`;
+  const href="mailto:"+encodeURIComponent(state.contactEmail)
+    +"?subject="+encodeURIComponent(subject||t("emailSubject"))
+    +"&body="+encodeURIComponent(body);
+  if(href.length>18000){showToast("Message is too long to prepare safely.");return}
+  window.location.href=href;
+  showToast(t("contactReady"));
+ });
+ $("emailEdit").addEventListener("click",()=>{
+  const answer=window.prompt(t("emailPrompt"),state.contactEmail);
+  if(answer===null)return;
+  const email=answer.trim();
+  if(email&&!validEmail(email)){showToast(t("invalidEmail"));return}
+  state.contactEmail=email;save();showToast(t("saved"));
+ });
+ $("exportBtn").addEventListener("click",exportJsonFile);
+ $("exportHtmlBtn").addEventListener("click",exportHtmlFile);
+ $("exportTxtBtn").addEventListener("click",exportTxtFile);
+ $("exportPdfBtn").addEventListener("click",exportPdfFile);
+ $("exportZipBtn").addEventListener("click",exportZipFile);
+ $("importBtn").addEventListener("click",()=>$("importFile").click());
+ $("importFile").addEventListener("change",async e=>{
+  const file=e.target.files&&e.target.files[0];if(!file)return;
+  try{
+   if(file.size>1024*1024)throw Error("File too large");
+   const obj=JSON.parse(await file.text());
+   if(!obj||!Array.isArray(obj.projects)||obj.projects.length>200||!obj.projects.every(validProject))throw Error("Invalid schema");
+   const ids=obj.projects.map(p=>p.id);
+   if(new Set(ids).size!==ids.length)throw Error("Duplicate IDs");
+   state.projects=obj.projects.map(p=>({...p,url:validUrl(p.url),repo:validUrl(p.repo)}));
+   state.order=Array.isArray(obj.order)?obj.order.filter(id=>ids.includes(id)):ids;
+   state.projects.forEach(p=>{if(!state.order.includes(p.id))state.order.push(p.id)});
+   state.page=0;save();renderAll();showToast(t("importSuccess"));
+  }catch{showToast(t("invalidImport"))}
+  e.target.value="";
+ });
+ $("resetBtn").addEventListener("click",()=>{
+  if(!window.confirm(t("resetConfirm")))return;
+  state.lang="en";state.theme="dark";state.page=0;state.editing=false;
+  state.order=state.projects.map(p=>p.id);
+  save();setLanguage();navigate("home");showToast(t("saved"));
+ });
+ const grid=$("appGrid");
+ grid.addEventListener("dragstart",e=>{
+  const app=e.target.closest(".app");if(!state.editing||!app)return;
+  dragId=app.dataset.id;e.dataTransfer.setData("text/plain",dragId);e.dataTransfer.effectAllowed="move";
+  app.classList.add("dragging");
+ });
+ grid.addEventListener("dragover",e=>{
+  if(!state.editing)return;
+  const app=e.target.closest(".app");if(!app||app.dataset.id===dragId)return;
+  e.preventDefault();grid.querySelectorAll(".drag-over").forEach(x=>x.classList.remove("drag-over"));app.classList.add("drag-over");
+ });
+ grid.addEventListener("drop",e=>{
+  if(!state.editing)return;
+  e.preventDefault();const target=e.target.closest(".app");const from=dragId||e.dataTransfer.getData("text/plain");
+  if(!target||!from||from===target.dataset.id)return;
+  const list=orderedProjects(),a=list.findIndex(p=>p.id===from),b=list.findIndex(p=>p.id===target.dataset.id);
+  if(a<0||b<0)return;
+  const [item]=list.splice(a,1);list.splice(b,0,item);
+  state.order=list.map(p=>p.id);save();renderApps();showToast(t("editSaved"));
+ });
+ grid.addEventListener("dragend",()=>{
+  dragId=null;grid.querySelectorAll(".dragging,.drag-over").forEach(x=>x.classList.remove("dragging","drag-over"));
+ });
+ // Swipe changes pages only when a horizontal gesture clearly dominates vertical movement.
+ grid.addEventListener("touchstart",e=>{
+  if(!e.changedTouches.length)return;
+  const p=e.changedTouches[0];touchStart={x:p.clientX,y:p.clientY};
+ },{passive:true});
+ grid.addEventListener("touchend",e=>{
+  if(!touchStart||!e.changedTouches.length)return;
+  const p=e.changedTouches[0],dx=p.clientX-touchStart.x,dy=p.clientY-touchStart.y;
+  touchStart=null;
+  if(Math.abs(dx)>65&&Math.abs(dx)>Math.abs(dy)*1.4){
+   const pages=Math.max(1,Math.ceil(state.projects.length/CONFIG.projectsPerPage));
+   state.page=Math.max(0,Math.min(pages-1,state.page+(dx<0?1:-1)));renderApps();
+  }
+ },{passive:true});
+ document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+   if(state.view==="detail")goBack();
+   else if(state.view!=="home")navigate("home");
+  }
+  if(state.view==="home"&&state.editing&&["ArrowLeft","ArrowRight"].includes(e.key)){
+   const app=e.target.closest(".app");
+   if(app){e.preventDefault();moveProject(app.dataset.id,e.key==="ArrowLeft"?-1:1)}
+  }
+ });
+}
+function init(){
+ load();setupEvents();setLanguage();tick();setInterval(tick,15000);
+ $("motionValue").textContent=matchMedia("(prefers-reduced-motion: reduce)").matches?"Reduced motion":"System preference";
+ navigate("home");
+}
+init();
+</script>
+</body>
+</html>
